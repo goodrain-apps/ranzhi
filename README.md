@@ -30,7 +30,7 @@
 
 **部署然之**
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy00.png" width="100%" height="100%"></img>
+<img src="http://www.goodrain.com/images/apps/ranzhi/deploy00.png" width="70%" height="70%"></img>
 
 
 **注意：** 由于然之协同系统需要MySQL数据库，因此部署时会提示用户新建MySQL应用或者选择一个已有的MySQL应用。
@@ -40,21 +40,21 @@
 
 ### 欢迎页面
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy01.png" width="100%" height="100%"></img>
+<img src="http://www.goodrain.com/images/apps/ranzhi/deploy01.png" width="70%" height="70%"></img>
 
 
 ### 授权协议
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy02.png" width="100%" height="100%"></img>
+<img src="http://www.goodrain.com/images/apps/ranzhi/deploy02.png" width="70%" height="70%"></img>
 
 ### 系统检查
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy03.png" width="100%" height="100%"></img>
+<img src="http://www.goodrain.com/images/apps/ranzhi/deploy03.png" width="70%" height="70%"></img>
 
 ### 生产配置文件
 > 请根据关联的MySQL实际情况填写连接信息，可以在MySQL首页，或者然之的依赖页面查看到MySQL的连接信息。
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy04.png" width="100%" height="100%"></img>
+<img src="http://www.goodrain.com/images/apps/ranzhi/deploy04.png" width="70%" height="70%"></img>
 
 ### 保存配置文件
 
