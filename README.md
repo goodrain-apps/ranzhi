@@ -1,6 +1,6 @@
 # 然之协同系统(ranzhi)
 
->好雨云 **一键部署** 版本，与官方同步更新
+> 支持 好雨云 **一键部署** ，源码与官方同步更新
 
 
 <img src="http://www.goodrain.com/images/apps/ranzhi/logo.png" width="145px" height="50px"></img>
@@ -18,8 +18,7 @@
     - [欢迎页面](#欢迎页面)
     - [授权协议](#授权协议)
     - [系统检查](#系统检查)
-    - [生成配置文件](#生成配置文件)
-    - [保存配置文件](#保存配置文件)
+    - [配置数据库](#配置数据库)
     - [设置帐号](#设置帐号)
     - [安装完成](#安装完成)
     - [登录](#登录)
@@ -54,14 +53,11 @@
 
 <img src="http://www.goodrain.com/images/apps/ranzhi/deploy03.png" width="70%" height="70%"></img>
 
-### 生成配置文件
+### 配置数据库
 > 请根据关联的MySQL实际情况填写连接信息，可以在MySQL首页，或者然之的依赖页面查看到MySQL的连接信息。
 
 <img src="http://www.goodrain.com/images/apps/ranzhi/deploy04.png" width="70%" height="70%"></img>
 
-### 保存配置文件
-
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy_saveconfig.png" width="70%" height="70%"></img>
 
 ### 设置管理帐号
 
