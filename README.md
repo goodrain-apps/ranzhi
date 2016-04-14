@@ -1,6 +1,6 @@
 # 然之协同系统(ranzhi)
 
-<font color="#4078c0">好雨云 <font font-weight: bold>一键部署</font> 版本，与官方同步更新</font>
+<font color="#4078c0">好雨云 一键部署 版本，与官方同步更新</font>
 
 
 <img src="http://www.goodrain.com/images/apps/ranzhi/logo.png" width="145px" height="50px"></img>
