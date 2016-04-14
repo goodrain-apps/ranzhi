@@ -71,7 +71,7 @@
 
 ### 登录然之
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy06.png" width="60%" height="60%"></img>
+<img src="http://www.goodrain.com/images/apps/ranzhi/deploy06.png" width="50%" height="50%"></img>
 
 **然之系统截图**
 
