@@ -1,0 +1,14 @@
+$(function()
+{
+    $('input[name=integration]').click(function()
+    {
+        if($('#integration1').prop('checked'))
+        {
+            $('.integration').show();
+        }
+        else
+        {
+            $('.integration').hide();
+        }
+    });
+})

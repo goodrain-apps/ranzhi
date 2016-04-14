@@ -1,0 +1,9 @@
+.page-content {border-top: 1px solid #A30E21!important;}
+.progress{margin-bottom:0; border-radius: 0;}
+
+.block-task .dropdown .dropdown-menu{width: 50px; min-width: 50px; left: -12px;}
+.block-task .dropdown-menu > li > a {padding: 5px 12px;}
+.block-task .disabled {padding: 5px 12px;}
+.block-task .dropdown-menu a.disabled:hover {background: #808080;}
+
+.page-content.with-menu {margin-top: 23px;}
