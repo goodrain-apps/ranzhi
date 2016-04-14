@@ -8,10 +8,16 @@ UserCfg="${PermanentDir}/config/my.php"
 InstallFile="${AppDir}/www/sys/install.php"
 UpgradeFile="${AppDir}/www/sys/upgrade.php"
 
+
 # 在持久化存储中创建需要的目录
 for d in $Dirs
 do
   if [ ! -d ${PermanentDir}/${d} ] ;then
+  
+    if [ "$d" == "www/data" ];then
+      [ -d ${AppDir}/${d} ] && mkdir -pv ${PermanentDir}/www && mv ${AppDir}/${d} ${PermanentDir}/www
+    fi
+  
     [ -d ${AppDir}/${d} ] && mv ${AppDir}/${d} ${PermanentDir}/${d} || mkdir -pv ${PermanentDir}/${d}
   else
     mv ${AppDir}/${d} ${AppDir}/${d}.bak
