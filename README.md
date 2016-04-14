@@ -62,7 +62,7 @@
 
 ### 设置管理帐号
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy05.png" width="70%" height="70%"></img>
+<img src="http://www.goodrain.com/images/apps/ranzhi/deploy05.png" width="60%" height="60%"></img>
 
 ### 安装完成
 
