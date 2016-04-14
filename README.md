@@ -1,6 +1,6 @@
 # 然之协同系统(ranzhi)
 
-> 支持 好雨云 **一键部署** ，源码与官方同步更新
+> 适配 好雨云 **一键部署** ，源码与官方同步更新。感谢 [易软天创](http://www.cnezsoft.com/) 为我们带来如此优秀的开源软件！
 
 
 <img src="http://www.goodrain.com/images/apps/ranzhi/logo.png" width="145px" height="50px"></img>
