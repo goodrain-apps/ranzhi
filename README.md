@@ -58,11 +58,11 @@
 
 ### 保存配置文件
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy_saveconfig.png" width="100%" height="100%"></img>
+<img src="http://www.goodrain.com/images/apps/ranzhi/deploy_saveconfig.png" width="70%" height="70%"></img>
 
 ### 设置管理帐号
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy05.png" width="100%" height="100%"></img>
+<img src="http://www.goodrain.com/images/apps/ranzhi/deploy05.png" width="70%" height="70%"></img>
 
 ### 安装完成
 
@@ -74,6 +74,7 @@
 <img src="http://www.goodrain.com/images/apps/ranzhi/deploy06.png" width="60%" height="60%"></img>
 
 **然之系统截图**
+
 <img src="http://www.goodrain.com/images/apps/ranzhi/deploy07.png" width="60%" height="60%"></img>
 
 # 参与和讨论
