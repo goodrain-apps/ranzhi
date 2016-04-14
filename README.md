@@ -18,7 +18,7 @@
     - [欢迎页面](#欢迎页面)
     - [授权协议](#授权协议)
     - [系统检查](#系统检查)
-    - [生产配置文件](#生产配置文件)
+    - [生成配置文件](#生成配置文件)
     - [保存配置文件](#保存配置文件)
     - [设置帐号](#设置帐号)
     - [安装完成](#安装完成)
@@ -54,7 +54,7 @@
 
 <img src="http://www.goodrain.com/images/apps/ranzhi/deploy03.png" width="70%" height="70%"></img>
 
-### 生产配置文件
+### 生成配置文件
 > 请根据关联的MySQL实际情况填写连接信息，可以在MySQL首页，或者然之的依赖页面查看到MySQL的连接信息。
 
 <img src="http://www.goodrain.com/images/apps/ranzhi/deploy04.png" width="70%" height="70%"></img>
@@ -72,7 +72,7 @@
 > - 安装完成后平台会自动删除 `install.php` 和 `upgrade.php` 文件
 > - 如果需要重新初始化配置，只需要删除 `../config/my.php` 文件即可
 
-### 登录然之
+### 登录
 
 <img src="http://www.goodrain.com/images/apps/ranzhi/deploy06.png" width="50%" height="50%"></img>
 
