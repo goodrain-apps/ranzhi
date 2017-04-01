@@ -3,13 +3,13 @@
 > 适配 好雨云 **一键部署** ，源码与官方同步更新。感谢 [易软天创](http://www.cnezsoft.com/) 为我们带来如此优秀的开源软件！
 
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/logo.png" width="145px" height="50px"></img>
+<img src="http://ojfzu47n9.bkt.clouddn.com/20170401149101450598729.png" width="145px" height="50px"></img>
 
 然之协同系统由客户管理(crm)、日常办公(oa)、现金记账(cash)、团队分享(team)和应用导航(ips)五大模块组成，主要面向中小团队的企业内部管理。和市面上其他的产品相比，然之协同更专注于提供一体化、精简的解决方案。
 
 更多信息参见[官方介绍](https://www.ranzhico.com/book/ranzhi.html)
 
-<a href="#" target="_blank" ><img src="http://www.goodrain.com/images/deploy/button_160125.png" width="147" height="32"></img></a>
+<a href="#" target="_blank" ><img src="http://ojfzu47n9.bkt.clouddn.com/20170401149101455383121.png" width="147" height="32"></img></a>
 
 # 目录
 - [部署到好雨云](#部署到好雨云)
@@ -32,7 +32,7 @@
 
 **部署然之**
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy00.png" width="70%" height="70%"></img>
+<img src="http://ojfzu47n9.bkt.clouddn.com/20170401149101441582057.png" width="70%" height="70%"></img>
 
 
 **注意：** 由于然之协同系统需要MySQL数据库，因此部署时会提示用户新建MySQL应用或者选择一个已有的MySQL应用。
@@ -42,26 +42,26 @@
 
 ### 欢迎页面
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy01.png" width="70%" height="70%"></img>
+<img src="http://ojfzu47n9.bkt.clouddn.com/201704011491014427287.png" width="70%" height="70%"></img>
 
 
 ### 授权协议
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy02.png" width="70%" height="70%"></img>
+<img src="http://ojfzu47n9.bkt.clouddn.com/20170401149101443618407.png" width="70%" height="70%"></img>
 
 ### 系统检查
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy03.png" width="70%" height="70%"></img>
+<img src="http://ojfzu47n9.bkt.clouddn.com/20170401149101444620364.png" width="70%" height="70%"></img>
 
 ### 配置数据库
 > 请根据关联的MySQL实际情况填写连接信息，可以在MySQL首页，或者然之的依赖页面查看到MySQL的连接信息。
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy04.png" width="70%" height="70%"></img>
+<img src="http://ojfzu47n9.bkt.clouddn.com/20170401149101445971358.png" width="70%" height="70%"></img>
 
 
 ### 设置管理帐号
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy05.png" width="60%" height="60%"></img>
+<img src="http://ojfzu47n9.bkt.clouddn.com/20170401149101446998912.png" width="60%" height="60%"></img>
 
 ### 安装完成
 
@@ -70,11 +70,11 @@
 
 ### 登录
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy06.png" width="50%" height="50%"></img>
+<img src="http://ojfzu47n9.bkt.clouddn.com/2017040114910144785552.png" width="50%" height="50%"></img>
 
 **然之系统截图**
 
-<img src="http://www.goodrain.com/images/apps/ranzhi/deploy07.png" width="60%" height="60%"></img>
+<img src="http://ojfzu47n9.bkt.clouddn.com/2017040114910144868964.png" width="60%" height="60%"></img>
 
 # 参与和讨论
 如果您对本项目感兴趣或有疑问可以在好雨讨论社区[发表评论](http://t.goodrain.com/c/11-category)
