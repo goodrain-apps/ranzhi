@@ -1,0 +1,28 @@
+.outer{overflow:auto}
+.doclib-action li{list-style:none}
+.doc-content {overflow-x: scroll;}
+
+label.checkbox{float: left; margin-right: 10px; width: 100px;}
+input[type=checkbox]{margin-top: 1px;}
+.table-form td + td, .table-form th + th {padding-left: 20px;}
+
+.icon-2x{font-size: 40px;}
+
+.libs-group-heading {color: #808080; border-bottom:1px solid #ddd; padding:8px;}
+.libs-group-heading a{overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-decoration: none;}
+.libs-group{padding:10px; height:84px;}
+.lib {float: left; display: block; width:80px; padding: 5px; margin:0px 3px; text-align: center; color: #333; overflow: hidden; text-overflow: ellipsis;}
+.lib .file-icon{margin-bottom:5px;}
+.lib .lib-name{overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+.lib:hover, .lib:focus, .lib:active {border-color: #2e6dad; background-color: #EBF2F9; color: #2e6dad; text-decoration:none;}
+.w-lib-p100{width:100%;}
+.w-lib-p50{width:45%;}
+.w-lib-p33{width:30%;}
+
+#menu .nav > li > a{display:inline-block;}
+#navBarActions {position:absolute; right: 100px; top: 4px; z-index:10000;}
+
+.panel-body > form {max-width: 1200px;}
+
+#libList .lib .icon-move {display: none; position: relative; top: -20px; right: -25px;}
+#libList .lib:hover .icon-move {display: inline-block;}

@@ -1,0 +1,6 @@
+a.groupname:hover {text-decoration: none;}
+.member{float: right; position: relative; top: -8px; right: -8px;color: #ffffff; background-color: #38873c;}
+th.head {padding: 0;}
+div.out {transform:rotate(15deg); transform-origin: left top; border-top: 1px solid #ddd;border-width: 1px;}
+span.group {display: block; margin-left: 50px;}
+span.user  {display: block;}

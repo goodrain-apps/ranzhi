@@ -1,7 +1,0 @@
-.outer{overflow:auto}
-.doclib-action li{list-style:none}
-.doc-content {overflow-x: scroll;}
-
-label.checkbox{float: left; margin-right: 10px; width: 100px;}
-input[type=checkbox]{margin-top: 1px;}
-.table-form td + td, .table-form th + th {padding-left: 20px;}
