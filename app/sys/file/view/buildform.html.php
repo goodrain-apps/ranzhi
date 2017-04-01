@@ -2,11 +2,11 @@
 /**
  * The buildform view file of file module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     file 
- * @version     $Id: buildform.html.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: buildform.html.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -18,6 +18,7 @@ table.fileBox td {padding: 0!important}
 .file-wrapper.form-control {border-right: 0; border-radius: 0;}
 .file-name .form-control{border-radius: 0;}
 </style>
+<?php if(commonModel::hasPriv('file', 'upload')):?>
 <?php if(!$writeable):?>
 <h5 class='text-danger text-left'> <?php echo $this->lang->file->errorUnwritable;?> </h5>
 <?php else:?>
@@ -37,8 +38,8 @@ EOT;
   for($i = 1; $i <= $fileCount; $i ++) echo str_replace('$i', $i, $fileRow);
   printf($lang->file->sizeLimit, $this->config->file->maxSize / 1024 / 1024);
 ?>
-
 </div>
+<?php endif;?>
 <?php endif;?>
 
 <script language='javascript'>

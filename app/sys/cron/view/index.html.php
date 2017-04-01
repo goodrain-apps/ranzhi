@@ -2,7 +2,7 @@
 /**
  * The index view file of cron module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     cron
@@ -27,7 +27,7 @@
         <th class='w-60px'><?php echo $lang->cron->dow?></th>
         <th><?php echo $lang->cron->command?></th>
         <th class='w-130px'><?php echo $lang->cron->remark?></th>
-        <th class='w-120px'><?php echo $lang->cron->lastTime?></th>
+        <th class='w-130px'><?php echo $lang->cron->lastTime?></th>
         <th class='w-60px'><?php echo $lang->cron->status?></th>
         <th class='w-120px'><?php echo $lang->actions;?></th>
       </tr>

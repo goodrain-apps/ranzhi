@@ -2,7 +2,7 @@
 /**
  * The create view file of refund module of Ranzhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     refund
@@ -55,14 +55,14 @@
             <table class='table table-detail'>
             <?php $key = 0;?>
             <?php foreach($refund->detail as $d):?>
-              <tr class='text-center'>
+              <tr>
                 <?php echo html::hidden('idList[]', $d->id)?>
                 <td class='w-100px'><?php echo html::input("dateList[$key]", $d->date, "class='form-control form-date' placeholder='{$lang->refund->date}'")?></td>
                 <td class='w-100px'><?php echo html::select("categoryList[$key]", $categories, $d->category, "class='form-control chosen' placeholder='{$lang->refund->category}'")?></td>
                 <td class='w-100px'><?php echo html::input("moneyList[$key]", $d->money, "class='form-control' placeholder='{$lang->refund->money}'")?></td>
                 <td class='w-200px'><?php echo html::select("relatedList[$key][]", $users, $d->related, "class='form-control chosen' multiple data-placeholder='{$lang->refund->related}'")?></td>
                 <td><?php echo html::textarea("descList[$key]", $d->desc, "class='form-control' style='height:32px;' placeholder='{$lang->refund->desc}'")?></td>
-                <td class='w-100px'><i class='btn btn-mini icon-plus'></i>&nbsp;&nbsp;<i class='btn btn-mini icon-remove'></i></td>
+                <td class='w-70px'><i class='btn btn-mini icon-plus'></i>&nbsp;&nbsp;<i class='btn btn-mini icon-remove'></i></td>
               </tr>
             <?php $key++;?>
             <?php endforeach;?>
@@ -82,10 +82,12 @@
           <th><?php echo $lang->refund->desc?></th>
           <td colspan='2'><?php echo html::textarea('desc', $refund->desc, "class='form-control'")?></td>
         </tr>
+        <?php if(commonModel::hasPriv('file', 'uplaod')):?>
         <tr>
           <th><?php echo $lang->refund->files;?></th>
           <td colspan='2'><?php echo $this->fetch('file', 'buildForm')?></td>
         </tr>
+        <?php endif;?>
         <tr><th></th><td colspan='2'><?php echo html::submitButton() . '&nbsp;&nbsp;' . html::backButton();?></td></tr>
       </table>
     </div>

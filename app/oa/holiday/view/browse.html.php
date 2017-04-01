@@ -2,7 +2,7 @@
 /**
  * The browse view file of holiday module of Ranzhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     holiday
@@ -35,6 +35,7 @@
           <tr class='text-center'>
             <th class='w-150px'><?php echo $lang->holiday->name;?></th>
             <th class='w-200px'><?php echo $lang->holiday->holiday;?></th>
+            <th class='w-80px'><?php echo $lang->holiday->type;?></th>
             <th><?php echo $lang->holiday->desc;?></th>
             <th class='w-100px'><?php echo $lang->actions;?></th>
           </tr>
@@ -43,10 +44,11 @@
         <tr>
           <td><?php echo $holiday->name;?></td>
           <td><?php echo $holiday->begin . ' ~ ' . $holiday->end;?></td>
+          <td><?php echo zget($lang->holiday->typeList, $holiday->type);?></td>
           <td><?php echo $holiday->desc;?></td>
           <td>
-            <?php echo html::a($this->createLink('oa.holiday', 'edit', "id=$holiday->id"), $lang->edit, "data-toggle='modal'");?>
-            <?php echo html::a($this->createLink('oa.holiday', 'delete', "id=$holiday->id"), $lang->delete, "class='deleter'");?>
+            <?php commonModel::printLink('oa.holiday', 'edit', "id=$holiday->id", $lang->edit, "data-toggle='modal'");?>
+            <?php commonModel::printLink('oa.holiday', 'delete', "id=$holiday->id", $lang->delete, "class='deleter'");?>
           </td>
         </tr>
         <?php endforeach;?>

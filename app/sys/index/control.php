@@ -2,11 +2,11 @@
 /**
  * The control file of index module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     index 
- * @version     $Id: control.php 3610 2016-02-15 07:17:08Z daitingting $
+ * @version     $Id: control.php 4205 2016-10-24 08:19:13Z liugang $
  * @link        http://www.ranzhico.com
  */
 class index extends control
@@ -30,8 +30,8 @@ class index extends control
      */
     public function index()
     {
-        $entries    = $this->loadModel('entry')->getEntries();
         $allEntries = '';
+        $entries    = $this->loadModel('entry')->getEntries();
 
         foreach($entries as $entry)
         {
@@ -62,7 +62,8 @@ class index extends control
                 display:  '$display',
                 abbr:     '$entry->abbr',
                 order:    '$entry->order',
-                sys:      '$entry->buildin'
+                sys:      '$entry->buildin',
+                category: '$entry->category'
             });\n";
         }
 
@@ -123,7 +124,7 @@ class index extends control
         {
             $signButtons .= "<li>" . html::a('javascript:void(0)', $this->lang->signIn, "class='sign signin'") . "</li>";
         }
-        if($this->config->attend->mustSignOut == 'yes' and time() > strtotime(date("Y-m-d") . " " . $this->config->attend->signOutLimit . "-4 hour")) 
+        if($this->config->attend->mustSignOut == 'yes' or time() > strtotime(date("Y-m-d") . " " . $this->config->attend->signOutLimit . "-4 hour")) 
         {
             $signButtons .= "<li>" . html::a('javascript:void(0)', $this->lang->signOut, "class='sign signout'") . "</li>";
         }

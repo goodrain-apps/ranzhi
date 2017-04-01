@@ -2,11 +2,11 @@
 /**
  * The control file of company module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     company 
- * @version     $Id: control.php 3385 2015-12-18 08:02:09Z liugang $
+ * @version     $Id: control.php 4169 2016-10-19 08:57:15Z liugang $
  * @link        http://www.ranzhico.com
  */
 class company extends control
@@ -35,7 +35,7 @@ class company extends control
         if(!empty($_POST))
         {
             $now = helper::now();
-            $company = fixer::input('post')->stripTags('content', $this->config->allowedTags->admin)->get();
+            $company = fixer::input('post')->stripTags('content', $this->config->allowedTags)->get();
             $company = $this->loadModel('file')->processEditor($company, $this->config->company->editor->setbasic['id']);
 
             $result = $this->loadModel('setting')->setItems('system.sys.common.company', $company);

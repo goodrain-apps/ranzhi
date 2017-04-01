@@ -27,7 +27,7 @@ $(function()
                     return;
                 }
 
-                if(toBoard.data('group') != 'status' && fromBoard.data('id') != toBoard.data('id'))
+                if(toBoard.data('group') != 'status' && toBoard.data('group') != 'createdBy' && fromBoard.data('id') != toBoard.data('id'))
                 {
                     var change = 
                     {

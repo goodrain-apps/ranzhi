@@ -2,7 +2,7 @@
 /**
  * The view file for the method of view of refund module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     customer 
@@ -46,7 +46,7 @@
             <td><?php echo $d->id?></td>
             <td><?php echo zget($currencySign, $d->currency) . $d->money?></td>
             <td><?php echo $d->date?></td>
-            <td><?php echo zget($categories, $d->category)?></td>
+            <td><?php echo zget($categories, $d->category, ' ')?></td>
             <td><?php echo $related?></td>
             <td><span data-toggle='tooltip' data-original-title="<?php echo $d->reason?>"><?php echo zget($lang->refund->statusList, $d->status)?></span></td>
             <td><?php echo $d->desc?></td>
@@ -59,7 +59,7 @@
     <?php echo $this->fetch('action', 'history', "objectType=refund&objectID={$refund->id}");?>
     <div class='page-actions'>
       <?php
-      if($refund->status == 'wait')
+      if($refund->status == 'wait' or $refund->status == 'draft')
       {
           echo "<div class='btn-group'>";
           commonModel::printLink('refund', 'edit', "refundID=$refund->id", $lang->edit, "class='btn btn-default'");
@@ -70,6 +70,8 @@
       {
           commonModel::printLink('refund', 'reimburse', "refundID={$refund->id}", $lang->refund->common, "class='btn btn-default refund'");
       }
+
+      if($mode == 'review' and ($refund->status == 'wait' or $refund->status == 'doing')) commonModel::printLink('refund', 'review', "refundID={$refund->id}", $lang->refund->review, "class='btn btn-default' data-toggle='modal'");
 
       $browseLink = $this->session->refundList ? $this->session->refundList : inlink('personal');
       commonModel::printRPN($browseLink, $preAndNext);
@@ -83,7 +85,7 @@
         <table class='table table-info'>
           <tr>
             <th class='w-80px'><?php echo $lang->refund->category;?></th>
-            <td><?php echo zget($categories, $refund->category)?></td>
+            <td><?php echo zget($categories, $refund->category, ' ')?></td>
           </tr>
           <tr>
             <th><?php echo $lang->refund->money;?></th>

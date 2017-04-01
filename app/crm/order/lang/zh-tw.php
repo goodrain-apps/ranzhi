@@ -2,7 +2,7 @@
 /**
  * The order module zh-tw file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Xiying Guan <guanxiying@xirangit.com>
  * @package     order
@@ -21,6 +21,8 @@ $lang->order->team           = '團隊';
 $lang->order->currency       = '貨幣類型';
 $lang->order->plan           = '計劃金額';
 $lang->order->real           = '成交金額';
+$lang->order->planShort      = '計劃';
+$lang->order->realShort      = '成交';
 $lang->order->amount         = '金額';
 $lang->order->status         = '狀態';
 $lang->order->createdBy      = '由誰創建';

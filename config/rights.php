@@ -15,6 +15,7 @@ $config->rights = new stdclass();
 $config->rights->guest = array();
 
 $config->rights->member['index']['index']           = 'index';
+$config->rights->member['admin']['index']           = 'index';
 $config->rights->member['dashboard']['index']       = 'index';
 $config->rights->member['dashboard']['todo']        = 'todo';
 $config->rights->member['dashboard']['task']        = 'task';
@@ -45,7 +46,10 @@ $config->rights->member['misc']['qrcode']            = 'qrcode';
 $config->rights->member['misc']['about']             = 'about';
 $config->rights->member['contract']['getorder']      = 'getorder';
 $config->rights->member['contract']['getoptionmenu'] = 'getoptionmenu';
+$config->rights->member['customer']['index']         = 'index';
 $config->rights->member['customer']['getoptionmenu'] = 'getoptionmenu';
+$config->rights->member['provider']['index']         = 'index';
+$config->rights->member['product']['index']          = 'index';
 $config->rights->member['contact']['getoptionmenu']  = 'getoptionmenu';
 $config->rights->member['contact']['block']          = 'block';
 $config->rights->member['order']['sendmail']         = 'sendmail';
@@ -55,6 +59,7 @@ $config->rights->member['tree']['redirect']          = 'redirect';
 $config->rights->member['project']['index']      = 'index';
 $config->rights->member['project']['create']     = 'create';
 $config->rights->member['project']['edit']       = 'edit';
+$config->rights->member['project']['view']       = 'view';
 $config->rights->member['project']['member']     = 'member';
 $config->rights->member['project']['finish']     = 'finish';
 $config->rights->member['project']['activate']   = 'activate';
@@ -81,18 +86,20 @@ $config->rights->member['task']['export']         = 'export';
 $config->rights->member['task']['delete']         = 'delete';
 $config->rights->member['task']['recordestimate'] = 'recordestimate';
 
-$config->rights->member['todo']['calendar']    = 'calendar';
-$config->rights->member['todo']['create']      = 'create';
-$config->rights->member['todo']['batchcreate'] = 'batchcreate';
-$config->rights->member['todo']['edit']        = 'edit';
-$config->rights->member['todo']['browse']      = 'browse';
-$config->rights->member['todo']['view']        = 'view';
-$config->rights->member['todo']['delete']      = 'delete';
-$config->rights->member['todo']['finish']      = 'finish';
-$config->rights->member['todo']['assignto']    = 'assignto';
-$config->rights->member['todo']['close']       = 'close';
-$config->rights->member['todo']['batchclose']  = 'batchclose';
-$config->rights->member['todo']['activate']    = 'activate';
+$config->rights->member['todo']['calendar']     = 'calendar';
+$config->rights->member['todo']['create']       = 'create';
+$config->rights->member['todo']['batchcreate']  = 'batchcreate';
+$config->rights->member['todo']['edit']         = 'edit';
+$config->rights->member['todo']['batchedit']    = 'batchedit';
+$config->rights->member['todo']['browse']       = 'browse';
+$config->rights->member['todo']['view']         = 'view';
+$config->rights->member['todo']['delete']       = 'delete';
+$config->rights->member['todo']['finish']       = 'finish';
+$config->rights->member['todo']['batchfinish']  = 'batchfinish';
+$config->rights->member['todo']['assignto']     = 'assignto';
+$config->rights->member['todo']['close']        = 'close';
+$config->rights->member['todo']['batchclose']   = 'batchclose';
+$config->rights->member['todo']['activate']     = 'activate';
 $config->rights->member['todo']['import2today'] = 'import2today';
 
 $config->rights->member['reply']['post']          = 'post';
@@ -114,17 +121,17 @@ $config->rights->member['file']['buildlist']      = 'buildlist';
 $config->rights->member['file']['printfiles']     = 'printfiles';
 $config->rights->member['file']['ajaxupload']     = 'ajaxupload';
 $config->rights->member['file']['browse']         = 'browse';
-$config->rights->member['file']['edit']           = 'edit';
-$config->rights->member['file']['upload']         = 'upload';
-$config->rights->member['file']['download']       = 'download';
 $config->rights->member['file']['senddownheader'] = 'senddownheader';
-$config->rights->member['file']['delete']         = 'delete';
 $config->rights->member['file']['ajaxpasteimage'] = 'ajaxpasteimage';
 $config->rights->member['file']['filemanager']    = 'filemanager';
 $config->rights->member['file']['sort']           = 'sort';
 
-$config->rights->member['attend']['personal'] = 'personal';
-$config->rights->member['attend']['edit']     = 'edit';
+$config->rights->member['announce']['viewreaders'] = 'viewreaders';
+
+$config->rights->member['attend']['personal']         = 'personal';
+$config->rights->member['attend']['edit']             = 'edit';
+$config->rights->member['attend']['ajaxgetdeptusers'] = 'ajaxgetdeptusers';
+$config->rights->member['attend']['read']             = 'read';
 
 $config->rights->member['holiday']['browse']  = 'browse';
 
@@ -132,18 +139,47 @@ $config->rights->member['leave']['personal']     = 'personal';
 $config->rights->member['leave']['create']       = 'create';
 $config->rights->member['leave']['edit']         = 'edit';
 $config->rights->member['leave']['delete']       = 'delete';
+$config->rights->member['leave']['view']         = 'view';
 $config->rights->member['leave']['switchstatus'] = 'switchstatus';
+$config->rights->member['leave']['back']         = 'back';
+
+$config->rights->member['makeup']['personal']     = 'personal';
+$config->rights->member['makeup']['create']       = 'create';
+$config->rights->member['makeup']['edit']         = 'edit';
+$config->rights->member['makeup']['view']         = 'view';
+$config->rights->member['makeup']['delete']       = 'delete';
+$config->rights->member['makeup']['switchstatus'] = 'switchstatus';
 
 $config->rights->member['overtime']['personal']     = 'personal';
 $config->rights->member['overtime']['create']       = 'create';
 $config->rights->member['overtime']['edit']         = 'edit';
+$config->rights->member['overtime']['view']         = 'view';
 $config->rights->member['overtime']['delete']       = 'delete';
 $config->rights->member['overtime']['switchstatus'] = 'switchstatus';
 
+$config->rights->member['lieu']['personal']     = 'personal';
+$config->rights->member['lieu']['create']       = 'create';
+$config->rights->member['lieu']['edit']         = 'edit';
+$config->rights->member['lieu']['delete']       = 'delete';
+$config->rights->member['lieu']['view']         = 'view';
+$config->rights->member['lieu']['switchstatus'] = 'switchstatus';
+
 $config->rights->member['trip']['personal'] = 'personal';
+$config->rights->member['trip']['view']     = 'view';
 $config->rights->member['trip']['create']   = 'create';
 $config->rights->member['trip']['edit']     = 'edit';
 $config->rights->member['trip']['delete']   = 'delete';
+
+$config->rights->member['egress']['personal'] = 'personal';
+$config->rights->member['egress']['create']   = 'create';
+$config->rights->member['egress']['edit']     = 'edit';
+$config->rights->member['egress']['delete']   = 'delete';
+$config->rights->member['egress']['view']     = 'view';
+
+$config->rights->member['out']['personal'] = 'personal';
+$config->rights->member['out']['create']   = 'create';
+$config->rights->member['out']['edit']     = 'edit';
+$config->rights->member['out']['delete']   = 'delete';
 
 $config->rights->member['refund']['personal']     = 'personal';
 $config->rights->member['refund']['create']       = 'create';

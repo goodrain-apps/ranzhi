@@ -2,7 +2,7 @@
 /**
  * The control file of leads module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     leads
@@ -53,8 +53,8 @@ class leads extends control
         $pager = new pager($recTotal, $recPerPage, $pageID);
 
         $contacts = $this->contact->getList($customer = '', $relation = 'client', $mode, $status, $origin, $orderBy, $pager);
-        $this->session->set('contactQueryCondition', $this->dao->get());
-        $this->session->set('contactList', $this->app->getURI(true));
+        $this->session->set('leadsQueryCondition', $this->dao->get());
+        $this->session->set('leadsList', $this->app->getURI(true));
         $this->app->user->canEditContactIdList = ',' . implode(',', array_keys($contacts)) . ',';
 
         /* Build search form. */
@@ -99,17 +99,37 @@ class leads extends control
      * @param  int    $contactID 
      * @param  string $mode 
      * @param  string $status 
+     * @param  bool   $comment
      * @access public
      * @return void
      */
-    public function edit($contactID = 0, $mode = 'assignedTo', $status = 'wait')
+    public function edit($contactID = 0, $mode = 'assignedTo', $status = 'wait', $comment = false)
     {
         $contact = $this->contact->getByID($contactID);
 
         if($_POST)
         {
-            $return = $this->contact->update($contactID);
-            $this->send($return);
+            $changes = array();
+            if($comment == false)
+            {
+                $changes = $this->contact->update($contactID);
+                if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+            }
+
+            if($this->post->comment != '' or !empty($changes))
+            {
+                $action   = $this->post->comment == '' ? 'Edited' : 'Commented';
+                $actionID = $this->loadModel('action')->create('contact', $contactID, $action, $this->post->comment);
+                $this->action->logHistory($actionID, $changes);
+            }
+
+            $this->loadModel('customer')->updateEditedDate($this->post->customer);
+            $return = $this->contact->updateAvatar($contactID);
+
+            $message = $return['result'] ? $this->lang->saveSuccess : $return['message'];
+            $locate  = helper::createLink('leads', 'view', "contactID=$contactID");
+            if(strpos($this->server->http_referer, 'contact') === false and strpos($this->server->http_referer, 'leads') === false) $locate = 'reload';
+            $this->send(array('result' => 'success', 'message' => $message, 'locate' => $locate));
         }
 
         $this->view->title      = $this->lang->contact->edit;
@@ -145,11 +165,28 @@ class leads extends control
         $this->view->mode       = $mode;
         $this->view->status     = $status;
         $this->view->contact    = $this->contact->getByID($contactID, $status);
-        $this->view->addresses  = $this->loadModel('address')->getList('contact', $contactID);
+        $this->view->addresses  = $this->loadModel('address', 'crm')->getList('contact', $contactID);
         $this->view->preAndNext = $this->loadModel('common', 'sys')->getPreAndNextObject('contact', $contactID); 
         $this->view->fileList   = $fileList;
 
         $this->display();
+    }
+
+    /**
+     * Delete a lead.
+     *
+     * @param  int    $contactID
+     * @access public
+     * @return void
+     */
+    public function delete($contactID)
+    {
+        $contact = $this->loadModel('contact', 'crm')->getByID($contactID);
+        if($contact->status != 'ignore') $this->send(array('result' => 'fail'));
+
+        $this->contact->delete(TABLE_CONTACT, $contactID);
+        if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+        $this->send(array('result' => 'success', 'locate' => inlink('browse')));
     }
 
     /**
@@ -161,10 +198,10 @@ class leads extends control
     public function apply()
     {
         $remain = isset($this->config->leads->apply->remain) ? $this->config->leads->apply->remain : 10;
-        $limit  = isset($this->config->leads->apply->limit) ? $this->config->leads->apply->limit : 50;
+        $limit  = isset($this->config->leads->apply->limit) ? $this->config->leads->apply->limit : 30;
 
         $contactCount = $this->dao->select('count(*) as count')->from(TABLE_CONTACT)->where('assignedTo')->eq($this->app->user->account)->andWhere('status')->eq('wait')->fetch('count');
-        if($contactCount >= $remain) $this->send(array('result' => 'fail', 'message' => $this->lang->leads->message->apply));
+        if($contactCount >= $remain) $this->send(array('result' => 'fail', 'message' => $this->lang->leads->tips->apply));
 
         $contacts = $this->dao->select('*')->from(TABLE_CONTACT)->where('status')->eq('wait')->andWhere('assignedTo')->eq('')->orderBy('id_desc')->limit($limit)->fetchAll();
         foreach($contacts as $contact)
@@ -193,13 +230,12 @@ class leads extends control
             {
                 $actionID = $this->loadModel('action')->create('contact', $contactID, 'Assigned', $this->post->comment, $this->post->assignedTo);
                 $this->sendmail($contactID, $actionID);
-                $this->loadModel('action')->create('leads', $contactID, 'assigned', $this->post->comment, '', '', '', $contactID);
             }
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => $this->server->http_referer));
         }
 
         $this->view->title     = $this->lang->contact->assign;
-        $this->view->users     = $this->loadModel('user')->getPairs('nodeleted, noclosed');
+        $this->view->users     = $this->loadModel('user')->getPairs('nodeleted,noforbidden,noclosed');
         $this->view->contactID = $contactID;
         $this->display();
     }
@@ -238,10 +274,39 @@ class leads extends control
      */
     public function ignore($contactID)
     {
-        $this->contact->ignore($contactID);
-        if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
-        $this->loadModel('action')->create('leads', $contactID, 'ignored', '', '', '', '', $contactID);
-        $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess));
+        if($_POST)
+        {
+            $this->contact->ignore($contactID);
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+            $this->loadModel('action')->create('leads', $contactID, 'ignored', $this->post->comment, '', '', '', $contactID);
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => $this->server->http_referer));
+        }
+
+        $this->view->title     = $this->lang->ignore;
+        $this->view->contactID = $contactID;
+        $this->display();
+    }
+
+    /**
+     * Setting apply rule.
+     * 
+     * @access public
+     * @return void
+     */
+    public function setting() 
+    {
+        if($_POST)
+        {
+            $this->loadModel('setting');
+            if($this->post->applyLimit)  $this->setting->setItems('system.crm.leads.apply', array('limit' => $this->post->applyLimit));
+            if($this->post->applyRemain) $this->setting->setItems('system.crm.leads.apply', array('remain' => $this->post->applyRemain));
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess));
+        }
+
+        $this->view->title       = $this->lang->leads->applyRule;
+        $this->view->applyLimit  = isset($this->config->leads->apply->limit)  ? $this->config->leads->apply->limit : 10;
+        $this->view->applyRemain = isset($this->config->leads->apply->remain) ? $this->config->leads->apply->remain : 30;
+        $this->display();
     }
 
     /**
@@ -259,7 +324,7 @@ class leads extends control
 
         /* Set toList and ccList. */
         $contact = $this->contact->getById($contactID);
-        $users   = $this->loadModel('user')->getPairs('noletter');
+        $users   = $this->loadModel('user')->getPairs();
         $toList  = $contact->assignedTo;
 
         /* send notice if user is online and return failed accounts. */
@@ -278,7 +343,7 @@ class leads extends control
         $mailContent = $this->parse($this->moduleName, 'sendmail');
 
         /* Send emails. */
-        $this->loadModel('mail')->send($toList, 'CONTACT#' . $contact->id . $this->lang->colon . $contact->realname, $mailContent);
+        $this->loadModel('mail')->send($toList, 'LEADS#' . $contact->id . ' ' . $contact->realname, $mailContent);
         if($this->mail->isError()) trigger_error(join("\n", $this->mail->getError()));
     }
 }

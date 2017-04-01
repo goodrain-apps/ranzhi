@@ -2,7 +2,7 @@
 /**
  * The attend block view file of block module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     block
@@ -76,7 +76,7 @@
         }
         $class = $dStr == $date ? 'today' : '';
     ?>
-    <th class='<?php echo $width . ' ' . $class?>' data-date='<?php echo $dStr?>'><?php echo zget($this->lang->datepicker->abbrDayNames, date('w', $d))?></th>
+    <th class='<?php echo $width . ' ' . $class;?> dayheader' data-date='<?php echo $dStr?>'><?php echo zget($this->lang->datepicker->abbrDayNames, date('w', $d))?></th>
     <?php endforeach;?>
   </tr>
   <tr class='AM'>
@@ -109,6 +109,7 @@
       </td>
     <?php endforeach;?>
   </tr>
+  <?php if(strpos($this->config->setting->modules, 'attend') !== false):?>
   <?php $link = "$.openEntry('oa', '" . $this->createLink('oa.attend', 'personal') . "')";?>
   <tr class='status'>
     <th><?php echo $lang->attend->common?></th>
@@ -124,6 +125,7 @@
     <?php endif;?>
     <?php endforeach;?>
   </tr>
+  <?php endif;?>
 </table>
 <script>
 $(document).ready(function()
@@ -142,7 +144,7 @@ $(document).ready(function()
         return false;
     });
     /* Add + */
-    calendar.find('.day').each(function()
+    calendar.find('.dayheader').each(function()
     {
         var date = new Date($(this).data('date'));
         var year   = date.getFullYear();
@@ -152,12 +154,12 @@ $(document).ready(function()
         {
             if($(this).find('.icon-plus').length == 0)
             {
-                $(this).prepend("<span class='text-muted icon-plus'></span><div class='clearfix'></div>");
+                $(this).prepend("<span class='text-muted icon-plus'></span>");
             }
         }
     });
     /* batch create todo. */
-    calendar.find('.day').click(function()
+    calendar.find('.dayheader, .day').click(function()
     {
         var date = new Date($(this).data('date'));
         var year   = date.getFullYear();

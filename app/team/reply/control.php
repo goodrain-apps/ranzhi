@@ -2,11 +2,11 @@
 /**
  * The control file of reply module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     reply
- * @version     $Id: control.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: control.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 class reply extends control
@@ -62,11 +62,11 @@ class reply extends control
     {
         if($this->app->user->account == 'guest') die(js::locate($this->createLink('user', 'login')));
 
-        /* Judge current user has priviledge to edit the reply or not. */
+        /* Judge current user has Privilege to edit the reply or not. */
         $reply = $this->reply->getByID($replyID);
         if(!$reply) die(js::locate('back'));
 
-        $thread = $this->loadModel('thread')->getByID($reply->thread);
+        $thread = $this->loadModel('thread', 'team')->getByID($reply->thread);
         if(!$this->thread->canManage($thread->board, $reply->author)) die(js::locate('back'));
         
         $this->thread->setEditor($thread->board, 'edit');
@@ -82,7 +82,7 @@ class reply extends control
         $this->view->reply  = $reply;
         $this->view->thread = $thread;
         $this->view->board  = $this->loadModel('tree')->getById($thread->board);
-        $this->view->boards = $this->loadModel('forum')->getBoards();
+        $this->view->boards = $this->loadModel('forum', 'team')->getBoards();
 
         $this->display();
     }
@@ -99,7 +99,7 @@ class reply extends control
         $reply = $this->reply->getByID($replyID);
         if(!$reply) $this->send(array('result' => 'fail', 'message' => 'Not found'));
 
-        $thread = $this->loadModel('thread')->getByID($reply->thread);
+        $thread = $this->loadModel('thread', 'team')->getByID($reply->thread);
         if(!$this->thread->canManage($thread->board)) $this->send(array('result' => 'fail'));
 
         if(RUN_MODE == 'admin')
@@ -130,10 +130,10 @@ class reply extends control
         $reply = $this->reply->getByID($replyID);
         if(!$reply) $this->send(array('result'=>'fail', 'message'=> 'data error'));
 
-        $thread = $this->loadModel('thread')->getByID($reply->thread);
+        $thread = $this->loadModel('thread', 'team')->getByID($reply->thread);
         if(!$thread) $this->send(array('result'=>'fail', 'message'=> 'data error'));
 
-        /* Judge current user has priviledge to edit the reply or not. */
+        /* Judge current user has Privilege to edit the reply or not. */
         if($this->thread->canManage($thread->board, $reply->author))
         {
             if($this->loadModel('file')->delete($fileID)) $this->send(array('result'=>'success'));

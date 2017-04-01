@@ -2,7 +2,7 @@
 /**
  * The view view file of task module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     task
@@ -13,8 +13,9 @@
 <?php include $app->getModuleRoot() . 'common/view/header.html.php';?>
 <?php js::set('notAllowed', $lang->task->notAllowed);?>
 <?php js::set('groupBy', $groupBy);?>
+<?php js::set('backLink', $backLink);?>
 <?php $this->loadModel('project')->setMenu($projects, $projectID, $groupBy);?>
-<div class='with-menu page-content'>
+<div class='page-content'>
   <div class='boards-container'>
     <div class='boards task-boards clearfix' id='taskKanban'>
     <?php foreach($tasks as $groupKey => $groupTasks):?>

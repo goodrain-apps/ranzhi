@@ -11,5 +11,5 @@ $(document).ready(function()
         });
     });
 
-    $('label.checkbox').css('float', 'left').css('margin-right', '10px').css('width', '100px');
+    $('.group-item label.checkbox').css('float', 'left').css('margin-right', '10px').css('width', '100px');
 });

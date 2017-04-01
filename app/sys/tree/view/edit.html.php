@@ -2,11 +2,11 @@
 /**
  * The edit view of tree module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     tree
- * @version     $Id: edit.html.php 3549 2016-01-26 09:35:02Z liugang $
+ * @version     $Id: edit.html.php 4110 2016-10-08 09:37:28Z daitingting $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -19,17 +19,19 @@ $themeRoot = $webRoot . "theme/";
 <?php include '../../common/view/kindeditor.html.php';?>
 <?php js::set('type', $category->type);?>
 <?php js::set('root', $category->type == 'projectdoc' ? 'project' : ($category->type == 'productdoc' ? 'product' : $category->root));?>
+<?php $parentDisabled = ($category->major and $category->major < 5) ? "disabled='disabled'" : '';?>
+<?php $nameDisabled   = $category->major ? "disabled='disabled'" : '';?>
 <form method='post' class='form-horizontal' id='editForm' action="<?php echo inlink('edit', 'categoryID='.$category->id);?>">
   <div class='panel'>
     <div class='panel-heading'><strong><i class="icon-pencil"></i> <?php echo $lang->tree->edit;?></strong></div>
     <div class='panel-body'>
       <div class='form-group'> 
         <label class='col-md-2 control-label'><?php echo $lang->category->parent;?></label>
-        <div class='col-md-4'><?php echo html::select('parent', $optionMenu, $category->parent, "class='chosen form-control'");?></div>
+        <div class='col-md-4'><?php echo html::select('parent', $optionMenu, $category->parent, "class='chosen form-control' $parentDisabled");?></div>
       </div>
       <div class='form-group'> 
         <label class='col-md-2 control-label'><?php echo $lang->category->name;?></label>
-        <div class='col-md-4'><?php echo html::input('name', $category->name, "class='form-control'");?></div>
+        <div class='col-md-4'><?php echo html::input('name', $category->name, "class='form-control' $nameDisabled");?></div>
       </div>
       <?php if($category->type == 'dept'):?>
       <div class='form-group'> 

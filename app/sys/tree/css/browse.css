@@ -2,3 +2,7 @@
 .group-item .checkbox{display: inline-block;}
 .group-item .checkbox input{margin: 2px 0 0 -16px;}
 .leftmenu > .nav > li > a{padding: 0 15px;}
+.input-group-addon label.checkbox{margin: 0; padding-top: 3px;} 
+#childList .sort-handle{cursor: move;}
+
+.doc-category{margin: 41px 0 0;}

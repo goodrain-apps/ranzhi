@@ -2,7 +2,7 @@
 /**
  * The zh-tw file of setting module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     setting 
@@ -74,7 +74,10 @@ $lang->setting->reserveDays    = '進入客戶池（天）';
 $lang->setting->reserveDaysTip = '在設定天數內沒有更新客戶信息（未簽約客戶），該客戶將自動進入客戶池。值設為0時禁用此功能。';
 
 $lang->setting->moduleList['attend']   = '考勤';
-$lang->setting->moduleList['trip']     = '出差';
 $lang->setting->moduleList['leave']    = '請假';
+$lang->setting->moduleList['makeup']   = '補班';
 $lang->setting->moduleList['overtime'] = '加班';
+$lang->setting->moduleList['lieu']     = '調休';
+$lang->setting->moduleList['trip']     = '出差';
+$lang->setting->moduleList['egress']   = '外出';
 $lang->setting->moduleList['refund']   = '報銷';

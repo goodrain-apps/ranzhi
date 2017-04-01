@@ -2,7 +2,7 @@
 /**
  * The integration view of entry module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     entry 
@@ -44,7 +44,7 @@ include '../../common/view/header.html.php';
           <th><?php echo $lang->entry->ip;?></th>
           <td>
             <div class='input-group'>
-              <?php echo html::input('ip', $entry->ip, "class='form-control' placeholder='{$lang->entry->note->ip}'");?>
+              <?php echo html::input('ip', $entry->ip, "class='form-control' title='{$lang->entry->note->ip}' placeholder='{$lang->entry->note->ip}'");?>
               <div class='input-group-addon'>
                 <label class="checkbox"><input type="checkbox" id="allip" name="allip" value="1"> <?php echo $lang->entry->note->allip;?></label>
               </div>

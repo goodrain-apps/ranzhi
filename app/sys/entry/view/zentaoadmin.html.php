@@ -2,7 +2,7 @@
 /**
  * The zentaoAdmin view of entry module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     entry 
@@ -23,7 +23,7 @@ include '../../common/view/header.html.php';?>
               <span class='input-group-addon'><?php echo $lang->entry->adminAccount;?></span>
               <?php echo html::input('account', '', "class='form-control'")?>
               <span class='input-group-addon'><?php echo $lang->entry->adminPassword;?></span>
-              <?php echo html::input('password', '', "class='form-control'")?>
+              <?php echo html::password('password', '', "class='form-control'")?>
             </div>
           </td>
           <td><?php echo html::submitButton($lang->entry->nextStep);?></td>

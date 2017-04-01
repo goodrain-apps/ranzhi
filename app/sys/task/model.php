@@ -2,7 +2,7 @@
 /**
  * The model file of task module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     task
@@ -20,7 +20,7 @@ class taskModel extends model
      */
     public function getByID($taskID)
     {
-        $task     = $this->dao->select("*")->from(TABLE_TASK)->where('id')->eq($taskID)->limit(1)->fetch();
+        $task = $this->dao->select("*")->from(TABLE_TASK)->where('id')->eq($taskID)->limit(1)->fetch();
         if(empty($task)) return new stdclass();
 
         foreach($task as $key => $value) if(strpos($key, 'Date') !== false and !(int)substr($value, 0, 4)) $task->$key = '';
@@ -55,7 +55,7 @@ class taskModel extends model
     {
         if($this->session->taskQuery == false) $this->session->set('taskQuery', ' 1 = 1');
         $taskQuery  = $this->loadModel('search', 'sys')->replaceDynamic($this->session->taskQuery);
-        $project    = $this->loadModel('project', 'oa')->getByID($projectID);
+        $project    = $this->loadModel('project', 'proj')->getByID($projectID);
         $canViewAll = $this->viewAllTask($projectID);
 
         if(strpos($orderBy, 'id') === false) $orderBy .= ', id_desc';
@@ -68,14 +68,14 @@ class taskModel extends model
             ->beginIF($mode == 'finishedBy')->andWhere('finishedBy')->eq($this->app->user->account)->fi()
             ->beginIF($mode == 'canceledBy')->andWhere('canceledBy')->eq($this->app->user->account)->fi()
             ->beginIF($mode == 'closedBy')->andWhere('closedBy')->eq($this->app->user->account)->fi()
+            ->beginIF($mode == 'unclosed')->andWhere('assignedTo')->eq($this->app->user->account)->andWhere('status')->in('done,cancel')->fi()
             ->beginIF($mode == 'untilToday')->andWhere('deadline')->eq(helper::today())->fi()
             ->beginIF($mode == 'expired')->andWhere('deadline')->ne('0000-00-00')->andWhere('deadline')->lt(helper::today())->fi()
             ->beginIF($mode == 'bysearch')->andWhere($taskQuery)->fi()
             ->beginIF($groupBy == 'closedBy')->andWhere('status')->eq('closed')->fi()
             ->beginIF($groupBy == 'finishedBy')->andWhere('finishedBy')->ne('')->fi()
             ->beginIF(!$canViewAll)
-            ->andWhere()->markLeft(1)
-            ->where('assignedTo')->eq($this->app->user->account)
+            ->andWhere('assignedTo', true)->eq($this->app->user->account)
             ->orWhere('finishedBy')->eq($this->app->user->account)
             ->orWhere('createdBy')->eq($this->app->user->account)
             ->markRight(1)
@@ -166,6 +166,7 @@ class taskModel extends model
      * 
      * @param  int    $projectID 
      * @param  string $type       all|wait|doing|done|cancel
+     * @param  string $orderBy
      * @param  object $pager 
      * @access public
      * @return array
@@ -173,7 +174,7 @@ class taskModel extends model
     public function getProjectTasks($projectID, $type = 'all', $orderBy = 'status_asc, id_desc', $pager = null)
     {
         if(is_string($type)) $type = strtolower($type);
-        $project    = $this->loadModel('project', 'oa')->getByID($projectID);
+        $project    = $this->loadModel('project', 'proj')->getByID($projectID);
         $canViewAll = $this->viewAllTask($projectID);
 
         $tasks = $this->dao->select("*")
@@ -186,8 +187,7 @@ class taskModel extends model
             ->beginIF($type == 'delayed')->andWhere('deadline')->between('1970-1-1', helper::now())->andWhere('status')->in('wait,doing')->fi()
             ->beginIF(is_array($type) or strpos(',all,undone,assignedtome,delayed,finishedbyme,', ",$type,") === false)->andWhere('status')->in($type)->fi()
             ->beginIF(!$canViewAll)
-            ->andWhere()->markLeft(1)
-            ->where('assignedTo')->eq($this->app->user->account)
+            ->andWhere('assignedTo', true)->eq($this->app->user->account)
             ->orWhere('finishedBy')->eq($this->app->user->account)
             ->orWhere('createdBy')->eq($this->app->user->account)
             ->markRight(1)
@@ -263,7 +263,7 @@ class taskModel extends model
                 ->setForce('assignedTo', $this->post->assignedTo)
                 ->setDefault('createdBy', $this->app->user->account)
                 ->setDefault('createdDate', $now)
-                ->stripTags('desc', $this->config->allowedTags->admin)
+                ->stripTags('desc', $this->config->allowedTags)
                 ->join('mailto', ',')
                 ->get();
 
@@ -354,7 +354,7 @@ class taskModel extends model
             $task->estimate    = (float)$this->post->estimate[$key];
             $task->left        = $task->estimate;
             $task->deadline    = $this->post->deadline[$key] ? $this->post->deadline[$key] : '0000-00-00';
-            $task->desc        = strip_tags(nl2br($this->post->desc[$key]), $this->config->allowedTags->admin);
+            $task->desc        = strip_tags(nl2br($this->post->desc[$key]), $this->config->allowedTags);
             $task->pri         = $this->post->pri[$key];
             $task->status      = 'wait';
             $task->createdBy   = $this->app->user->account;
@@ -460,7 +460,7 @@ class taskModel extends model
 
                 ->add('editedBy',   $this->app->user->account)
                 ->add('editedDate', $now)
-                ->stripTags('desc', $this->config->allowedTags->admin)
+                ->stripTags('desc', $this->config->allowedTags)
                 ->remove('referer,files,labels,multiple,team,teamEstimate,teamConsumed,teamLeft,remark')
                 ->join('mailto', ',')
                 ->get();
@@ -505,10 +505,11 @@ class taskModel extends model
                 }
                 $task->team = $team;
             }
+            $task = $this->loadModel('file')->processEditor($task, $this->config->task->editor->edit['id']);
         }
 
-        $task = $this->loadModel('file')->processEditor($task, $this->config->task->editor->edit['id']);
-        $this->dao->update(TABLE_TASK)->data($task, 'team, uid')
+        if(isset($task->uid)) $task = $this->loadModel('file')->processEditor($task, $this->config->task->editor->edit['id']);
+        $this->dao->update(TABLE_TASK)->data($task, 'files, children, team, uid')
             ->autoCheck()
             ->batchCheckIF($task->status != 'cancel', $this->config->task->require->edit, 'notempty')
 
@@ -902,7 +903,7 @@ class taskModel extends model
         static $projects;
         if(empty($projects)) 
         {
-            $projects = $this->loadModel('project', 'oa')->getList();
+            $projects = $this->loadModel('project', 'proj')->getList();
             /* Process whitelist. */
             $groups = $this->loadModel('group')->getList(0);
             foreach($groups as $group) $groupUsers[$group->id] = $this->group->getUserPairs($group->id);
@@ -941,7 +942,8 @@ class taskModel extends model
      */
     public function checkPriv($task, $action)
     {
-        $action  = strtolower($action);  
+        if(!isset($task->project)) return false;
+        $action = strtolower($action);  
 
         if($this->app->user->admin == 'super') return true;
         if($action == 'view' and !empty($this->app->user->rights['task']['viewall'])) return true;
@@ -951,7 +953,7 @@ class taskModel extends model
         static $projects;
         if(empty($projects)) 
         {
-            $projects = $this->loadModel('project', 'oa')->getList();
+            $projects = $this->loadModel('project', 'proj')->getList();
             /* Process whitelist. */
             $groups = $this->loadModel('group')->getList(0);
             foreach($groups as $group) $groupUsers[$group->id] = $this->group->getUserPairs($group->id);
@@ -1020,29 +1022,37 @@ class taskModel extends model
 
         $disabled = (!$isParent and $canEdit and self::isClickable($task, 'recordEstimate')) ? '' : 'disabled';
         $misc     = $disabled ? "class='$disabled $class'" : "data-toggle='modal' class='$class'";
-        $menu    .= $disabled ? html::a('###', $this->lang->task->recordEstimate, $misc) : commonModel::printLink('oa.task', 'recordEstimate', "taskID=$task->id", $this->lang->task->recordEstimate, $misc, false);
+        $menu    .= $type == 'block' ? ($disabled ? "<li class='hide'>" : '<li>') : '';
+        $menu    .= $disabled ? html::a('###', $this->lang->task->recordEstimate, $misc) : commonModel::printLink('proj.task', 'recordEstimate', "taskID=$task->id", $this->lang->task->recordEstimate, $misc, false);
+        $menu    .= $type == 'block' ? '</li>' : '';
 
         $disabled = ($canEdit and self::isClickable($task, 'assignto')) ? '' : 'disabled';
         $misc     = $disabled ? "class='$disabled $class'" : "data-toggle='modal' class='$class'";
-        $menu    .= $disabled ? html::a('###', $isMulti ? $this->lang->task->transmit : $this->lang->assign, "$misc") : commonModel::printLink('oa.task', 'assignto', "taskID=$task->id", $isMulti ? $this->lang->task->transmit : $this->lang->assign, $misc, false);
+        $menu    .= $type == 'block' ? ($disabled ? "<li class='hide'>" : '<li>') : '';
+        $menu    .= $disabled ? html::a('###', $isMulti ? $this->lang->task->transmit : $this->lang->assign, "$misc") : commonModel::printLink('proj.task', 'assignto', "taskID=$task->id", $isMulti ? $this->lang->task->transmit : $this->lang->assign, $misc, false);
+        $menu    .= $type == 'block' ? '</li>' : '';
 
         if(!$isMulti)
         {
             $disabled = (!$isParent and $canEdit and self::isClickable($task, 'start')) ? '' : 'disabled';
             $misc     = $disabled ? "class='$disabled $class'" : "data-toggle='modal' class='$class'";
-            $menu    .= $disabled ? html::a('###', $this->lang->start, $misc) : commonModel::printLink('oa.task', 'start', "taskID=$task->id", $this->lang->start, $misc, false);
+            $menu    .= $type == 'block' ? ($disabled ? "<li class='hide'>" : '<li>') : '';
+            $menu    .= $disabled ? html::a('###', $this->lang->start, $misc) : commonModel::printLink('proj.task', 'start', "taskID=$task->id", $this->lang->start, $misc, false);
+            $menu    .= $type == 'block' ? '</li>' : '';
         }
 
         if($type == 'view')
         {
             $disabled = ($canEdit and self::isClickable($task, 'activate')) ? '' : 'disabled';
             $misc     = $disabled ? "class='$disabled $class'" : "data-toggle='modal' class='$class'";
-            $menu    .= $disabled ? html::a('###', $this->lang->activate, $misc) : commonModel::printLink('oa.task', 'activate', "taskID=$task->id", $this->lang->activate, $misc, false);
+            $menu    .= $disabled ? html::a('###', $this->lang->activate, $misc) : commonModel::printLink('proj.task', 'activate', "taskID=$task->id", $this->lang->activate, $misc, false);
         }
 
         $disabled = (!$isParent and $canEdit and self::isClickable($task, 'finish')) ? '' : 'disabled';
         $misc     = $disabled ? "class='$disabled $class'" : "data-toggle='modal' class='$class'";
-        $menu    .= $disabled ? html::a('###', $isMulti ? $this->lang->task->end : $this->lang->finish, $misc) : commonModel::printLink('oa.task', 'finish', "taskID=$task->id", $isMulti ? $this->lang->task->end : $this->lang->finish, $misc, false);
+        $menu    .= $type == 'block' ? ($disabled ? "<li class='hide'>" : '<li>') : '';
+        $menu    .= $disabled ? html::a('###', $isMulti ? $this->lang->task->end : $this->lang->finish, $misc) : commonModel::printLink('proj.task', 'finish', "taskID=$task->id", $isMulti ? $this->lang->task->end : $this->lang->finish, $misc, false);
+        $menu    .= $type == 'block' ? '</li>' : '';
 
         if($type == 'view')
         {
@@ -1050,27 +1060,33 @@ class taskModel extends model
 
             $disabled = ($canEdit and self::isClickable($task, 'cancel')) ? '' : 'disabled';
             $misc     = $disabled ? "class='$disabled $class'" : "data-toggle='modal' class='$class'";
-            $menu    .= $disabled ? html::a('###', $this->lang->cancel, $misc) : commonModel::printLink('oa.task', 'cancel', "taskID=$task->id", $this->lang->cancel, $misc, false);
+            $menu    .= $disabled ? html::a('###', $this->lang->cancel, $misc) : commonModel::printLink('proj.task', 'cancel', "taskID=$task->id", $this->lang->cancel, $misc, false);
 
             $disabled = $canDelete ? '' : 'disabled';
             $deleter  = $type == 'browse' ? 'reloadDeleter' : 'deleter';
-            $menu    .= $disabled ? html::a('###', $this->lang->delete, "class='disabled $class' disabled='disabled'") : commonModel::printLink('oa.task', 'delete', "taskID=$task->id", $this->lang->delete, "class='$deleter $class'", false);
+            $menu    .= $disabled ? html::a('###', $this->lang->delete, "class='disabled $class' disabled='disabled'") : commonModel::printLink('proj.task', 'delete', "taskID=$task->id", $this->lang->delete, "class='$deleter $class'", false);
         }
 
         $disabled = ($canEdit and self::isClickable($task, 'close')) ? '' : 'disabled';
         $misc     = $disabled ? "class='$disabled $class'" : "data-toggle='modal' class='$class'";
-        $menu    .= $disabled ? html::a('###', $this->lang->close, $misc) : commonModel::printLink('oa.task', 'close', "taskID=$task->id", $this->lang->close, $misc, false);
+        $menu    .= $type == 'block' ? ($disabled ? "<li class='hide'>" : '<li>') : '';
+        $menu    .= $disabled ? html::a('###', $this->lang->close, $misc) : commonModel::printLink('proj.task', 'close', "taskID=$task->id", $this->lang->close, $misc, false);
+        $menu    .= $type == 'block' ? '</li>' : '';
 
         if($type == 'view') $menu .= "</div><div class='btn-group'>";
         $disabled = $canEdit ? '' : 'disabled';
-        $menu    .= $disabled ? html::a('###', $this->lang->edit, "class='disabled $class' disabled='disabled'") : commonModel::printLink('oa.task', 'edit', "taskID=$task->id", $this->lang->edit, "class='$class'", false);
+        $menu    .= $type == 'block' ? ($disabled ? "<li class='hide'>" : '<li>') : '';
+        $menu    .= $disabled ? html::a('###', $this->lang->edit, "class='disabled $class' disabled='disabled'") : commonModel::printLink('proj.task', 'edit', "taskID=$task->id", $this->lang->edit, "class='$class'", false);
+        $menu    .= $type == 'block' ? '</li>' : '';
         if($type == 'view') $menu .= $disabled ? html::a('###', $this->lang->comment, "class='disabled $class' disabled='disabled'") : html::a('#commentBox', $this->lang->comment, "class='$class' onclick=setComment()");
 
         if($task->parent == 0 and !$isMulti)
         {
             $disabled = ($canEdit and self::isClickable($task, 'batchCreate')) ? '' : 'disabled';
-            $misc     = $disabled ? "class='$disabled $class'" : "data-toggle='modal' class='$class' data-width='80%'";
-            $menu    .= $disabled ? html::a('###', $this->lang->task->children, $misc) : commonModel::printLink('oa.task', 'batchCreate', "projectID=$task->project&taskID=$task->id", $this->lang->task->children, $misc, false);
+            $misc     = $disabled ? "class='$disabled $class'" : "data-keyboard=false data-toggle='modal' class='$class' data-width='80%'";
+            $menu    .= $type == 'block' ? ($disabled ? "<li class='hide'>" : '<li>') : '';
+            $menu    .= $disabled ? html::a('###', $this->lang->task->children, $misc) : commonModel::printLink('proj.task', 'batchCreate', "projectID=$task->project&taskID=$task->id", $this->lang->task->children, $misc, false);
+            $menu    .= $type == 'block' ? '</li>' : '';
         }
         if($type == 'view') $menu .= "</div>";
         if($print) echo $menu;
@@ -1123,7 +1139,7 @@ class taskModel extends model
      * Get next user. 
      * 
      * @param  string $users 
-     * @param  string $currentUser 
+     * @param  string $current
      * @access public
      * @return void
      */
@@ -1179,7 +1195,7 @@ class taskModel extends model
         $tasks = array();
         $sql = $this->dao->select('t1.id, t1.name, t2.name as project')
             ->from(TABLE_TASK)->alias('t1')
-            ->leftjoin(TABLE_PROJECT)->alias('t2')->on('t1.project = t2.id')
+            ->leftJoin(TABLE_PROJECT)->alias('t2')->on('t1.project = t2.id')
             ->where('t1.assignedTo')->eq($account)
             ->andWhere('t1.deleted')->eq(0);
         if($status != 'all') $sql->andwhere('t1.status')->in($status);

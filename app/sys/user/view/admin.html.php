@@ -2,11 +2,11 @@
 /**
  * The admin view file of user module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yangyang Shi <shiyangyangwork@yahoo.cn>
  * @package     User
- * @version     $Id: admin.html.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: admin.html.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -27,7 +27,10 @@ js::set('from', 'admin');
               <div class="pull-right panel-actions search">
                 <form method='post' class='form-inline form-search w-300px'>
                   <div class="input-group">
-                    <?php echo html::input('query', $query, "class='form-control search-query' placeholder='{$lang->user->inputUserName}'"); ?>
+                    <span class='input-group-btn'>
+                      <?php echo html::a(inlink('admin', 'dept=&mode=forbid'), $lang->user->forbidList, "class='btn btn-primary'");?>
+                    </span>
+                    <?php echo html::input('query', $query, "class='form-control search-query' placeholder='{$lang->user->inputAccount}'"); ?>
                     <span class="input-group-btn">
                       <?php echo html::submitButton($lang->user->searchUser,"btn btn-primary"); ?>
                     </span>
@@ -38,16 +41,16 @@ js::set('from', 'admin');
             <table class='table table-hover table-striped table-bordered tablesorter table-fixed'>
               <thead>
                 <tr class='text-center'>
-                  <?php $vars = "deptID=$deptID&query=$query&orderBy=%s&recTotal={$pager->recTotal}&recPerPage={$pager->recPerPage}&pageID={$pager->pageID}";?>
+                  <?php $vars = "deptID=$deptID&mode=$mode&query=$query&orderBy=%s&recTotal={$pager->recTotal}&recPerPage={$pager->recPerPage}&pageID={$pager->pageID}";?>
                   <th class='w-60px'><?php commonModel::printOrderLink('id', $orderBy, $vars, $lang->user->id);?></th>
                   <th class='w-120px'><?php commonModel::printOrderLink('realname', $orderBy, $vars, $lang->user->realname);?></th>
-                  <th><?php commonModel::printOrderLink('account', $orderBy, $vars, $lang->user->account);?></th>
+                  <th class='w-120px'><?php commonModel::printOrderLink('account', $orderBy, $vars, $lang->user->account);?></th>
                   <th class='w-60px'><?php commonModel::printOrderLink('gender', $orderBy, $vars, $lang->user->gender);?></th>
                   <th class='w-130px'><?php commonModel::printOrderLink('dept', $orderBy, $vars, $lang->user->dept);?></th>
                   <th class='w-130px visible-lg'><?php commonModel::printOrderLink('join', $orderBy, $vars, $lang->user->join);?></th>
                   <th class='w-80px visible-lg'><?php commonModel::printOrderLink('visits', $orderBy, $vars, $lang->user->visits);?></th>
                   <th class='w-130px'><?php commonModel::printOrderLink('last', $orderBy, $vars, $lang->user->last);?></th>
-                  <th class='w-70px'><?php commonModel::printOrderLink('ip', $orderBy, $vars, $lang->user->ip);?></th>
+                  <th class='w-110px'><?php commonModel::printOrderLink('ip', $orderBy, $vars, $lang->user->ip);?></th>
                   <th class='w-60px'><?php commonModel::printOrderLink('locked', $orderBy, $vars, $lang->user->status);?></th>
                   <th class='w-100px'><?php echo $lang->actions;?></th>
                 </tr>

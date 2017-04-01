@@ -2,7 +2,7 @@
 /**
  * The config file of task module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     task 
@@ -38,6 +38,8 @@ $config->task->search['fields']['status']      = $lang->task->status;
 $config->task->search['fields']['createdDate'] = $lang->task->createdDate;
 $config->task->search['fields']['consumed']    = $lang->task->consumed;
 $config->task->search['fields']['id']          = $lang->task->id;
+$config->task->search['fields']['createdBy']   = $lang->task->createdBy;
+$config->task->search['fields']['finishedBy']  = $lang->task->finishedBy;
 
 $config->task->search['params']['name']        = array('operator' => 'include',  'control' => 'input',  'values' => '');
 $config->task->search['params']['pri']         = array('operator' => '=',  'control' => 'select', 'values' => $lang->task->priList);
@@ -47,6 +49,8 @@ $config->task->search['params']['status']      = array('operator' => '=',  'cont
 $config->task->search['params']['createdDate'] = array('operator' => '>=', 'control' => 'input',  'values' => '', 'class' => 'date');
 $config->task->search['params']['consumed']    = array('operator' => '>=', 'control' => 'input',  'values' => '');
 $config->task->search['params']['id']          = array('operator' => '=',  'control' => 'input',  'values' => '');
+$config->task->search['params']['createdBy']   = array('operator' => '=',  'control' => 'select', 'values' => '');
+$config->task->search['params']['finishedBy']  = array('operator' => '=',  'control' => 'select', 'values' => '');
 
 $config->task->exportFields = '
     id, project, name, desc,

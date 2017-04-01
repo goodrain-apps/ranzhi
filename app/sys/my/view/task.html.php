@@ -2,7 +2,7 @@
 /**
  * The task view file of my of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     my
@@ -14,7 +14,7 @@
 <?php js::set('type', $type);?>
 <div class='panel'>
   <?php if(commonModel::hasPriv('task', 'batchClose')):?>
-  <form id='ajaxForm' method='post' action="<?php echo $this->createLink('oa.task', 'batchClose');?>">
+  <form id='ajaxForm' method='post' action="<?php echo $this->createLink('proj.task', 'batchClose');?>">
   <?php endif;?>
     <table class='table table-hover table-striped tablesorter table-data table-fixed' id='taskList'>
       <thead>
@@ -40,11 +40,11 @@
           <td class='text-left'>
             <?php if($task->parent != 0) echo "<span class='label'>{$lang->task->childrenAB}</span>"?>
             <?php if(!empty($task->team)) echo "<span class='label'>{$lang->task->multipleAB}</span>"?>
-            <?php echo html::a("javascript:$.openEntry(\"oa\", \"" . $this->createLink('oa.task', 'view', "taskID=$task->id") . "\")", $task->name, "title='$task->name'");?>
+            <?php echo html::a("javascript:$.openEntry(\"proj\", \"" . $this->createLink('proj.task', 'view', "taskID=$task->id") . "\")", $task->name, "title='$task->name'");?>
             <?php if(!empty($task->children)) echo "<span class='task-toggle'>&nbsp;&nbsp;<i class='icon icon-remove'></i>&nbsp;&nbsp;</span>"?>
           </td>
           <td><?php echo $task->deadline;?></td>
-          <td><?php if(isset($users[$task->assignedTo])) echo $users[$task->assignedTo];?></td>
+          <td><?php echo zget($users, $task->assignedTo);?></td>
           <td><?php echo zget($lang->task->statusList, $task->status);?></td>
           <td class='visible-lg'><?php echo substr($task->createdDate, 0, 10);?></td>
           <td class='visible-lg'><?php echo $task->consumed;?></td>
@@ -61,7 +61,7 @@
                 <td class='w-40px'><span class='active pri pri-<?php echo $child->pri; ?>'><?php echo $lang->task->priList[$child->pri];?></span></td>
                 <td class='text-left' title='<?php echo $child->name;?>'>
                   <span class='label'><?php echo $lang->task->childrenAB?></span>
-                  <?php echo html::a("javascript:$.openEntry(\"oa\", \"" . $this->createLink('oa.task', 'view', "taskID=$child->id") . "\")", $child->name, "title='$child->name'");?>
+                  <?php echo html::a("javascript:$.openEntry(\"proj\", \"" . $this->createLink('proj.task', 'view', "taskID=$child->id") . "\")", $child->name, "title='$child->name'");?>
                 </td>
                 <td class='w-100px'>  <?php echo $child->deadline;?></td>
                 <td class='w-80px'>   <?php if(isset($users[$child->assignedTo])) echo $users[$child->assignedTo];?></td>

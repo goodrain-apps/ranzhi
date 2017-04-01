@@ -2,11 +2,11 @@
 /**
  * The create view file of user module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     user 
- * @version     $Id: create.html.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: create.html.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -26,11 +26,11 @@ include '../../common/view/treeview.html.php';
           <table class='table table-form'>
             <tr>
               <th class='w-100px'><?php echo $lang->user->account;?></th>
-              <td class='w-p40'><?php echo html::input('account', '', "class='form-control'");?></td>
+              <td class='w-p40'><?php echo html::input('account', '', "class='form-control' autocomplete='off'");?></td>
             </tr>
             <tr>
               <th><?php echo $lang->user->realname;?></th>
-              <td><?php echo html::input('realname', '', "class='form-control'");?></td>
+              <td><?php echo html::input('realname', '', "class='form-control' autocomplete='off'");?></td>
             </tr>
             <tr>
               <th><?php echo $lang->user->gender;?></th>
@@ -50,11 +50,11 @@ include '../../common/view/treeview.html.php';
             </tr>  
             <tr>
               <th><?php echo $lang->user->password2;?></th>
-              <td><?php echo html::password('password2', '', "class='form-control'");?></td><td></td>
+              <td><?php echo html::password('password2', '', "class='form-control' autocomplete='off'");?></td><td></td>
             </tr>  
             <tr>
               <th><?php echo $lang->user->email;?></th>
-              <td><?php echo html::input('email', '', "class='form-control'");?></td>
+              <td><?php echo html::input('email', '', "class='form-control' autocomplete='off'");?></td>
             </tr>
             <tr>
               <th></th>

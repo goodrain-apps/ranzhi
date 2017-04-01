@@ -19,7 +19,7 @@
 .thread-more-actions{opacity: 0; transition: all .3s; }
 .thread:hover .thread-more-actions{opacity: 1; }
 
-.pager{display: block; margin: -15px 0 5px;}
+.pager{display: block; margin-bottom: 5px;}
 
 #replyForm .file-form .form-group{margin-left: -15px; margin-right: -15px; }
 

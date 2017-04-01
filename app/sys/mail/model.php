@@ -2,11 +2,11 @@
 /**
  * The model file of mail module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     mail 
- * @version     $Id: model.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: model.php 4145 2016-10-14 05:31:16Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -245,10 +245,12 @@ class mailModel extends model
      * @param  string  $body 
      * @param  string  $ccList 
      * @param  bool    $includeMe 
+     * @param  string  $attachmentName
+     * @param  string  $attachmentFile
      * @access public
      * @return void
      */
-    public function send($toList, $subject, $body = '', $ccList = '', $includeMe = false)
+    public function send($toList, $subject, $body = '', $ccList = '', $includeMe = false, $attachmentName = '', $attachmentFile = '')
     {
         if(!$this->config->mail->turnon) return;
 
@@ -266,9 +268,9 @@ class mailModel extends model
         }
 
         /* Remove deleted users. */
-        $users = $this->loadModel('user')->getPairs('nodeleted');
-        foreach($toList as $key => $to) if(!isset($users[trim($to)])) unset($toList[$key]);
-        foreach($ccList as $key => $cc) if(!isset($users[trim($cc)])) unset($ccList[$key]);
+        $users = $this->loadModel('user')->getPairs('nodeleted,noforbidden');
+        foreach($toList as $key => $to) if(!isset($users[trim($to)]) and strpos($to, '@') === false) unset($toList[$key]);
+        foreach($ccList as $key => $cc) if(!isset($users[trim($cc)]) and strpos($to, '@') === false) unset($ccList[$key]);
 
         if(!$toList and !$ccList) return;
         if(!$toList and $ccList) $toList = array(array_shift($ccList));
@@ -291,6 +293,7 @@ class mailModel extends model
             $this->setTO($toList, $emails);
             $this->setCC($ccList, $emails);
             $this->setBody($this->convertCharset($body));
+            if($attachmentFile) $this->mta->AddAttachment($attachmentFile, $attachmentName);
             $this->setErrorLang();
             $this->mta->send();
         }

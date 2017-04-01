@@ -2,11 +2,11 @@
 /**
  * The control file of file module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     file 
- * @version     $Id: control.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: control.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 class file extends control
@@ -81,6 +81,46 @@ class file extends control
             $_SESSION['album'][$uid][] = $this->dao->lastInsertID();
 
             die(json_encode(array('error' => 0, 'url' => $url)));
+        }
+    }
+
+    /**
+     * AJAX: get upload request from the web editor.
+     * 
+     * @access public
+     * @return void
+     */
+    public function ajaxUeditorUpload($uid = '')
+    {
+        if($this->get->action == 'config')
+        {
+            die(json_encode($this->config->file->ueditor));
+        }
+
+        $file = $this->file->getUpload('upfile');
+        $file = $file[0];
+        if($file)
+        {
+            if($file['size'] == 0) die(json_encode(array('state' => $this->lang->file->errorFileUpload)));
+            if(@move_uploaded_file($file['tmpname'], $this->file->savePath . $file['pathname']))
+            {
+                /* Compress image for jpg and bmp. */
+                $file = $this->file->compressImage($file);
+
+                $file['createdBy']    = $this->app->user->account;
+                $file['createdDate']  = helper::today();
+                unset($file['tmpname']);
+                $this->dao->insert(TABLE_FILE)->data($file)->exec();
+
+                $url = $this->file->webPath . $file['pathname'];
+                if($uid) $_SESSION['album'][$uid][] = $this->dao->lastInsertID();
+                die(json_encode(array('state' => 'SUCCESS', 'url' => $url)));
+            }
+            else
+            {
+                $error = strip_tags(sprintf($this->lang->file->errorCanNotWrite, $this->file->savePath, $this->file->savePath));
+                die(json_encode(array('state' => $error)));
+            }
         }
     }
 

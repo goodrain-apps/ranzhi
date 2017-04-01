@@ -2,22 +2,22 @@
 /**
  * The package module en file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     package
  * @version     $Id$
  * @link        http://www.ranzhico.com
  */
-$lang->package->common        = 'Package';
-$lang->package->browse        = 'Browse';
+$lang->package->common        = 'Packages';
+$lang->package->browse        = 'View';
 $lang->package->install       = 'Install';
-$lang->package->installAuto   = 'AutoInstall';
-$lang->package->installForce  = 'ForceInstall';
+$lang->package->installAuto   = 'Auto Install';
+$lang->package->installForce  = 'Force Install';
 $lang->package->uninstall     = 'Uninstall';
 $lang->package->activate      = 'Activate';
 $lang->package->deactivate    = 'Deactivate';
-$lang->package->obtain        = 'Obtain';
+$lang->package->obtain        = 'Extensions';
 $lang->package->view          = 'Info';
 $lang->package->download      = 'Download';
 $lang->package->downloadAB    = 'Down';
@@ -25,7 +25,7 @@ $lang->package->upload        = 'Upload and install';
 $lang->package->erase         = 'Erase';
 $lang->package->upgrade       = 'Upgrade Package';
 $lang->package->agreeLicense  = 'I agree the license';
-$lang->package->settemplate   = 'Set template';
+$lang->package->settemplate   = 'Templates';
 $lang->package->search        = 'Search';
 
 $lang->package->structure   = 'Structure';
@@ -44,13 +44,13 @@ $lang->package->license     = 'License';
 $lang->package->intro       = 'Description';
 $lang->package->abstract    = 'Abstract';
 $lang->package->site        = 'Site';
-$lang->package->addedTime   = 'Added Time';
-$lang->package->updatedTime = 'Updated Time';
+$lang->package->addedTime   = 'Added on';
+$lang->package->updatedTime = 'Updated on';
 $lang->package->downloads   = 'Downloads';
 $lang->package->public      = 'Public';
 $lang->package->compatible  = 'Compatible';
 $lang->package->grade       = 'Grade';
-$lang->package->depends     = 'Depends';
+$lang->package->depends     = 'Dependent';
 
 $lang->package->publicList[0] = 'Manually';
 $lang->package->publicList[1] = 'Auto';
@@ -96,7 +96,7 @@ $lang->package->errorGetModules              = "Get packages' categories data fr
 $lang->package->errorGetPackages             = 'Get packages from www.ranzhico.com failed. You can visit <a href="http://www.ranzhico.com/extension/" target="_blank">www.ranzhico.com</a> to find your packages, download it manually and then upload to ranzhi to install it.';
 $lang->package->errorDownloadPathNotFound    = 'The save path of package file <strong>%s</strong>does not exists.<br />For linux users, can execute <strong>mkdir -p %s</strong> to fix it.';
 $lang->package->errorDownloadPathNotWritable = 'The save path of package file <strong>%s</strong>is not writable.<br />For linux users, can execute <strong>sudo chmod 777 %s</strong> to fix it.';
-$lang->package->errorPackageFileExists       = 'There is already a file with the same name <strong>%s</strong>.<h3> If you want to %s again, <a href="%s" class="alert-link loadInModal">please click this link</a>.</h3>';
+$lang->package->errorPackageFileExists       = 'There is a file with the same name <strong>%s</strong>.<h3> If you want to %s again, <a href="%s" class="alert-link loadInModal">please click this link</a>.</h3>';
 $lang->package->errorDownloadFailed          = 'Download failed, please try again. Or you can download it manually and upload it to install.';
 $lang->package->errorMd5Checking             = 'The downloawd files checking failed, Please download it manually and upload it to install';
 $lang->package->errorExtracted               = 'The package file <strong> %s </strong> extracted failed. The error is:<br />%s';

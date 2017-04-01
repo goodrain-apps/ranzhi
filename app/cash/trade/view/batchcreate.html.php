@@ -2,7 +2,7 @@
 /**
  * The batch create view of trade module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     trade
@@ -13,7 +13,7 @@
 <?php include $app->getModuleRoot() . 'common/view/header.html.php';?>
 <?php include '../../../sys/common/view/datepicker.html.php';?>
 <?php include '../../../sys/common/view/chosen.html.php';?>
-<?php js::set('dittoText', $lang->ditto);?>
+<?php js::set('mode', 'all');?>
 <form id='ajaxForm' method='post'>
   <div class='panel'>
     <div class='panel-heading'><strong><?php echo $lang->trade->batchCreate;?></strong></div>
@@ -33,17 +33,36 @@
         </tr>
       </thead>
       <tbody>
+        <?php
+        $depositors['ditto']   = $lang->ditto;
+        $incomeTypes['ditto']  = $lang->ditto;
+        $expenseTypes['ditto'] = $lang->ditto;
+        $deptList['ditto']     = $lang->ditto;
+        $traderList['ditto']   = $lang->ditto;
+        $customerList['ditto'] = $lang->ditto;
+        $productList['ditto']  = $lang->ditto;
+        ?>
         <?php for($i = 0; $i < $config->trade->batchCreateCount; $i++):?>
+        <?php
+        if($i == 0)
+        {
+            $depositor = $incomeType = $expenseType = $dept = $trader = $customer = $product = '';
+        }
+        else
+        {
+            $depositor = $incomeType = $expenseType = $dept = $trader = $customer = $product = 'ditto';
+        }
+        ?>
         <tr>
-          <td><?php echo html::select("depositor[$i]", $depositors, '', "class='form-control' id='depositor{$i}'");?></td>
+          <td><?php echo html::select("depositor[$i]", $depositors, $depositor, "class='form-control' id='depositor{$i}'");?></td>
           <td><?php echo html::select("type[$i]", $lang->trade->typeList, 'out', "class='form-control type' id='type{$i}'");?></td>
           <td>
-            <?php echo html::select("category[$i]", $incomeTypes, '', "class='form-control in' style='display:none'");?>
-            <?php echo html::select("category[$i]", $expenseTypes, '', "class='form-control out' id='category{$i}'");?>
+            <?php echo html::select("category[$i]", $incomeTypes, $incomeType, "class='form-control in chosen' style='display:none'");?>
+            <?php echo html::select("category[$i]", $expenseTypes, $expenseType, "class='form-control out chosen' id='category{$i}'");?>
           </td>
           <td>
             <div class='input-group out'>
-              <?php echo html::select("trader[$i]", $traderList, '', "class='form-control chosen' id='trader{$i}'");?>
+              <?php echo html::select("trader[$i]", $traderList, $trader, "class='form-control chosen' id='trader{$i}'");?>
               <?php  echo html::input("traderName[$i]", '', "class='form-control' id='traderName{$i}' style='display:none'");?>
               <span class='input-group-addon'>
                 <label class="checkbox">
@@ -51,12 +70,12 @@
                 </label>
               </span>
             </div>
-            <div class='in'><?php echo html::select("trader[$i]", $customerList, '', "class='form-control in chosen' id='trader{$i}' style='display:none'");?></div>
+            <div class='in'><?php echo html::select("trader[$i]", $customerList, $customer, "class='form-control in chosen' id='trader{$i}' style='display:none'");?></div>
           </td>
           <td><?php echo html::input("money[$i]", '', "class='form-control'");?></td>
-          <td><?php echo html::select("dept[$i]", $deptList, '', "class='form-control chosen'");?></td>
+          <td><?php echo html::select("dept[$i]", $deptList, $dept, "class='form-control chosen'");?></td>
           <td><?php echo html::select("handlers[$i][]", $users, '', "class='form-control chosen' id='handlers{$i}' multiple");?></td>
-          <td><?php echo html::select("product[$i]", $productList, '', "class='form-control chosen' id='product{$i}'");?></td>
+          <td><?php echo html::select("product[$i]", $productList, $product, "class='form-control chosen' id='product{$i}'");?></td>
           <td><?php echo html::input("date[$i]", date('Y-m-d'), "class='form-control form-date' id='date{$i}'");?></td>
           <td><?php echo html::textarea("desc[$i]", '', "rows='1' class='form-control'");?></td>
         </tr>

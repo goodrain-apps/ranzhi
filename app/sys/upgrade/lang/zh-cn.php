@@ -2,7 +2,7 @@
 /**
  * The upgrade module zh-cn file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     upgrade
@@ -28,6 +28,18 @@ $lang->upgrade->redeployDesc  = "<h5>因为代码结构调整,需要重新部署
 $lang->upgrade->removeTodo    = '请删除 %s 文件夹后继续';
 $lang->upgrade->removeTodoTip = "<h5>因为代码结构调整,需要删除%s目录。</h5><div class='text-important'>操作方法:删除旧的%s文件夹。</div>";
 $lang->upgrade->updateLicense = '然之协同 2. 0 已更换授权协议至 Z PUBLIC LICENSE(ZPL) 1.1。';
+
+$lang->upgrade->majorList['3_5'] = array();
+$lang->upgrade->majorList['3_5']['1'] = '主营业务收入';
+$lang->upgrade->majorList['3_5']['2'] = '非主营业务收入';
+$lang->upgrade->majorList['3_5']['3'] = '主营业务成本';
+$lang->upgrade->majorList['3_5']['4'] = '非主营业务成本';
+
+$lang->upgrade->majorList['3_6'] = array();
+$lang->upgrade->majorList['3_6']['5'] = '理财盈利';
+$lang->upgrade->majorList['3_6']['6'] = '理财亏损';
+$lang->upgrade->majorList['3_6']['7'] = '手续费';
+$lang->upgrade->majorList['3_6']['8'] = '借贷利息';
 
 $lang->upgrade->backupData = <<<EOT
 <pre>
@@ -57,3 +69,16 @@ $lang->upgrade->fromVersions['2_7']      = '2.7';
 $lang->upgrade->fromVersions['3_0']      = '3.0';
 $lang->upgrade->fromVersions['3_1']      = '3.1';
 $lang->upgrade->fromVersions['3_2']      = '3.2';
+$lang->upgrade->fromVersions['3_2_1']    = '3.2.1';
+$lang->upgrade->fromVersions['3_3']      = '3.3';
+$lang->upgrade->fromVersions['3_4']      = '3.4';
+$lang->upgrade->fromVersions['3_5']      = '3.5';
+$lang->upgrade->fromVersions['3_6']      = '3.6';
+$lang->upgrade->fromVersions['3_7']      = '3.7';
+$lang->upgrade->fromVersions['4_0']      = '4.0';
+$lang->upgrade->fromVersions['4_1']      = '4.1';
+
+$lang->upgrade->deleteTips   = '需要删除部分文件。linux下面命令为：<br />';
+$lang->upgrade->deleteDir    = '<code>rm -fr %s</code>';
+$lang->upgrade->deleteFile   = '<code>rm %s</code>';
+$lang->upgrade->afterDeleted = '<br />删除以上文件后刷新！';

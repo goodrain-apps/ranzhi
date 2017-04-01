@@ -4,13 +4,15 @@ $lang->trip->common = '出差';
 $lang->trip->browse = '出差列表';
 $lang->trip->create = '新建';
 $lang->trip->edit   = '编辑';
+$lang->trip->view   = '出差详情';
 $lang->trip->delete = '删除';
 
-$lang->trip->personal   = '我的请假';
+$lang->trip->personal   = '我的出差';
 $lang->trip->department = '部门';
 $lang->trip->company    = '公司';
 
 $lang->trip->id          = '编号';
+$lang->trip->customer    = '客户 / 供应商';
 $lang->trip->name        = '名称';
 $lang->trip->begin       = '开始';
 $lang->trip->end         = '结束';
@@ -22,5 +24,7 @@ $lang->trip->createdDate = '创建时间';
 $lang->trip->date        = '日期';
 $lang->trip->time        = '时间';
 
-$lang->trip->denied = '信息访问受限';
-$lang->trip->unique = '%s 已经存在出差记录';
+$lang->trip->denied    = '信息访问受限';
+$lang->trip->unique    = '%s 已经存在出差记录';
+$lang->trip->wrongEnd  = '结束时间应该大于开始时间';
+$lang->trip->sameMonth = '不支持跨月份出差';

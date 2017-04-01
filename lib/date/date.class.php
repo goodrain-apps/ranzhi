@@ -6,7 +6,7 @@
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     RanZhi
- * @version     $Id: date.class.php 3376 2015-12-18 02:11:46Z daitingting $
+ * @version     $Id: date.class.php 3674 2016-03-30 09:43:20Z liugang $
  * @link        http://www.ranzhico.com
  */
 class date 
@@ -207,7 +207,7 @@ class date
      */
     public static function getLastMonth()
     {
-        $begin = date('Y-m', strtotime('last month')) . '-01 00:00:00';
+        $begin = date('Y-m', strtotime('last month', strtotime(date('Y-m',time()) . '-01 00:00:01'))) . '-01 00:00:00';
         $end   = date('Y-m', strtotime('this month')) . '-00 23:59:59';
         return array('begin' => $begin, 'end' => $end);
     }

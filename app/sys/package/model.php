@@ -2,7 +2,7 @@
 /**
  * The model file of package module of Ranzhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     package
@@ -107,8 +107,11 @@ class packageModel extends model
     /**
      * Get packages by some condition.
      * 
-     * @param  string    $type 
-     * @param  mixed     $param 
+     * @param  string $type 
+     * @param  mixed  $param 
+     * @param  int    $recTotal 
+     * @param  int    $recPerPage 
+     * @param  int    $pageID 
      * @access public
      * @return array|bool
      */
@@ -337,7 +340,7 @@ class packageModel extends model
     /**
      * Get the package's condition. 
      * 
-     * @param  string    $extenstion 
+     * @param  string $package 
      * @access public
      * @return object
      */

@@ -2,7 +2,7 @@
 /**
  * The control file of my module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     my
@@ -25,7 +25,9 @@ class my extends control
 
         $this->loadModel('attend', 'oa');
         $this->loadModel('leave', 'oa');
+        $this->loadModel('overtime', 'oa');
         $this->loadModel('refund', 'oa');
+        $this->loadModel('lieu', 'oa');
         $account = $this->app->user->account;
 
         /* Get dept info. */
@@ -46,7 +48,15 @@ class my extends control
         
         /* Get leave list. */
         $leaves = array();
-        if($type == 'leave' and !empty($deptList)) $leaves = $this->leave->getList('browseReview', $year = '', $month = '', '', array_keys($deptList), $status = 'wait', $orderBy);
+        if($type == 'leave' and !empty($deptList)) $leaves = $this->leave->getList('browseReview', $year = '', $month = '', '', array_keys($deptList), $status = 'wait,pass', $orderBy);
+
+        /* Get overtime list. */
+        $overtimes = array();
+        if($type == 'overtime' and !empty($deptList)) $overtimes = $this->overtime->getList('browseReview', $year = '', $month = '', '', array_keys($deptList), $status = 'wait', $orderBy);
+
+        /* Get lieu list. */
+        $lieus = array();
+        if($type == 'lieu' and !empty($deptList)) $lieus = $this->lieu->getList('browseReview', $year = '', $month = '', '', array_keys($deptList), $status = 'wait', $orderBy);
 
         /* Get refund list. */
         $refunds = array();
@@ -56,7 +66,7 @@ class my extends control
             $secondRefunds = array();
             if(!empty($this->config->refund->secondReviewer) and $this->config->refund->secondReviewer == $account)
             {
-                $secondRefunds = $this->refund->getList($mode = 'browseReview', $deptIDList = '', 'doing');
+                $secondRefunds = $this->refund->getList($mode = 'browseReview', '', $date = '', $deptIDList = '', 'doing');
             }
 
             /* Get refund list for firstReviewer. */
@@ -69,13 +79,15 @@ class my extends control
             {
                 $deptList = $managedDeptList;
             }
-            if(!empty($deptList)) $firstRefunds = $this->refund->getList($mode = 'browseReview', $deptIDList = array_keys($deptList), 'wait');
+            if(!empty($deptList)) $firstRefunds = $this->refund->getList($mode = 'browseReview', '', $date = '',  $deptIDList = array_keys($deptList), 'wait');
             $refunds = array_merge($secondRefunds, $firstRefunds);
         }
 
         $this->view->title        = $this->lang->refund->review;
         $this->view->attends      = $attends;
         $this->view->leaveList    = $leaves;
+        $this->view->overtimeList = $overtimes;
+        $this->view->lieuList     = $lieus;
         $this->view->refunds      = $refunds;
         $this->view->deptList     = $allDeptList;
         $this->view->users        = $this->loadModel('user')->getPairs();
@@ -99,33 +111,21 @@ class my extends control
      */
     public function company($type = 'todo', $dept = '', $account = '', $begin = '', $end = '')
     {
-        $this->loadModel('todo', 'oa');
+        $this->loadModel('todo', 'sys');
 
         /* compute begin and end. */
-        $today = helper::today();
         if($begin == '')
         {
-            /* days: count of days before today that to display todos. loops: count of days before today that to check todos. */
-            $days  = $loop  = 0; 
-            $begin = $today = helper::today();
-
+            $today = helper::today();
             if($end == '') $end = date('Y-m-d', strtotime("$today +6 days"));
-            if(strtotime($begin) > strtotime($end)) $end = date('Y-m-d', strtotime("$begin +6 days"));
-
             $dateList = range(strtotime($today), strtotime($end), 86400);
+            $begin = date('Y-m-d', strtotime("$today -1 days"));
+            while($this->loadModel('attend', 'oa')->isWeekend($begin) or $this->loadModel('holiday', 'oa')->isHoliday($begin))
+            {
+                $begin = date('Y-m-d', strtotime("$begin -1 days")); 
+            }
 
-            do {
-                $begin      = date('Y-m-d', strtotime("$begin -1 days")); 
-                $beginTodos = $this->dao->select('*')->from(TABLE_TODO)->where('date')->eq($begin)->fetchAll();
-                if(!empty($beginTodos)) 
-                {
-                    array_unshift($dateList, strtotime($begin));
-                    $days++;
-                }
-
-                $loop++;
-                if($loop > 30) break;
-            } while ($days < 3);
+            array_unshift($dateList, strtotime($begin));
         }
         else
         {
@@ -141,8 +141,20 @@ class my extends control
         $acountList = array();
         if($account == '')
         {
-            if($dept == '') $users = $this->dao->select('account, realname')->from(TABLE_USER)->where('deleted')->eq(0)->orderBy('dept')->fetchPairs();
-            else $users = $this->loadModel('user')->getPairs('nodeleted,noclosed,noempty', $dept);
+            if($dept == '') 
+            {
+                $users = $this->dao->select('account, realname')->from(TABLE_USER)
+                    ->where('deleted')->eq(0)
+                    ->andWhere('locked', true)->eq('0000-00-00 00:00:00')
+                    ->orWhere('locked')->lt(helper::now())
+                    ->markRight(1)
+                    ->orderBy('dept')
+                    ->fetchPairs();
+            }
+            else 
+            {
+                $users = $this->loadModel('user')->getPairs('nodeleted,noforbidden,noclosed,noempty', $dept);
+            }
             $accountList = array_keys($users);
         }
         else
@@ -178,6 +190,7 @@ class my extends control
                 }
             }
 
+            $this->app->loadLang('egress', 'oa');
             foreach($trips as $trip)
             {
                 $tripDates = range(strtotime($trip->begin), strtotime($trip->end), 60*60*24);
@@ -187,7 +200,7 @@ class my extends control
 
                     $data = new stdclass();
                     $data->id      = 'trip' . $tripDate;
-                    $data->name    = $this->lang->trip->common . $this->lang->minus . $trip->name;
+                    $data->name    = $this->lang->{$trip->type}->common . $this->lang->minus . $trip->name;
                     $data->type    = 'trip';
                     $data->date    = $tripDate;
                     $data->desc    = $trip->desc;
@@ -213,7 +226,7 @@ class my extends control
         $this->view->begin    = $date['begin'];
         $this->view->end      = $date['end'];
         $this->view->deptList = $deptList;
-        $this->view->users    = $this->loadModel('user')->getPairs('nodeleted,noclosed');
+        $this->view->users    = $this->loadModel('user')->getPairs('nodeleted,noforbidden,noclosed');
         $this->view->userDept = $this->dao->select('account,dept')->from(TABLE_USER)->fetchPairs();
         $this->view->dateList = $dateList;
         $this->display();
@@ -251,7 +264,7 @@ class my extends control
 
         $this->view->title        = $this->lang->order->browse;
         $this->view->orders       = $orders;
-        $this->view->customers    = $this->loadModel('customer', 'crm')->getList('client');
+        $this->view->customers    = $this->loadModel('customer')->getList('client');
         $this->view->users        = $this->loadModel('user')->getPairs();
         $this->view->pager        = $pager;
         $this->view->type         = $type;
@@ -289,9 +302,11 @@ class my extends control
         /* Save session for return link. */
         $this->session->set('contractList', "javascript:$.openEntry(\"dashboard\")");
 
+        $this->app->user->canEditContractIdList = ',' . implode(',', $this->contract->getContractsSawByMe('edit', array_keys($contracts))) . ',';
+
         $this->view->title        = $this->lang->contract->browse;
         $this->view->contracts    = $contracts;
-        $this->view->customers    = $this->loadModel('customer', 'crm')->getPairs('client');
+        $this->view->customers    = $this->loadModel('customer')->getPairs('client');
         $this->view->pager        = $pager;
         $this->view->type         = $type;
         $this->view->orderBy      = $orderBy;
@@ -324,6 +339,7 @@ class my extends control
         $this->view->orderBy = $orderBy;
         $this->view->pager   = $pager;
         $this->view->tasks   = $this->loadModel('task')->getList(0, $type, $orderBy, $pager);
+        $this->view->users   = $this->loadModel('user')->getPairs();
         $this->display();
     }
 
@@ -333,16 +349,17 @@ class my extends control
      * @access public
      * @return void
      */
-    public function project($recTotal = 0, $recPerPage = 20, $pageID = 1)
+    public function project($orderBy = 'id_desc', $recTotal = 0, $recPerPage = 20, $pageID = 1)
     {
         $this->app->loadClass('pager', $static = true);
         $pager = new pager($recTotal, $recPerPage, $pageID);
 
-        $this->loadModel('project', 'oa');
+        $this->loadModel('project', 'proj');
         $this->view->title    = $this->lang->my->project->common;
-        $this->view->projects = $this->project->getList('involved', $pager);
+        $this->view->projects = $this->project->getList('involved', $orderBy, $pager);
         $this->view->users    = $this->loadModel('user')->getPairs('noclosed');
         $this->view->pager    = $pager;
+        $this->view->orderBy  = $orderBy;
         $this->display();
     }
 
@@ -361,6 +378,11 @@ class my extends control
     {
         $this->app->loadClass('pager', $static = true);
         $pager = new pager($recTotal, $recPerPage, $pageID);
+
+        /* Build search form. */
+        $this->loadModel('search', 'sys');
+        $this->config->dynamic->search['actionURL'] = $this->createLink('my', 'dynamic', 'type=bysearch');
+        $this->search->setSearchParams($this->config->dynamic->search);
 
         $this->view->title   = $this->lang->my->dynamic->common;
         $this->view->type    = $type;

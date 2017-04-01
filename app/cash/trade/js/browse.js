@@ -41,35 +41,6 @@ $(document).ready(function()
         return tradeChecked;
     });
 
-    fixTableFooter($('#tradeList'));
-
-    $('.side-handle').click(function()
-    {
-        if($(this).parents('.with-side').hasClass('hide-side'))
-        {
-            $('.with-side').removeClass('hide-side');
-            $.cookie('tradeListSide', 'show', {path: config.webRoot});
-        }
-        else
-        {
-            $('.with-side').addClass('hide-side');
-            $.cookie('tradeListSide', 'hide', {path: config.webRoot});
-        }
-        setTimeout(function(){$(window).scroll().resize()}, 300);
-    });
-
-    if(v.date)
-    {
-        if(config.requestType == 'GET')
-        {
-            $(".side-body .tree li a[href$='" + v.date + "']").parent().addClass('active');
-        }
-        else
-        {
-            $(".side-body .tree li a[href$='" + v.date + ".html']").parent().addClass('active');
-        }
-    }
-
     if(v.treeview == '') 
     {
         $('a[href*=' + v.currentYear + ']').parents('li.expandable').find('ul').show();
@@ -77,4 +48,6 @@ $(document).ready(function()
         $('a[href*=' + v.currentYear + ']').parents('li').replaceClass('lastExpandable', 'lastCollapsable');
         $('a[href*=' + v.currentYear + ']').parents('li').find('.hitarea').replaceClass('expandable-hitarea', 'collapsable-hitarea');
     }
+
+    fixTableFooter($('#tradeList'));
 });

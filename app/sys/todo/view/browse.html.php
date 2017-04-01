@@ -2,7 +2,7 @@
 /**
  * The browse file of todo module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     todo
@@ -14,8 +14,8 @@
 <?php include '../../../sys/common/view/datepicker.html.php';?>
 <?php js::set('mode', $mode)?>
 <div class='panel'>
-  <form id='ajaxForm' method='post'>
-    <table class='table table-hover table-striped tablesorter table-data table-fixed' id='todoList'>
+  <form id='jaxForm' method='post'>
+    <table class='table table-hover table-striped table-bordered tablesorter table-data table-fixed' id='todoList'>
       <thead>
         <tr class='text-center'>
           <?php $vars = "mode=$mode&orderBy=%s&recTotal={$pager->recTotal}&recPerPage={$pager->recPerPage}&pageID={$pager->pageID}";?>
@@ -43,7 +43,7 @@
           <td><?php echo $todo->begin;?></td>
           <td><?php echo $todo->end;?></td>
           <td><?php echo zget($lang->todo->statusList, $todo->status);?></td>
-          <td class='text-left'>
+          <td class='text-left actions'>
             <?php 
               echo html::a($this->createLink('todo', 'view', "todoID={$todo->id}"), $lang->view, "data-toggle='modal' data-width='80%'");
               $disabled = ($this->todo->checkPriv($todo, 'finish') && $this->todo->isClickable($todo, 'finish')) ? '' : 'disabled';
@@ -63,16 +63,39 @@
     </table>
     <div class='table-footer'>
       <div class='pull-left batch-actions'>
-        <?php $closeActionLink = $this->createLink('sys.todo', 'batchClose');?>
-        <div class='pull-left close-action'><?php echo html::selectButton() . html::commonButton($lang->close, 'btn btn-primary', "onclick=\"setFormAction('$closeActionLink')\"");?></div>
+        <div class='pull-left close-action'>
+          <?php echo html::selectButton();?>
+          <div class='btn-group dropup'>
+            <?php $finishActionLink = $this->createLink('sys.todo', 'batchFinish');?>
+            <?php if(commonModel::hasPriv('todo', 'batchFinish')) echo html::commonButton($lang->finish, 'btn btn-primary', "onclick=\"setFormAction('$finishActionLink')\"");?>
+            <button class='btn btn-primary dropdown-toggle' data-toggle='dropdown'><i class='icon-caret-up'></i></button>
+            <ul class='dropdown-menu' role='menu'>
+              <?php if(commonModel::hasPriv('todo', 'batchClose')):?>
+              <li>
+              <?php $closeActionLink = $this->createLink('sys.todo', 'batchClose');?>
+              <?php echo html::a('#', $lang->close, "onclick=\"setFormAction('$closeActionLink')\"");?>
+              </li>
+              <?php endif;?>
+              <?php if(commonModel::hasPriv('todo', 'batchEdit')):?>
+              <li>
+              <?php $editActionLink = $this->createLink('sys.todo', 'batchEdit', "mode=$mode");?>
+              <?php echo html::a('#', $lang->edit, "onclick=\"setFormAction('$editActionLink')\"");?>
+              </li>
+              <?php endif;?>
+            </ul>        
+          </div>
+        </div>
         <?php
         if(commonModel::hasPriv('todo', 'import2Today'))
         {
             $actionLink = $this->createLink('todo', 'import2Today');
             echo "<div class='input-group import-action'>";
-            echo "<div class='datepicker-wrapper datepicker-date'>" . html::input('date', date('Y-m-d'), "class='form-control form-date'") . '</div>';
             echo "<span class='input-group-btn'>";
-            echo html::commonButton($lang->todo->import, 'btn btn-default', "onclick=\"setFormAction('$actionLink')\"");
+            echo html::commonButton($lang->todo->import, 'btn btn-primary import');
+            echo "</span>";
+            echo "<div class='datepicker-wrapper datepicker-date hide'>" . html::input('date', date('Y-m-d'), "class='form-control form-date'") . '</div>';
+            echo "<span class='input-group-btn confirm hidden'>";
+            echo html::commonButton($lang->confirm, 'btn btn-primary', "onclick=\"setFormAction('$actionLink')\"");
             echo '</span>';
             echo '</div>';
         }

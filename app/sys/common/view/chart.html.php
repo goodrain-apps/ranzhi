@@ -37,7 +37,8 @@ if($config->debug)
 
             if(chartType === 'pie')
             {
-                options = $.extend({scaleShowLabels: true, scaleLabel: '<%=label%>: <%=value%>'}, options);
+                var lineHeight = options.scalelineheight === undefined ? 1 : options.scalelineheight; 
+                options = $.extend({scaleShowLabels: true, scaleLabel: '<%=label%>: <%=value%>', scaleLineHeight: lineHeight}, options);
                 var data = [];
                 var $rows = $table.find('tbody > tr').each(function(idx)
                 {
@@ -45,7 +46,7 @@ if($config->debug)
                     var color = nextAccentColor().toCssStr();
 
                     $row.attr('data-id', idx).find('.chart-color-dot').css('color', color);
-                    data.push({label: $row.find('.chart-label').text(), value: parseInt($row.find('.chart-value').text()), color: color, id: idx});
+                    data.push({label: $row.find('.chart-label').text(), value: parseFloat($row.find('.chart-value').text()), color: color, id: idx});
                 });
 
                 if(data.length > 1) options.scaleLabelPlacement = 'outside';
@@ -74,7 +75,7 @@ if($config->debug)
                 {
                     var $row = $(this);
                     labels.push($row.find('.chart-label').text());
-                    dataset.data.push(parseInt($row.find('.chart-value').text()));
+                    dataset.data.push(parseFloat($row.find('.chart-value').text()));
                 });
                 var data = {labels: labels, datasets: [dataset]};
                 if(labels.length) options.barValueSpacing = 5;

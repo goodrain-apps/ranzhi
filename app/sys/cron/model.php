@@ -2,7 +2,7 @@
 /**
  * The model file of cron module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     cron
@@ -237,21 +237,5 @@ class cronModel extends model
             ->andWhere('section')->eq('run')
             ->andWhere('`key`')->eq('status')
             ->fetch('id');
-    }
-
-    /**
-     * Get current cron status.
-     * 
-     * @access public
-     * @return int
-     */
-    public function getTurnon()
-    {
-        return $this->dao->select('*')->from(TABLE_CONFIG)
-            ->where('owner')->eq('system')
-            ->andWhere('module')->eq('common')
-            ->andWhere('section')->eq('global')
-            ->andWhere('`key`')->eq('cron')
-            ->fetch('value');
     }
 }

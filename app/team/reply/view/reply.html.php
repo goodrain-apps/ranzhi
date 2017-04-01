@@ -2,11 +2,11 @@
 /**
  * The reply view file of reply module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     reply
- * @version     $Id: reply.html.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: reply.html.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -30,7 +30,7 @@
     {
         foreach($reply->files as $file) echo html::a($file->fullURL, $file->title . '.' . $file->extension, "target='_blank'") . ' ' . html::linkButton('Ｘ', inlink('deleteFile', "fileID=$file->id&objectID=$reply->id&objectType=reply"), 'btn btn-default', '', 'hiddenwin');
     }
-    echo $this->fetch('file', 'buildForm');
+    if(commonModel::hasPriv('file', 'upload')) echo $this->fetch('file', 'buildForm');
     ?>
     </td>
   </tr>

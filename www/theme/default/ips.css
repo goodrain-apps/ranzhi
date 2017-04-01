@@ -48,7 +48,7 @@ body[class*='dropdown-mode-'] .s-menu-tooltip, body.mute-tooltip .s-menu-tooltip
 .bar-menu > li > a > .icon.icon-default, .bar-menu > li > button > .icon.icon-default {font-size: 12px; display: inline-block; min-width: 28px; box-shadow: 0 1px 1px rgba(0,0,0,0.35); border-radius: 5px; background-color: #145CCD; font-weight: normal; text-shadow: 0 1px 1px rgba(0,0,0,0.15);}
 
 /* left bar. */
-#leftBar {width: 40px; height: 100%; background-color: #0a2e66; background-color: rgba(0,0,0,0.4); z-index: 40010; transition: left .3s;-o-transition: left .3s;-moz-transition: left .3s;-webkit-transition: left .3s;}
+#leftBar {width: 40px; height: 100%; background-color: #0a2e66; background-color: rgba(0,0,0,0.3); z-index: 40010; transition: left .3s;-o-transition: left .3s;-moz-transition: left .3s;-webkit-transition: left .3s;}
 #desktop.menu-auto #leftBar.menu-hide {left: -38px;}
 
 #apps-menu {position: absolute; bottom: 36px; top: 0; overflow: no-display; transition: height .3s;-o-transition: height .3s;-moz-transition: height .3s;-webkit-transition: height .3s;}
@@ -59,7 +59,7 @@ body[class*='dropdown-mode-'] .s-menu-tooltip, body.mute-tooltip .s-menu-tooltip
 #apps-menu .bar-menu > li > button:hover > .icon, #moreOptionBtn:hover > .icon {color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,0.15);}
 #apps-menu .bar-menu > li.drag-from > button {opacity: 0.3; background: #000}
 
-#moreOptionBtn {display: none}
+#moreOptionBtn {display: none;}
 #moreOptionBtn:hover, #moreOptionBtn.hover {text-decoration: none; color: #fff; background-color: #666; background-color: rgba(255,255,255,0.20);}
 #moreOptionBtn > .icon {transition: all 0.2s; font-size: 24px; font-style: normal; line-height: 30px; background: #666; background: rgba(255,255,255, 0.45); display: block; width: 28px; height: 28px; border-radius: 14px}
 #apps-menu.more-option #moreOptionBtn {display: block; position: absolute; left: 0; bottom: 0}
@@ -67,13 +67,17 @@ body[class*='dropdown-mode-'] .s-menu-tooltip, body.mute-tooltip .s-menu-tooltip
 #moreOptionBtn.active > .icon {transform: scale(1.2); background: #555; background: rgba(255,255,255, .2); }
 #moreOptionBtn.hover > .icon:before {content: '\e6e0'; position: relative; top: -2px; left: -1px}
 #moreOptionMenu {left: 39px; bottom: -1px; top: auto; padding: 10px}
-#moreOptionMenu > li {display: block; float: left;}
+.categoryMenu:before,
+#moreOptionMenu:before {background: rgba(0,0,0,.1); content: ' '; position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 0}
+.categoryMenu > li,
+#moreOptionMenu > li {display: block; float: left; position: relative; z-index: 1;}
 
 /* bottom bar. */
-#bottomBar {height: 36px; background-color: #0a2e66; background-color: rgba(0,0,0,0.5); z-index: 50000; left: 40px; right: 0}
+#bottomBar {height: 36px; background-color: #0a2e66; background-color: rgba(0,0,0,0.2); z-index: 50000; left: 40px; right: 0}
 #desktop.menu-auto #bottomBar {left: 2px}
 #bottomBar .bar-menu li {min-width: 50px; text-align: center; font-size: 16px; height: 36px; margin-right:4px; overflow: hidden; white-space: nowrap; background-color: #444; background-color: rgba(0,0,0,0.20); -o-transition: width 1s;-moz-transition: width 1s;-webkit-transition: width 1s;transition: width 1s;}
 #bottomBar .bar-menu li > button {line-height: 28px; font-size: 12px; font-weight: normal; margin-right: 0; width: 100%;}
+#taskbar {padding-right: 220px;}
 #taskbar .bar-menu li {text-align: left; min-width: 90px; max-width: 300px; position: relative;}
 #taskbar .bar-menu li .actions {position: absolute; right: 0; top: 0;}
 #taskbar .bar-menu li button { text-align: left; text-transform: uppercase}
@@ -171,31 +175,25 @@ body[class*='dropdown-mode-'] .window-active .window-cover {display: block;}
 .fullscreen-mode #deskContainer {display: none;}
 
 /* allapps */
-#allapps {background-color: rgba(0,0,0,0.25); color: #fff;}
-#allapps > header {padding: 20px 40px 0; border-bottom: 1px solid #a1a1a1; border-bottom: 1px solid rgba(255,255,255,0.2);}
-#allapps > header .nav {border: none; position: relative;}
-#allapps > header .nav > li > a {padding: 12px 15px; background: none; border-color: transparent; color: #fff; color: rgba(255,255,255,0.6);}
+#allapps {background-color: rgba(0,0,0,0.1); color: #fff;}
+#allapps > header {position: relative; padding: 20px 40px; overflow: hidden;}
+#allapps > header > .nav {position: absolute; top: 20px; left: 20px; height: 49px;}
+#allapps > header > .nav:before,
+#allapps > header > .nav:after {content: ' '; display: block; border-bottom: 1px solid #a1a1a1; border-bottom: 1px solid rgba(255,255,255,0.2); width: 9999em; bottom: 1px; left: -9999em; position: absolute;}
+#allapps > header > .nav:after {left: 100%;}
+#allapps > header .nav > li {float: left;}
+#allapps > header .nav > li > a {padding: 13px 15px; background: none; color: #fff; color: rgba(255,255,255,0.6); border: 1px solid transparent; border-bottom-color: #a1a1a1; border-bottom-color: rgba(255,255,255,0.2); border-left-width: 0; border-right-width: 0; transition-property: background;}
 #allapps > header .nav > li > a > small {display: none}
-#allapps > header .nav > li > a:hover {border-color: #a1a1a1; border-color: rgba(255,255,255,0.2); border-bottom-color: transparent; background-color:rgba(255,255,255,0.24);}
-#allapps > header .nav > li.active > a, #allapps > header .nav > li.active > a:hover {color: #fff; border-color: #a1a1a1; border-color: rgba(255,255,255,0.2); border-bottom-color: #0f4599; background: none}
-.ie-8 #allapps > header .nav > li.active > a, .ie-8 #allapps > header .nav > li.active > a:hover{border-bottom-color: #145ccd}
+#allapps > header .nav > li > a:hover {background-color:rgba(255,255,255,0.24);}
+#allapps > header .nav > li.active > a, #allapps > header .nav > li.active > a:hover {color: #fff; border-color: #a1a1a1; border-color: rgba(255,255,255,0.2); border-bottom-color: transparent!important; background: none!important;  border-left-width: 1px; border-right-width: 1px;}
 #allapps > header .nav > li.active > a > small {display: inline;}
 #allapps > header .nav > li.active > a > span {font-weight: bold;}
 #allapps .muted {color:rgba(255,255,255,0.6);}
-@media (max-width: 1400px) {
-  #allapps .col-left {width: 40%}
-  #allapps .col-middle {width: 30%}
-  #allapps .col-right {width: 30%}
-}
-@media (max-width: 1100px) {
-  #allapps .col-left {width: 45%}
-  #allapps .col-middle {width: 30%}
-  #allapps .col-right {width: 25%}
-}
+#allapps > header > .actions {position: absolute; top: 20px; right: 20px;}
 
 #search {padding: 6px 30px}
 .ie-8 #search {padding-top: 3px;}
-#allapps .search-input {position: relative;}
+#allapps .search-input {position: relative; width: 300px; margin: 0 auto;}
 #allapps .search-input .icon, #cancelSearch{position: absolute; display: block; left: 9px; top: 7px; color: #f1f1f1; color: rgba(255,255,255,0.4);}
 #allapps .search-input:hover .icon, #cancelSearch:hover {color: #fff; color: rgba(255,255,255,0.6);}
 #cancelSearch {display: none; right: 3px; left: inherit; top: 3px; border-color: transparent; color: rgba(255,255,255,0.9);}
@@ -212,9 +210,9 @@ body[class*='dropdown-mode-'] .window-active .window-cover {display: block;}
 #allAppsList li a.menu-true .icon-pushpin {display: block; position: absolute; left: 12px; top: 48px; width: 20px; height: 20px;border: 1px solid #fff; border: 1px solid rgba(255,255,255,0.5); border-radius: 50%; text-align: center; line-height: 18px; background: #000; background: rgba(0,0,0,0.4); color: #fff;}
 #allAppsList li a.active:hover, #allAppsList li a.search-selected {background-color:rgba(255,255,255,0.24);}
 #allAppsList li img {width: 48px; height: 48px; margin-right: 10px; box-shadow: 0 1px 1px rgba(0,0,0,0.35); border-radius: 8px}
-#allAppsList li .app-btn > .icon {display: inline-block; width: 48px; height: 48px; line-height: 48px; text-align: center; margin-right: 10px; background-color: #555; background-color: rgba(255,255,255,.2); border-radius: 8px}
-#allAppsList li .app-btn:hover > .icon {background-color: rgba(255,255,255,.3);}
-#allAppsList li .app-btn > .icon.icon-default {font-size: 16px; margin-right: 10px; color: #FFF}
+#allAppsList li .app-btn > .icon {display: inline-block; width: 48px; height: 48px; line-height: 48px; text-align: center; margin-right: 10px; background-color: #555; background-color: rgba(255,255,255,.25); border-radius: 8px; color: #fff;}
+#allAppsList li .app-btn:hover > .icon {background-color: rgba(255,255,255,.35); color: #fff;}
+#allAppsList li .app-btn > .icon.icon-default {font-size: 20px; margin-right: 10px; color: #fff}
 
 @media (max-width: 1400px) {#allAppsList li {width: 24%}}
 @media (max-width: 1100px) {#allAppsList li {width: 32%}}

@@ -2,7 +2,7 @@
 /**
  * The config file of order module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     order 
@@ -17,6 +17,7 @@ $config->order->editor = new stdclass();
 $config->order->editor->close    = array('id' => 'closedNote', 'tools' => 'simple');
 $config->order->editor->assign   = array('id' => 'comment', 'tools' => 'simple');
 $config->order->editor->activate = array('id' => 'comment', 'tools' => 'simple');
+$config->order->editor->view     = array('id' => 'comment,lastComment', 'tools' => 'simple');
 
 $config->order->statusClassList['normal']   = '';
 $config->order->statusClassList['assigned'] = 'alert-warning';
@@ -25,7 +26,7 @@ $config->order->statusClassList['payed']    = 'alert-success';
 $config->order->statusClassList['closed']   = '';
 
 global $lang, $app;
-$app->loadLang('customer', 'crm');
+$app->loadLang('customer');
 $config->order->search['module'] = 'order';
 
 $config->order->search['fields']['o.customer']      = $lang->order->customer;

@@ -1,7 +1,7 @@
 <?php
 if(!isset($lang->cron)) $lang->cron = new stdclass();
 $lang->cron->common  = 'Cron';
-$lang->cron->index   = 'Index';
+$lang->cron->index   = 'Home';
 $lang->cron->list    = 'List';
 $lang->cron->create  = 'Create';
 $lang->cron->edit    = 'Edit';

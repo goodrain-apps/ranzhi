@@ -2,7 +2,7 @@
 /**
  * The settings view file of attend module of ZenTaoPMS.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     attend
@@ -29,13 +29,13 @@
       </tr> 
     </table>
     <table class='table table-form table-condensed editMode'>
-      <?php if(strpos(',late,both,absent', $attend->status) !== false):?>
+      <?php if(strpos(',late,both,absent,leave,makup,overtime,lieu,trip,egress,', ",$attend->status,") !== false):?>
       <tr id='trIn'>
         <th><?php echo $lang->attend->manualIn?></th>
         <td><?php echo html::input('manualIn', empty($attend->manualIn) ? $this->config->attend->signInLimit : $attend->manualIn, "class='form-control form-time'")?></td>
       </tr>
       <?php endif;?>
-      <?php if(strpos(',early,both,absent', $attend->status) !== false):?>
+      <?php if(strpos(',early,both,absent,', ",$attend->status,") !== false or (strpos(',leave,makup,overtime,lieu,trip,egress', ",$attend->status,") !== false && date('Y-m-d') > "$attend->date {$config->attend->signOutLimit}")):?>
       <tr id='trOut'>
         <th><?php echo $lang->attend->manualOut?></th>
         <td><?php echo html::input('manualOut', empty($attend->manualOut) ? $this->config->attend->signOutLimit : $attend->manualOut, "class='form-control form-time'")?></td>

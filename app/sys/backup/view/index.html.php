@@ -2,7 +2,7 @@
 /**
  * The view file of backup module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     backup
@@ -18,7 +18,10 @@
 <?php endif;?>
 
 <div id='menuActions'>
-  <div class='actions'><?php commonModel::printLink('backup', 'backup', '', $lang->backup->backup, "class='btn btn-primary backup'");?></div>
+  <div class='actions'>
+    <?php if($this->config->global->cron) commonModel::printLink('backup', 'setSaveDays', '', $lang->backup->setSaveDays, "class='btn btn-primary' data-toggle='modal'");?>
+    <?php commonModel::printLink('backup', 'backup', '', $lang->backup->backup, "class='btn btn-primary backup'");?>
+  </div>
 </div>
 <div class='panel'>
   <table class='table table-condensed table-bordered active-disabled table-fixed'>

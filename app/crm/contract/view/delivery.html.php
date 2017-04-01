@@ -2,7 +2,7 @@
 /**
  * The delivery file of contract module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     contract 
@@ -14,7 +14,7 @@
 <?php include '../../../sys/common/view/kindeditor.html.php';?>
 <?php include '../../../sys/common/view/chosen.html.php';?>
 <?php include '../../common/view/datepicker.html.php';?>
-<form method='post' id='ajaxForm' action='<?php echo inlink('delivery', "contractID=$contractID")?>'>
+<form method='post' id='ajaxForm' action='<?php echo inlink('delivery', "contractID=$contract->id")?>'>
   <table class='table table-form'>
     <tr>
       <th class='w-80px'><?php echo $lang->contract->deliveredBy;?></th>
@@ -33,7 +33,7 @@
     </tr>
     <tr>
       <th><?php echo $lang->contract->handlers;?></th>
-      <td colspan='2'><?php echo html::select('handlers[]', $users, $this->app->user->account, "class='form-control chosen' multiple");?></td>
+      <td colspan='2'><?php echo html::select('handlers[]', $users, $contract->handlers, "class='form-control chosen' multiple");?></td>
     </tr>
     <tr>
       <th><?php echo $lang->comment;?></th>

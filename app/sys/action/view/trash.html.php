@@ -2,12 +2,12 @@
 /**
  * The trash view file of action module of ZenTaoPMS.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     action
  * @version     $Id$
- * @link        http://www.zentao.net
+ * @link        http://www.ranzhico.com
  */
 ?>
 <?php include '../../common/view/header.html.php';?>
@@ -51,13 +51,11 @@
     </tbody>
     <tfoot>
       <tr>
-        <td colspan='3'>
+        <td colspan='6'>
           <?php if($trashes and $type == 'all'):?>
           <?php echo html::a(inlink('hideAll'), $lang->action->hideAll, "id='hideAll' class='btn ajax'");?>
           <span class=''><?php echo $lang->action->trashTips;?></span>
           <?php endif;?>
-        </td>
-        <td colspan='3'>
           <?php $pager->show();?>
         </td>
       </tr>

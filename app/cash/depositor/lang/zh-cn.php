@@ -2,7 +2,7 @@
 /**
  * The depositor module zh-cn file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     depositor
@@ -65,6 +65,7 @@ $lang->depositor->providerList['']       = '';
 $lang->depositor->providerList['alipay'] = '支付宝';
 $lang->depositor->providerList['paypal'] = '贝宝';
 $lang->depositor->providerList['tenpay'] = '财付通';
+$lang->depositor->providerList['wechat'] = '微信支付';
 
 $lang->depositor->statusList['normal']  = '正常';
 $lang->depositor->statusList['disable'] = '停用';

@@ -2,7 +2,7 @@
 /**
  * The action view of common module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     common 
@@ -12,6 +12,10 @@
 ?>
 <?php if($extView = $this->getExtViewFile(__FILE__)){include $extView; return helper::cd();}?>
 <script src='<?php echo $config->webRoot;?>js/jquery/reverseorder/raw.js' type='text/javascript'></script>
+
+<style>
+.wordwrap {word-wrap:break-word;word-break:break-all;}
+</style>
 
 <div class='panel panel-history'>
   <div class='panel-heading'>
@@ -49,7 +53,7 @@
         <?php 
         if(helper::isAjaxRequest())
         {
-            $append  = "class='loadInModal'";
+            $append  = $from != 'record' ? "class='loadInModal'" : '';
         }
         else
         {
@@ -64,7 +68,7 @@
         <?php 
         if($action->comment) 
         {
-            echo "<div class='comment$action->id'>";
+            echo "<div class='comment$action->id wordwrap'>";
             echo strip_tags($action->comment) == $action->comment ? nl2br($action->comment) : $action->comment; 
             echo "</div>";
         }

@@ -56,30 +56,6 @@ function selectNext()
     $("#end ")[0].selectedIndex = $("#begin ")[0].selectedIndex + 3;
 }
 
-function setBeginsAndEnds(i, beginOrEnd)
-{
-    if(typeof i == 'undefined')
-    {
-        for(j = 0; j < batchCreateNum; j++)
-        {
-            if(j != 0) $("[name=begins\\[" + j + '\\]]')[0].selectedIndex = $("[name=ends\\[" + (j - 1) + '\\]]')[0].selectedIndex;
-            $("[name=ends\\[" + j + '\\]]')[0].selectedIndex = $("[name=begins\\[" + j + '\\]]')[0].selectedIndex + 3;
-        }
-    }
-    else
-    {
-        if(beginOrEnd == 'begin')
-        {
-            $("[name=ends\\[" + i + '\\]]')[0].selectedIndex = $("[name=begins\\[" + i + '\\]]')[0].selectedIndex + 3;
-        }
-        for(j = i+1; j < batchCreateNum; j++)
-        {
-            $("[name=begins\\[" + j + '\\]]')[0].selectedIndex = $("[name=ends\\[" + (j - 1) + '\\]]')[0].selectedIndex;
-            $("[name=ends\\[" + j + '\\]')[0].selectedIndex = $("[name=begins\\[" + j + '\\]]')[0].selectedIndex + 3;
-        }
-    }
-}
-
 function switchDateFeature(switcher)
 {
     if(switcher.checked) 

@@ -2,21 +2,22 @@
 /**
  * The zh-cn file of entry module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     entry 
- * @version     $Id: zh-cn.php 3294 2015-12-02 01:19:46Z liugang $
+ * @version     $Id: zh-cn.php 4091 2016-09-30 07:16:50Z daitingting $
  * @link        http://www.ranzhico.com
  */
-$lang->entry->common    = '应用';
-$lang->entry->admin     = '应用列表';
-$lang->entry->create    = '添加应用';
-$lang->entry->edit      = '编辑应用';
-$lang->entry->delete    = '删除应用';
-$lang->entry->createKey = '重新生成密钥';
-$lang->entry->order     = '排序';
-$lang->entry->style     = '样式';
+$lang->entry->common      = '应用';
+$lang->entry->admin       = '应用列表';
+$lang->entry->create      = '添加应用';
+$lang->entry->edit        = '编辑应用';
+$lang->entry->delete      = '删除应用';
+$lang->entry->createKey   = '重新生成密钥';
+$lang->entry->order       = '排序';
+$lang->entry->style       = '样式';
+$lang->entry->setCategory = '维护分组';
 
 $lang->entry->name        = '名称';
 $lang->entry->abbr        = '缩写';
@@ -37,6 +38,7 @@ $lang->entry->position    = '显示位置';
 $lang->entry->width       = '宽';
 $lang->entry->height      = '高';
 $lang->entry->priv        = '权限';
+$lang->entry->category    = '分组';
 
 $lang->entry->chanzhi          = '蝉知';
 $lang->entry->zentao           = '禅道';
@@ -68,8 +70,9 @@ $lang->entry->note->login   = '访问应用的地址或登录应用的表单的�
 $lang->entry->note->logout  = '退出应用的地址';
 $lang->entry->note->visible = '左侧显示';
 $lang->entry->note->api     = '应用获取区块的接口地址';
-$lang->entry->note->ip      = "允许该应用使用这些ip访问，多个ip使用逗号隔开。支持IP段，如192.168.1.*";
+$lang->entry->note->ip      = "允许访问应用的ip，多个ip用逗号隔开。支持IP段，如192.168.1.*";
 $lang->entry->note->allip   = '无限制';
+$lang->entry->note->scheme  = '当前访问协议为https，内嵌窗口只能打开https协议的应用网址。';
 
 $lang->entry->error = new stdClass();
 $lang->entry->error->name  = '名称不能为空';
@@ -79,7 +82,8 @@ $lang->entry->error->ip    = 'IP列表不能为空';
 $lang->entry->error->url   = ' 非内置应用的登录地址，必须包含 /、http://或者https://';
 
 $lang->entry->error->admin         = '管理员用户名或密码错误';
-$lang->entry->error->zentaoSetting = '禅道系统设置失败，您的禅道系统版本低于7.4';
+$lang->entry->error->zentaoSetting = '禅道系统设置失败';
+$lang->entry->error->version       = '您的禅道系统版本低于%s';
 $lang->entry->error->zentaoUrl     = '禅道登录地址错误';
 $lang->entry->error->accessDenied  = '访问受限';
 

@@ -2,7 +2,7 @@
 /**
  * The control file of sales of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     sales
@@ -25,9 +25,35 @@ class sales extends control
     }
 
     /**
-     * Browse groups.
+     * Manage groups' privileges.
      * 
      * @param  int    $companyID 
+     * @access public
+     * @return void
+     */
+    public function admin()
+    {
+        $groups = $this->sales->getGroupList();
+        $users  = $this->user->getPairs('nodeleted, noempty, noclosed, noforbidden');
+
+        if($_POST)
+        {
+            $this->sales->updatePriv();
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('admin')));
+        }
+
+        $this->view->title  = $this->lang->sales->admin;
+        $this->view->groups = $groups;
+        $this->view->users  = $users;
+        $this->view->privs  = $this->sales->getAllPrivs();
+
+        $this->display();
+    }
+
+    /**
+     * Browse groups. 
+     * 
      * @access public
      * @return void
      */
@@ -63,11 +89,8 @@ class sales extends control
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('browse')));
         }
 
-        $this->view->title  = $this->lang->sales->create;
-        $this->view->users  = $this->user->getPairs('nodeleted, noempty, noclosed, noforbidden');
-        $this->view->privs  = $this->sales->getAllPrivs();
-        $this->view->groups = $this->sales->getGroupList();
-
+        $this->view->title = $this->lang->sales->create;
+        $this->view->users = $this->user->getPairs('nodeleted, noempty, noclosed, noforbidden');
         $this->display();
     }
 
@@ -87,17 +110,9 @@ class sales extends control
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('browse')));
         }
 
-        /* Put current group first. */
-        $group    = $this->sales->getByID($groupID);
-        $groups[] = $group;
-        foreach($this->sales->getGroupList() as $g) if($g->id != $groupID) $groups[] = $g;
-
-        $this->view->title  = $this->lang->sales->create;
-        $this->view->group  = $group;
+        $this->view->title  = $this->lang->sales->edit;
+        $this->view->group  = $this->sales->getByID($groupID);
         $this->view->users  = $this->user->getPairs('nodeleted, noempty, noclosed, noforbidden');
-        $this->view->privs  = $this->sales->getAllPrivs();
-        $this->view->groups = $groups;
-
         $this->display();
     }
 

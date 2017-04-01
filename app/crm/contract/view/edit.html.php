@@ -2,7 +2,7 @@
 /**
  * The edit view file of contract module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     contract
@@ -81,10 +81,12 @@
             <th><?php echo $lang->contract->items;?></th>
             <td colspan='2'><?php echo html::textarea('items', $contract->items, "class='form-control'");?></td>
           </tr>
+          <?php if(commonModel::hasPriv('file', 'upload')):?>
           <tr>
             <th><?php echo $lang->files;?></th>
             <td colspan='2'><?php echo $this->fetch('file', 'buildForm');?></td>
           </tr>
+          <?php endif;?>
         </table>
       </div>
     </div>
@@ -119,12 +121,16 @@
             <td><?php echo html::select('contact', $contacts, $contract->contact, "class='form-control chosen'");?></td>
           </tr>
           <tr>
+            <th><?php echo $lang->contract->address;?></th>
+            <td><?php echo html::input('address', $contract->address, "class='form-control'");?></td>
+          </tr>
+          <tr>
             <th><?php echo $lang->contract->begin;?></th>
-            <td><?php echo html::input('begin', $contract->begin, "class='form-control form-date'");?></td>
+            <td><?php echo html::input('begin', formatTime($contract->begin), "class='form-control form-date'");?></td>
           </tr>
           <tr>
             <th><?php echo $lang->contract->end;?></th>
-            <td><?php echo html::input('end', $contract->end, "class='form-control form-date'");?></td>
+            <td><?php echo html::input('end', formatTime($contract->end), "class='form-control form-date'");?></td>
           </tr>
           <tr>
             <th><?php echo $lang->contract->handlers;?></th>
@@ -149,7 +155,7 @@
           </tr>
           <tr>
             <th><?php echo $lang->contract->signedDate;?></th>
-            <td><?php echo html::input('signedDate', $contract->signedDate, "class='form-control form-date'");?></td>
+            <td><?php echo html::input('signedDate', formatTime($contract->signedDate), "class='form-control form-date'");?></td>
           </tr>
           <tr>
             <th><?php echo $lang->contract->deliveredBy;?></th>
@@ -157,7 +163,7 @@
           </tr>
           <tr>
             <th><?php echo $lang->contract->deliveredDate;?></th>
-            <td><?php echo html::input('deliveredDate', $contract->deliveredDate, "class='form-control form-date'");?></td>
+            <td><?php echo html::input('deliveredDate', formatTime($contract->deliveredDate), "class='form-control form-date'");?></td>
           </tr>
           <tr>
             <th><?php echo $lang->contract->returnedBy;?></th>
@@ -165,7 +171,7 @@
           </tr>
           <tr>
             <th><?php echo $lang->contract->returnedDate;?></th>
-            <td><?php echo html::input('returnedDate', $contract->returnedDate, "class='form-control form-date'");?></td>
+            <td><?php echo html::input('returnedDate', formatTime($contract->returnedDate), "class='form-control form-date'");?></td>
           </tr>
           <?php if($contract->finishedBy):?>
           <tr>
@@ -174,7 +180,7 @@
           </tr>
           <tr>
             <th><?php echo $lang->contract->finishedDate;?></th>
-            <td><?php echo html::input('finishedDate', $contract->finishedDate, "class='form-control form-date'");?></td>
+            <td><?php echo html::input('finishedDate', formatTime($contract->finishedDate), "class='form-control form-date'");?></td>
           </tr>
           <?php endif;?>
           <?php if($contract->canceledBy):?>
@@ -184,7 +190,7 @@
           </tr>
           <tr>
             <th><?php echo $lang->contract->canceledDate;?></th>
-            <td><?php echo html::input('canceledDate', $contract->canceledDate, "class='form-control form-date'");?></td>
+            <td><?php echo html::input('canceledDate', formatTime($contract->canceledDate), "class='form-control form-date'");?></td>
           </tr>
           <?php endif;?>
         </table>

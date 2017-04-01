@@ -2,7 +2,7 @@
 /**
  * The view view file of contract module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     contract
@@ -35,6 +35,13 @@
       commonModel::printRPN($browseLink, $preAndNext);
       ?>
     </div>
+    <fieldset id='commentBox' class='hide'>
+      <legend><?php echo $lang->comment;?></legend>
+      <form id='ajaxForm' method='post' action='<?php echo inlink('edit', "contractID={$contract->id}&comment=true")?>'>
+        <div class='form-group'><?php echo html::textarea('remark', '',"rows='5' class='w-p100'");?></div>
+        <?php echo html::submitButton();?>
+      </form>
+    </fieldset>      
   </div>
   <div class='col-side'>
     <div class='panel'>
@@ -92,6 +99,10 @@
             <td><?php if(isset($contacts[$contract->contact]) and trim($contacts[$contract->contact]) != "") echo html::a($this->createLink('contact', 'view', "contactID={$contract->contact}"), $contacts[$contract->contact]);?></td>
           </tr>
           <tr>
+            <th><?php echo $lang->contract->address;?></th>
+            <td><?php echo $contract->address;?></td>
+          </tr>
+          <tr>
             <th><?php echo $lang->contract->begin;?></th>
             <td><?php echo $contract->begin;?></td>
           </tr>
@@ -115,22 +126,21 @@
     </div>
     <?php if(!empty($contract->returnList)):?>
     <div class='panel'>
-      <div class='panel-heading'>
-        <div class='row'>      
-          <div class='col-sm-3'><strong><i class="icon-list-info"></i> <?php echo $lang->contract->returnedDate;?></strong></div>
-          <div class='col-sm-4'><strong><?php echo $lang->contract->returnedBy;?></strong></div> 
-          <div class='col-sm-3'><strong><?php echo $lang->contract->amount;?></strong></div> 
-        </div>
-      </div>
-      <table class='table table-data table-condensed'>
+      <table class='table table-data table-condensed table-fixed'>
         <?php foreach($contract->returnList as $return):?>
         <tr>
-          <td class='w-p30'><?php echo $return->returnedDate;?></td>
-          <td class='w-p30'><?php echo zget($users, $return->returnedBy, $return->returnedBy);?></td>
-          <td class='w-p20'><?php echo zget($currencySign, $contract->currency, '') . formatMoney($return->amount);?></td>
-          <td class='w-p20'>
-            <?php commonModel::printLink('contract', 'editReturn', "id=$return->id", $lang->edit, "data-toggle='modal'");?>
-            <?php commonModel::printLink('contract', 'deleteReturn', "id=$return->id", $lang->delete, "class='deleter'");?>
+          <th class='w-80px'><?php echo $lang->contract->returnedDate;?></th>
+          <th class='w-80px'><?php echo $lang->contract->returnedBy;?></th> 
+          <th class=''><?php echo $lang->contract->amount;?></th> 
+          <th class='w-50px'></th>
+        </tr>
+        <tr>
+          <td><?php echo $return->returnedDate;?></td>
+          <td><?php echo zget($users, $return->returnedBy, $return->returnedBy);?></td>
+          <td><?php echo zget($currencySign, $contract->currency, '') . formatMoney($return->amount);?></td>
+          <td class='text-center'>
+            <?php commonModel::printLink('contract', 'editReturn', "id=$return->id", "<i class='icon-pencil'></i>", "data-toggle='modal' title='{$lang->edit}'");?>
+            <?php commonModel::printLink('contract', 'deleteReturn', "id=$return->id", "<i class='icon-remove'></i>", "class='deleter' title='{$lang->delete}'");?>
          </td>
         </tr>
         <?php endforeach;?>
@@ -139,22 +149,21 @@
     <?php endif;?>
     <?php if(!empty($contract->deliveryList)):?>
     <div class='panel'>
-      <div class='panel-heading'>
-        <div class='row'>      
-          <div class='col-sm-3'><strong><i class="icon-list-info"></i> <?php echo $lang->contract->deliveredDate;?></strong></div>
-          <div class='col-sm-3'><strong><?php echo $lang->contract->deliveredBy;?></strong></div> 
-          <div class='col-sm-6'><strong><?php echo $lang->comment;?></strong></div> 
-        </div>
-      </div>
-      <table class='table table-data table-condensed'>
+      <table class='table table-data table-condensed table-fixed'>
         <?php foreach($contract->deliveryList as $delivery):?>
         <tr>
-          <td class='w-p25'><?php echo $delivery->deliveredDate;?></td>
-          <td class='w-p20'><?php echo zget($users, $delivery->deliveredBy, $delivery->deliveredBy);?></td>
-          <td class='w-p35'><?php echo $delivery->comment;?></td>
-          <td class='w-p20'>
-            <?php commonModel::printLink('contract', 'editDelivery', "id=$delivery->id", $lang->edit, "data-toggle='modal'");?>
-            <?php commonModel::printLink('contract', 'deleteDelivery', "id=$delivery->id", $lang->delete, "class='deleter'");?>
+          <th class='w-80px'><?php echo $lang->contract->deliveredDate;?></th>
+          <th class='w-80px'><?php echo $lang->contract->deliveredBy;?></th> 
+          <th class=''><?php echo $lang->comment;?></th> 
+          <th class='w-50px'></th>
+        </tr>
+        <tr>
+          <td><?php echo $delivery->deliveredDate;?></td>
+          <td><?php echo zget($users, $delivery->deliveredBy, $delivery->deliveredBy);?></td>
+          <td title='<?php echo $delivery->comment;?>'><?php echo $delivery->comment;?></td>
+          <td class='text-center'>
+            <?php commonModel::printLink('contract', 'editDelivery', "id=$delivery->id", "<i class='icon-pencil'></i>", "data-toggle='modal' title='{$lang->edit}'");?>
+            <?php commonModel::printLink('contract', 'deleteDelivery', "id=$delivery->id", "<i class='icon-remove'></i>", "class='deleter' title='{$lang->delete}'");?>
          </td>
         </tr>
         <?php endforeach;?>

@@ -2,7 +2,7 @@
 /**
  * The lang file of zh-tw module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     action
@@ -46,6 +46,7 @@ $lang->action->desc->opened                = '$date, 由 <strong>$actor</strong>
 $lang->action->desc->created               = '$date, 由 <strong>$actor</strong> 創建。' . "\n";
 $lang->action->desc->edited                = '$date, 由 <strong>$actor</strong> 編輯。' . "\n";
 $lang->action->desc->assigned              = '$date, 由 <strong>$actor</strong> 指派給 <strong>$extra</strong>。' . "\n";
+$lang->action->desc->merged                = '$date, 由 <strong>$actor</strong> 合併客戶 <strong>$extra</strong>。' . "\n";
 $lang->action->desc->transmit              = '$date, 由 <strong>$actor</strong> 轉交給 <strong>$extra</strong>。' . "\n";
 $lang->action->desc->closed                = '$date, 由 <strong>$actor</strong> 關閉，關閉原因:<strong>$extra</strong>。' . "\n";
 $lang->action->desc->deleted               = '$date, 由 <strong>$actor</strong> 刪除。' . "\n";
@@ -104,6 +105,8 @@ $lang->action->desc->hidden                = '$date, 由 <strong>$actor</strong>
 $lang->action->desc->undeleted             = '$date, 由 <strong>$actor</strong> 還原。' . "\n";
 $lang->action->desc->transform             = '$date, 由 <strong>$actor</strong> 轉換為聯繫人。' . "\n";
 $lang->action->desc->ignored               = '$date, 由 <strong>$actor</strong> 忽略。' . "\n";
+$lang->action->desc->createtrip            = '$date, 由 <strong>$actor</strong> 創建出差：<strong>$extra</strong>。' . "\n";
+$lang->action->desc->createegress          = '$date, 由 <strong>$actor</strong> 創建外出：<strong>$extra</strong>。' . "\n";
 
 /* 用來顯示動態信息。*/
 $lang->action->label = new stdclass();
@@ -148,9 +151,11 @@ $lang->action->label->editcontract          = '編輯合同';
 $lang->action->label->cancelcontract        = '取消合同';
 $lang->action->label->finishcontract        = '完成合同';
 $lang->action->label->createdresume         = '創建履歷';
+$lang->action->label->editedresume          = '編輯履歷';
 $lang->action->label->deleteresume          = '刪除履歷';
 $lang->action->label->createaddress         = '創建地址';
 $lang->action->label->editaddress           = '編輯地址';
+$lang->action->label->deleteaddress         = '刪除地址';
 $lang->action->label->finishdelivered       = '完成交付';
 $lang->action->label->finishdelivercontract = '完成交付';
 $lang->action->label->delivered             = '交付';
@@ -161,23 +166,29 @@ $lang->action->label->finishreceivecontract = '完成回款';
 $lang->action->label->finishreturned        = '完成回款';
 $lang->action->label->deletereturned        = '刪除回款';
 
+/* 用來做動態搜索中顯示動作 */
+$lang->action->search = new stdclass();
+$lang->action->search->label = (array)$lang->action->label;
+
 /* 用來生成相應對象的連結。*/
-$lang->action->label->product   = '產品|product|view|productID=%s';
-$lang->action->label->order     = '訂單|order|view|orderID=%s';
-$lang->action->label->task      = '任務|task|view|taskID=%s';
-$lang->action->label->contract  = '合同|contract|view|contractID=%s';
-$lang->action->label->announce  = '公告|announce|browse|';
-$lang->action->label->customer  = '客戶|customer|view|customerID=%s';
-$lang->action->label->contact   = '聯繫人|contact|view|contactID=%s';
-$lang->action->label->todo      = '待辦|todo|calendar|';
-$lang->action->label->project   = '項目|task|browse|projectID=%s';
-$lang->action->label->depositor = '賬戶|depositor|browse|';
+$lang->action->label->announce  = '公告|announce|view|announceID=%s';
 $lang->action->label->balance   = '餘額|balance|browse|depositorID=%s';
-$lang->action->label->trade     = '賬目|trade|browse|';
 $lang->action->label->doc       = '文檔|doc|view|docID=%s';
 $lang->action->label->doclib    = '文檔庫|doc|browse|doclibID=%s';
+$lang->action->label->contact   = '聯繫人|contact|view|contactID=%s';
+$lang->action->label->contract  = '合同|contract|view|contractID=%s';
+$lang->action->label->customer  = '客戶|customer|view|customerID=%s';
+$lang->action->label->depositor = '賬戶|depositor|browse|';
+$lang->action->label->holiday   = '放假安排|holiday|browse|';
+$lang->action->label->order     = '訂單|order|view|orderID=%s';
+$lang->action->label->product   = '產品|product|view|productID=%s';
+$lang->action->label->project   = '項目|task|browse|projectID=%s';
+$lang->action->label->provider  = '供應商|provider|view|providerID=%s';
 $lang->action->label->schema    = '記賬模板|schema|browse|';
 $lang->action->label->space     = '　';
+$lang->action->label->task      = '任務|task|view|taskID=%s';
+$lang->action->label->todo      = '待辦|todo|calendar|';
+$lang->action->label->trade     = '賬目|trade|browse|';
 
 $lang->action->label->attend = array();
 $lang->action->label->attend['commited'] = '考勤審核|attend|browsereview|';
@@ -187,6 +198,21 @@ $lang->action->label->leave['created']  = '請假審核|leave|browsereview|';
 $lang->action->label->leave['commited'] = '請假審核|leave|browsereview|';
 $lang->action->label->leave['revoked']  = '請假審核|leave|browsereview|';
 $lang->action->label->leave['reviewed'] = '請假審核|leave|personal|';
+$lang->action->label->lieu = array();
+$lang->action->label->lieu['created']  = '調休審核|lieu|browsereview|';
+$lang->action->label->lieu['commited'] = '調休審核|lieu|browsereview|';
+$lang->action->label->lieu['revoked']  = '調休審核|lieu|browsereview|';
+$lang->action->label->lieu['reviewed'] = '調休審核|lieu|personal|';
+$lang->action->label->makeup = array();
+$lang->action->label->makeup['created']  = '加班審核|makeup|browsereview|';
+$lang->action->label->makeup['commited'] = '加班審核|makeup|browsereview|';
+$lang->action->label->makeup['revoked']  = '加班審核|makeup|browsereview|';
+$lang->action->label->makeup['reviewed'] = '加班審核|makeup|personal|';
+$lang->action->label->overtime = array();
+$lang->action->label->overtime['created']  = '加班審核|overtime|browsereview|';
+$lang->action->label->overtime['commited'] = '加班審核|overtime|browsereview|';
+$lang->action->label->overtime['revoked']  = '加班審核|overtime|browsereview|';
+$lang->action->label->overtime['reviewed'] = '加班審核|overtime|personal|';
 $lang->action->label->refund = array();
 $lang->action->label->refund['commited']    = '報銷審批|refund|browsereview|';
 $lang->action->label->refund['revoked']     = '報銷審批|refund|browsereview|';
@@ -199,15 +225,6 @@ $lang->action->label->user = array();
 $lang->action->label->user['login']  = '登錄|user|login|';
 $lang->action->label->user['logout'] = '退出|user|logout|';
 
-/* Object type. */
-$lang->action->search->objectTypeList['']            = '';    
-$lang->action->search->objectTypeList['product']     = '產品';    
-$lang->action->search->objectTypeList['task']        = '任務'; 
-$lang->action->search->objectTypeList['user']        = '成員'; 
-$lang->action->search->objectTypeList['order']       = '訂單'; 
-$lang->action->search->objectTypeList['contract']    = '合同'; 
-$lang->action->search->objectTypeList['orderAction'] = '動作'; 
-
 $lang->action->nextContactList[1]      = '明天';
 $lang->action->nextContactList[2]      = '後天';
 $lang->action->nextContactList[3]      = '三天後';
@@ -215,33 +232,13 @@ $lang->action->nextContactList[7]      = '一周後';
 $lang->action->nextContactList[14]     = '兩周後';
 $lang->action->nextContactList[365000] = '無需聯繫';
 
-/* 用來在動態顯示中顯示動作 */
-$lang->action->search->label['']            = '';
-$lang->action->search->label['created']     = $lang->action->label->created;            
-$lang->action->search->label['edited']      = $lang->action->label->edited;             
-$lang->action->search->label['assigned']    = $lang->action->label->assigned;           
-$lang->action->search->label['transmit']    = $lang->action->label->transmit;           
-$lang->action->search->label['closed']      = $lang->action->label->closed;             
-$lang->action->search->label['deleted']     = $lang->action->label->deleted;            
-$lang->action->search->label['deletedfile'] = $lang->action->label->deletedfile;        
-$lang->action->search->label['editfile']    = $lang->action->label->editfile;           
-$lang->action->search->label['commented']   = $lang->action->label->commented;          
-$lang->action->search->label['activated']   = $lang->action->label->activated;          
-$lang->action->search->label['resolved']    = $lang->action->label->resolved;           
-$lang->action->search->label['reviewed']    = $lang->action->label->reviewed;           
-$lang->action->search->label['moved']       = $lang->action->label->moved;              
-$lang->action->search->label['started']     = $lang->action->label->started;            
-$lang->action->search->label['canceled']    = $lang->action->label->canceled;           
-$lang->action->search->label['finished']    = $lang->action->label->finished;           
-$lang->action->search->label['login']       = $lang->action->label->login;              
-$lang->action->search->label['logout']      = $lang->action->label->logout;
-
 $lang->action->record = new stdclass();
 $lang->action->record->common     = '溝通';
 $lang->action->record->create     = '添加記錄';
 $lang->action->record->edit       = '編輯記錄';
 $lang->action->record->history    = '溝通記錄';
 $lang->action->record->customer   = '客戶';
+$lang->action->record->provider   = '供應商';
 $lang->action->record->contract   = '合同';
 $lang->action->record->order      = '訂單';
 $lang->action->record->contact    = '聯繫人';
@@ -254,6 +251,7 @@ $lang->action->record->uploadFile = '上傳附件:';
 
 $lang->action->objectTypes['order']     = '訂單';
 $lang->action->objectTypes['customer']  = '客戶';
+$lang->action->objectTypes['provider']  = '供應商';
 $lang->action->objectTypes['doc']       = '文檔';
 $lang->action->objectTypes['task']      = '任務';
 $lang->action->objectTypes['product']   = '產品';
@@ -263,12 +261,15 @@ $lang->action->objectTypes['project']   = '項目';
 $lang->action->objectTypes['user']      = '用戶';
 $lang->action->objectTypes['resume']    = '履歷';
 $lang->action->objectTypes['leave']     = '請假';
+$lang->action->objectTypes['lieu']      = '調休';
+$lang->action->objectTypes['makeup']    = '補班';
 $lang->action->objectTypes['overtime']  = '加班';
 $lang->action->objectTypes['refund']    = '報銷';
 $lang->action->objectTypes['depositor'] = '賬戶';
 $lang->action->objectTypes['balance']   = '餘額';
 $lang->action->objectTypes['todo']      = '待辦';
 $lang->action->objectTypes['announce']  = '公告';
+$lang->action->objectTypes['holiday']   = '放假安排';
 $lang->action->objectTypes['trade']     = '賬目';
 $lang->action->objectTypes['schema']    = '記賬模板';
 $lang->action->objectTypes['doclib']    = '文檔庫';

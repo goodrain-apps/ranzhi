@@ -31,4 +31,4 @@
 .task-status.text-done{color:#229f24;}
 .task-status.text-cancel{color:#808080}
 .task-status.text-closed{color:#999999;}
-.text-muted {overflow: auto; max-height: 55px;}
+.text-muted {overflow: auto; overflow-x: hidden; max-height: 55px;}

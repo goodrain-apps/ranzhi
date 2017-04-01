@@ -2,11 +2,11 @@
 /**
  * The view file of blog view method of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Xiying Guan <guanxiying@xirangit.com>
  * @package     blog
- * @version     $Id: view.html.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: view.html.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -21,21 +21,7 @@
       <dl class='dl-inline'>
         <dd data-toggle='tooltip' data-placement='top' data-original-title='<?php printf($lang->article->lblAddedDate, $article->createdDate);?>'><i class="icon-time icon-large"></i> <?php echo $article->createdDate;?></dd>
         <dd data-toggle='tooltip' data-placement='top' data-original-title='<?php printf($lang->article->lblAuthor, $users[$article->author]);?>'><i class='icon-user icon-large'></i> <?php echo $users[$article->author]; ?></dd>
-        <?php if(!$article->original):?>
-        <dt><?php echo $lang->article->lblSource; ?></dt>
-        <dd><?php $article->copyURL ? print(html::a($article->copyURL, $article->copySite, "target='_blank'")) : print($article->copySite); ?></dd>
-        <?php endif; ?>
         <dd class='pull-right'>
-          <?php
-          if(!empty($this->config->oauth->sina))
-          {
-              $sina = json_decode($this->config->oauth->sina);
-              if($sina->widget) echo "<div class='sina-widget'>" . $sina->widget . '</div>';
-          }
-          ?>
-          <?php if($article->original):?>
-          <span class='label label-success'><?php echo $lang->article->originalList[$article->original]; ?></span>
-          <?php endif;?>
           <span class='label label-warning' data-toggle='tooltip' data-placement='top' data-original-title='<?php printf($lang->article->lblViews, $article->views);?>'><i class='icon-eye-open'></i> <?php echo $article->views; ?></span>
         </dd>
       </dl>

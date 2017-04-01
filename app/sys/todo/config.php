@@ -22,7 +22,6 @@ $config->todo->editor->view   = array('id' => 'comment,lastComment', 'tools' => 
 $config->todo->list = new stdclass();
 $config->todo->list->exportFields = 'id, account, date, begin, end, type, idvalue, pri, name, desc, status, private'; 
 
-$config->todo->calendarColor['undone']   = '#3280FC';
 $config->todo->calendarColor['custom']   = '#3280FC';
 $config->todo->calendarColor['task']     = '#3280FC';
 $config->todo->calendarColor['order']    = '#3280FC';

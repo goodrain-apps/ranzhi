@@ -2,30 +2,31 @@
 /**
  * The zh-cn file of index module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     index 
- * @version     $Id: zh-cn.php 3190 2015-11-19 01:35:56Z daitingting $
+ * @version     $Id: zh-cn.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
-$lang->index->common       = '首页';
-$lang->index->dashboard    = '我的地盘';
-$lang->index->about        = '关于';
-$lang->index->allEntries   = '所有应用';
-$lang->index->showOnLeft   = '左侧显示';
-$lang->index->notOnLeft    = '非左侧显示';
-$lang->index->opened       = '已打开';
-$lang->index->addEntry     = '添加应用';
-$lang->index->profile      = '个人信息';
-$lang->index->set          = '系统配置';
-$lang->index->theme        = '更换主题';
-$lang->index->superAdmin   = '后台管理';
-$lang->index->showDesk     = '桌面';
-$lang->index->customBlocks = '编辑区块';
-$lang->index->addBlock     = '添加区块';
-$lang->index->refresh      = '更新';
-$lang->index->hidden       = '隐藏';
+$lang->index->common        = '首页';
+$lang->index->dashboard     = '我的地盘';
+$lang->index->dashboardAbbr = '我的';
+$lang->index->about         = '关于';
+$lang->index->allEntries    = '所有应用';
+$lang->index->showOnLeft    = '左侧显示';
+$lang->index->notOnLeft     = '非左侧显示';
+$lang->index->opened        = '已打开';
+$lang->index->addEntry      = '添加应用';
+$lang->index->profile       = '个人信息';
+$lang->index->set           = '系统配置';
+$lang->index->theme         = '更换主题';
+$lang->index->superAdmin    = '后台管理';
+$lang->index->showDesk      = '桌面';
+$lang->index->customBlocks  = '编辑区块';
+$lang->index->addBlock      = '添加区块';
+$lang->index->refresh       = '更新';
+$lang->index->hidden        = '隐藏';
 
 $lang->index->ips['confirmClose']       = '确认要关闭　【{0}】 吗？';
 $lang->index->ips['entryNotFindTip']    = '应用没有找到！';

@@ -2,7 +2,7 @@
 /**
  * The buildform view of search module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     search
@@ -51,6 +51,10 @@ include '../../common/view/chosen.html.php';
 
 .outer > #querybox {margin: -20px -20px 20px; border-top: none; border-bottom: 1px solid #ddd}
 .table-form td + td, .table-form th + th {padding-left: 0;}
+.search-field input.date::-webkit-input-placeholder{color: #000000; opacity: 1;}
+.search-field input.date::-moz-placeholder{color: #000000; opacity: 1;} 
+.search-field input.date:-ms-input-placeholder{color: #000000; opacity: 1;}
+
 </style>
 <script language='Javascript'>
 var dtOptions = 
@@ -66,6 +70,18 @@ var dtOptions =
     format: 'yyyy-mm-dd'
 };
 
+var datetimeOptions = 
+{
+    language: '<?php echo $this->app->getClientLang();?>',
+    weekStart: 1,
+    todayBtn:  1,
+    autoclose: 1,
+    todayHighlight: 1,
+    startView: 2,
+    forceParse: 0,
+    format: 'yyyy-mm-dd hh:ii'
+};
+
 $(function()
 {
     $('.date').each(function()
@@ -78,7 +94,22 @@ $(function()
             time = Y + '-' + m + '-' + d;
             $('.date').val(time);
         }
-        setDateField(this);
+        setDateField(this, undefined, 'date');
+    });
+
+    $('.datetime').each(function()
+    {
+        time = $(this).val();
+        if(!isNaN(time) && time != ''){
+            var Y = time.substring(0, 4);
+            var m = time.substring(4, 6);
+            var d = time.substring(6, 8);
+            var h = time.substring(8, 10);
+            var i = time.substring(10, 12);
+            time = Y + '-' + m + '-' + d + ' ' + h + ':' + i;
+            $('.datetime').val(time);
+        }
+        setDateField(this, undefined, 'datetime');
     });
 });
 
@@ -94,11 +125,15 @@ var actionURL     = '<?php echo $actionURL;?>';
  * @param  string $query 
  * @return void
  */
-function setDateField(query, fieldNO)
+function setDateField(query, fieldNO, type)
 {
     var $query = $(query);
     if(fieldNO === undefined) fieldNO = $query.closest('.search-field').data('id');
     var $period = $('#selectPeriod');
+
+    if(type == 'date') var options = dtOptions;
+    if(type == 'datetime') var options = datetimeOptions;
+
     if(!$period.length)
     {
         $period = $("<ul id='selectPeriod' class='dropdown-menu'><li class='dropdown-header'><?php echo $lang->datepicker->dpText->TEXT_OR . ' ' . $lang->datepicker->dpText->TEXT_DATE;?></li><li><a href='#lastWeek'><?php echo $lang->datepicker->dpText->TEXT_PREV_WEEK;?></a></li><li><a href='#thisWeek'><?php echo $lang->datepicker->dpText->TEXT_THIS_WEEK;?></a></li><li><a href='#yesterday'><?php echo $lang->datepicker->dpText->TEXT_YESTERDAY;?></a></li><li><a href='#today'><?php echo $lang->datepicker->dpText->TEXT_TODAY;?></a></li><li><a href='#lastMonth'><?php echo $lang->datepicker->dpText->TEXT_PREV_MONTH;?></a></li><li><a href='#thisMonth'><?php echo $lang->datepicker->dpText->TEXT_THIS_MONTH;?></a></li></ul>").appendTo('body');
@@ -107,7 +142,15 @@ function setDateField(query, fieldNO)
             var target = $('#' + $period.data('target'));
             if(target.length)
             {
-                target.val($(this).attr('href').replace('#', '$'));
+                if(target.next('input[type=hidden]').length)
+                {
+                    target.next('input[type=hidden]').val($(this).attr('href').replace('#', '$'));
+                    target.attr('placeholder', $(this).attr('href').replace('#', '$'));
+                }
+                else
+                {
+                    target.val($(this).attr('href').replace('#', '$'));
+                }
                 $('#operator' + $period.data('fieldNO')).val('between');
                 $period.hide();
             }
@@ -115,15 +158,23 @@ function setDateField(query, fieldNO)
             return false;
         });
     }
-    $query.datetimepicker('remove').datetimepicker(dtOptions).on('show', function(e)
+    $query.datetimepicker('remove').datetimepicker(options).on('show', function(e)
     {
         var $e = $(e.target);
         var ePos = $e.offset();
         $period.css({'left': ePos.left + 175, 'top': ePos.top + 29, 'min-height': $('.datetimepicker').outerHeight()}).show().data('target', $e.attr('id')).data('fieldNO', fieldNO).find('li.active').removeClass('active');
-        $period.find("li > a[href='" + $e.val().replace('$', '#') + "']").closest('li').addClass('active');
+        $period.find("li > a[href='" + $e.attr('placeholder').replace('$', '#') + "']").closest('li').addClass('active');
     }).on('changeDate', function()
     {
         var opt = $('#operator' + $period.data('fieldNO'));
+        var target = $('#' + $period.data('target'));
+        if(target.length)
+        {
+            if(target.next('input[type=hidden]').length)
+            {
+                target.next('input[type=hidden]').val(target.val());
+            }
+        }
         if(opt.val() == 'between') opt.val('<=');
         $period.hide();
     }).on('hide', function(){setTimeout(function(){$period.hide();}, 200);});
@@ -143,10 +194,11 @@ function setField(fieldName, fieldNO)
     $('#valueBox' + fieldNO).html($('#box' + fieldName.replace('.', '\\.')).children().clone());
     $('#valueBox' + fieldNO).children().attr({name : 'value' + fieldNO, id : 'value' + fieldNO});
 
-    if(typeof(params[fieldName]['class']) != undefined && params[fieldName]['class'] == 'date')
+    if(typeof(params[fieldName]['class']) != undefined && (params[fieldName]['class'] == 'date' || params[fieldName]['class'] == 'datetime'))
     {
-        setDateField("#value" + fieldNO, fieldNO);
-        $("#value" + fieldNO).addClass('date');   // Shortcut the width of the datepicker to make sure align with others. 
+        var type = params[fieldName]['class'];
+        setDateField("#value" + fieldNO, fieldNO, type);
+        $("#value" + fieldNO).addClass(type);   // Shortcut the width of the datepicker to make sure align with others. 
         var groupItems = <?php echo $config->search->groupItems?>;
         var maxNO      = 2 * groupItems;
         var nextNO     = fieldNO > groupItems ? fieldNO - groupItems + 1 : fieldNO + groupItems;
@@ -157,8 +209,8 @@ function setField(fieldName, fieldNO)
             $('#operator' + nextNO).val('<=');
             $('#valueBox' + nextNO).html($('#box' + fieldName.replace('.', '\\.')).children().clone());
             $('#valueBox' + nextNO).children().attr({name : 'value' + nextNO, id : 'value' + nextNO});
-            setDateField("#value" + nextNO, nextNO);
-            $("#value" + nextNO).addClass('date');
+            setDateField("#value" + nextNO, nextNO, type);
+            $("#value" + nextNO).addClass(type);
         }
     }
 
@@ -322,8 +374,18 @@ foreach($fieldParams as $fieldName => $param)
           if($param['control'] == 'input') 
           {
               $fieldName  = $formSession["field$fieldNO"];
+              $fieldValue = $formSession["value$fieldNO"];
               $extraClass = isset($param['class']) ? $param['class'] : '';
-              echo html::input("value$fieldNO",  $formSession["value$fieldNO"], "class='form-control $extraClass searchInput'");
+
+              if($fieldValue && strpos('$lastWeek,$thisWeek,$today,$yesterday,$thisMonth,$lastMonth',$fieldValue) !== false)
+              {
+                  echo html::input("dateValue$fieldNO", '', "class='form-control $extraClass searchInput' placeholder='{$fieldValue}'");
+                  echo html::hidden("value$fieldNO", $fieldValue);
+              }
+              else
+              {
+                  echo html::input("value$fieldNO", $fieldValue, "class='form-control $extraClass searchInput'");
+              }
           }
           echo '</td>';
 

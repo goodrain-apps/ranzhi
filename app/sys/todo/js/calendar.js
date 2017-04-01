@@ -36,7 +36,7 @@ $(document).ready(function()
                 'date': to.date.format('yyyy-MM-dd'),
                 'type': from.data('type'),
                 'idvalue': from.data('id'),
-                'name': '',
+                'name': from.data('name'),
                 'begin': '',
                 'end':'' 
                 }
@@ -70,6 +70,7 @@ $(document).ready(function()
     /* hide side. */
     $('.side-handle').click(function()
     {
+        $('#fixedHeader').remove();
         if($(this).parents('.with-side').hasClass('hide-side'))
         {
             $('.with-side').removeClass('hide-side');
@@ -126,14 +127,17 @@ $(document).ready(function()
         if(type == 'all' || type == 'order') $('#tab_order').load(link, function(){$('#tab_order [data-toggle="droppable"]').droppable(dropSetting); addPager('#tab_order');});
         var link = createLink('crm.customer', 'ajaxGetTodoList', param);
         if(type == 'all' || type == 'customer') $('#tab_customer').load(link, function(){$('#tab_customer [data-toggle="droppable"]').droppable(dropSetting); addPager('#tab_customer');});
+        for(i = 0; i < v.zentaoEntryList.length; i++)
+        {
+            var code = v.zentaoEntryList[i];
+            var param = 'code=' + code + '&account=';
+            var link = createLink('sso', 'getTodoList', param);
+            if(type == 'all' || type == code) $('#tab_' + code).load(link, function(){$('#tab_' + code + ' [data-toggle="droppable"]').droppable(dropSetting); addPager('#tab_' + code);});
+        }
     }
     addPager('#tab_custom');
+    addPager('#tab_undone');
     updateBoard('all');
-
-    /* adjust focus position. */
-    if($('.current').offset().top >= $(window).scrollTop() + $(window).height()) $(window).scrollTop($('.current').offset().top);
-
-    fixTableHeader();
 
     var gap  = $('.calendar header').offset().top - $('#mainNavbar').outerHeight();
     $(window).scroll(function()
@@ -147,4 +151,9 @@ $(document).ready(function()
             $('.calendar header').removeClass('fixed-date');
         }
     });
+
+    /* adjust focus position. */
+    if($('.current').offset().top >= $(window).scrollTop() + $(window).height()) $(window).scrollTop($('.current').offset().top);
+
+    fixTableHeader();
 });

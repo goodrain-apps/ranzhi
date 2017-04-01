@@ -2,7 +2,7 @@
 /**
  * The check view file of depositor module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     depositor 
@@ -31,7 +31,7 @@
       </table>
     </form>
   </div>
-  <?php if(!empty($results)):?>
+  <?php if(!empty($checkResults)):?>
   <table class='table tablesorter table-data'>
     <thead>
       <tr>
@@ -45,15 +45,15 @@
       </tr>
     </thead>
     <tbody>
-      <?php foreach($results as $depositorID => $result):?>
+      <?php foreach($checkResults as $depositorID => $result):?>
       <?php $class = bccomp($result->computed, $result->actual, 2) === -1 ? 'text-error' : ''; ?>
       <?php $diff  = bcsub($result->computed, $result->actual, 2);?>
       <tr class='<?php echo $class;?>'>
         <td><?php echo zget($depositorList, $depositorID); ?></td>
         <td><?php echo zget($currencyList, $result->currency); ?></td>
-        <td><?php echo formatMoney($result->origin);?></td>
-        <td><?php echo formatMoney($result->computed);?></td>
-        <td><?php echo formatMoney($result->actual);?></td>
+        <td><?php echo $result->origin ? formatMoney($result->origin) : $result->origin;?></td>
+        <td><?php echo $result->computed ? formatMoney($result->computed) : $result->computed;?></td>
+        <td><?php echo $result->actual ? formatMoney($result->actual) : $result->actual;?></td>
         <?php if($diff == 0):?>
         <td><?php echo $lang->depositor->success;?></td>
         <?php endif;?>

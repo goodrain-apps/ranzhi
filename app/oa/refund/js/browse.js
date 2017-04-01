@@ -15,7 +15,7 @@ $(document).ready(function()
                         className: 'btn-primary',  
                         callback:  function()
                         {
-                            $('.modal').load($('.createTrade').prop('href'), '', function()
+                            $('.modal').load(createLink('refund', 'createTrade', 'refundID=' + response.refundID), '', function()
                             {
                                 $('.modal').modal('ajustPosition', 'fit');
                             });

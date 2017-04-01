@@ -2,7 +2,7 @@
 /**
  * The edit view file of sales module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     sales 
@@ -30,45 +30,8 @@
           <td colspan='2'><?php echo html::textarea('desc', $group->desc, "rows='2' class='form-control'");?></td>
         </tr>
         <tr>
-          <th><?php echo $lang->sales->users;?></th>
+          <th><?php echo $lang->sales->user;?></th>
           <td colspan='2'><div class='checkbox-users'><?php echo html::checkbox('users', $users, $group->users);?></div></td>
-        </tr>
-        <tr>
-          <th><?php echo $lang->sales->priv;?></th>
-          <td colspan='2'>
-            <ul id='privTab' class='nav nav-secondary'>
-              <?php foreach($users as $account => $realname):?>
-              <li><?php echo html::a("#privs_$account", $realname, "data-toggle='tab'")?></li>
-              <?php endforeach;?>
-            </ul>
-            <div id='privContent' class='tab-content'>
-              <?php foreach($users as $account => $realname):?>
-              <div class='tab-pane' id='privs_<?php echo $account?>'>
-                <table class='table-hover'>
-                  <?php foreach($groups as $g):?>
-                  <tr>
-                    <td class='w-100px'><?php echo $g->id == $group->id ? $lang->sales->currentGroup : $g->name;?></td>
-                    <td class='w-60px'>
-                      <?php 
-                      $value   = "{$account}_{$g->id}";
-                      $checked = isset($privs[$account][$g->id]['view']) ? $value : '';
-                      echo html::checkbox('privs_view', array($value => $lang->sales->viewTip), $checked);
-                      ?>
-                    </td>
-                    <td class='w-60px'>
-                      <?php
-                      $value   = "{$account}_{$g->id}";
-                      $checked = isset($privs[$account][$g->id]['edit']) ? $value : '';
-                      echo html::checkbox('privs_edit', array($value => $lang->sales->editTip), $checked);
-                      ?>
-                    </td>
-                  </tr>
-                  <?php endforeach;?>
-                </table>
-              </div>
-              <?php endforeach;?>
-            </div>
-          </td>
         </tr>
         <tr>
           <th></th>

@@ -2,7 +2,7 @@
 /**
  * The batch create view of task module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <Yidong@cnezsoft.com>
  * @package     task
@@ -17,7 +17,7 @@ include $app->getAppRoot() . '../sys/common/view/header.modal.html.php';
 <?php include '../../common/view/datepicker.html.php';?>
 <?php include '../../common/view/chosen.html.php';?>
 <?php if(!$isChildren) $this->loadModel('project')->setMenu($projects, $projectID);?>
-<div class='<?php echo $isChildren ? '' : 'with-menu';?> page-content'>
+<div class='page-content'>
   <form id='ajaxForm' method='post' action='<?php echo $this->createLink('task', 'batchCreate', "projectID=$projectID&parent=$parent");?>'>
     <div class='panel'>
       <table class='table table-form'>

@@ -2,11 +2,11 @@
 /**
  * The model file of forum module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     forum
- * @version     $Id: model.php 3556 2016-01-28 00:19:29Z liugang $
+ * @version     $Id: model.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 class forumModel extends model
@@ -30,13 +30,21 @@ class forumModel extends model
         $this->loadModel('tree');
         foreach($rawBoards[0] as $parentBoard)
         {
-            if(!$this->tree->hasRight($parentBoard->id)) continue;
+            if(!$this->tree->hasRight($parentBoard)) continue;
 
             if(isset($rawBoards[$parentBoard->id]))
             {
                 foreach($rawBoards[$parentBoard->id] as $key => $childBoard) 
                 {
-                    if(!$this->tree->hasRight($childBoard->id)) unset($rawBoards[$parentBoard->id][$key]);
+                    /* Assign parentBoard to childBoard so that the programe will not access db to fetch parent if need to check parentBoard's right. */
+                    $tmpParent = $childBoard->parent;
+                    $childBoard->parent = $parentBoard;
+                    if(!$this->tree->hasRight($childBoard)) 
+                    {
+                        unset($rawBoards[$parentBoard->id][$key]);
+                        continue;
+                    }
+                    $childBoard->parent = $tmpParent;
                     
                     $childBoard->lastPostReplies = isset($replies[$childBoard->postID]) ? $replies[$childBoard->postID] : 0;
                     $childBoard->moderators      = explode(',', trim($childBoard->moderators, ','));

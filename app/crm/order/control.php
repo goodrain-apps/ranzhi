@@ -2,7 +2,7 @@
 /**
  * The control file of order module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     order
@@ -40,7 +40,6 @@ class order extends control
         $orders = $this->order->getList($mode, '', $owner = 'all', $orderBy, $pager);
 
         /* Set pre and next condition. */
-        $this->session->set('orderQueryCondition', $this->dao->get());
         $this->session->set('orderList', $this->app->getURI(true));
 
         /* Set allowed edit order ID list. */
@@ -56,7 +55,7 @@ class order extends control
         $this->view->title        = $this->lang->order->browse;
         $this->view->orders       = $orders;
         $this->view->customers    = $this->loadModel('customer')->getList('client');
-        $this->view->users        = $this->loadModel('user')->getPairs();
+        $this->view->users        = $this->loadModel('user', 'sys')->getPairs();
         $this->view->pager        = $pager;
         $this->view->mode         = $mode;
         $this->view->orderBy      = $orderBy;
@@ -69,10 +68,11 @@ class order extends control
     /**
      * Create an order.
      * 
+     * @param  int    $customer
      * @access public
      * @return viod
      */
-    public function create()
+    public function create($customer = 0)
     {
         if($_POST)
         {
@@ -81,11 +81,12 @@ class order extends control
         }
 
         unset($this->lang->order->menu);
-        $products = $this->loadModel('product')->getPairs();
+        $products = $this->loadModel('product')->getPairs($status = 'normal');
         $this->view->products     = array( 0 => '') + $products;
         $this->view->customers    = $this->loadModel('customer')->getPairs('client');
         $this->view->title        = $this->lang->order->create;
         $this->view->currencyList = $this->loadModel('common', 'sys')->getCurrencyList();
+        $this->view->customer     = $customer;
 
         $this->display();
     }
@@ -93,29 +94,34 @@ class order extends control
     /**
      * Edit an order.
      * 
-     * @param  int $orderID 
+     * @param  int    $orderID 
+     * @param  bool   $comment
      * @access public
      * @return void
      */
-    public function edit($orderID)
+    public function edit($orderID, $comment = false)
     {
         $order = $this->order->getByID($orderID);
         $this->loadModel('common', 'sys')->checkPrivByCustomer(empty($order)? '0' : $order->customer, 'edit');
 
         if($_POST)
         {
-            $changes = $this->order->update($orderID);
-            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
-
-            if(!empty($changes))
-            {   
-                $orderActionID = $this->loadModel('action')->create('order', $orderID, 'Edited');
-                $this->action->logHistory($orderActionID, $changes);
-
-                $customerActionID = $this->loadModel('action')->create('customer', $order->customer, 'editOrder', '', html::a($this->createLink('order', 'view', "orderID=$order->id"), $order->id));
-                $this->action->logHistory($customerActionID, $changes);
+            $changes = array();
+            if($comment == false)
+            {
+                $changes = $this->order->update($orderID);
+                if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
             }
 
+            if($this->post->comment != '' or !empty($changes))
+            {
+                $action        = $this->post->comment == '' ? 'Edited' : 'Commented';
+                $orderActionID = $this->loadModel('action')->create('order', $orderID, $action, $this->post->comment);
+                $this->action->logHistory($orderActionID, $changes);
+
+                $customerActionID = $this->loadModel('action')->create('customer', $order->customer, 'editOrder', $this->post->comment, html::a($this->createLink('order', 'view', "orderID=$order->id"), $order->id));
+                $this->action->logHistory($customerActionID, $changes);
+            }
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('view', "orderID=$orderID")));
         }
 
@@ -123,7 +129,7 @@ class order extends control
         $this->view->order        = $order;
         $this->view->products     = $this->loadModel('product')->getPairs();
         $this->view->customers    = $this->loadModel('customer')->getPairs('client');
-        $this->view->users        = $this->loadModel('user')->getPairs();
+        $this->view->users        = $this->loadModel('user')->getPairs('nodeleted,noforbidden,noclosed');
         $this->view->currencyList = $this->loadModel('common', 'sys')->getCurrencyList();
 
         $this->display();
@@ -144,8 +150,8 @@ class order extends control
         /* Set allowed edit order ID list. */
         $this->app->user->canEditOrderIdList = ',' . implode(',', $this->order->getOrdersSawByMe('edit', (array)$orderID)) . ',';
 
-        $this->app->loadLang('resume');
-        $this->app->loadLang('contract');
+        $this->app->loadLang('resume', 'crm');
+        $this->app->loadLang('contract', 'crm');
 
         $uri = $this->app->getURI(true);
         $this->session->set('customerList', $uri);
@@ -218,7 +224,7 @@ class order extends control
 
         $this->view->title   = $this->lang->order->activate;
         $this->view->orderID = $orderID;
-        $this->view->users   = $this->loadModel('user')->getPairs();
+        $this->view->users   = $this->loadModel('user')->getPairs('nodeleted,noforbidden,noclosed');
         $this->display();
     }
 
@@ -239,7 +245,7 @@ class order extends control
         $pager = new pager($recTotal, $recPerPage, $pageID);
 
         $order = $this->order->getByID($order);
-        $contacts = $this->loadModel('contact')->getList($order->customer, 'client', $orderBy, $pager);
+        $contacts = $this->loadModel('contact', 'crm')->getList($order->customer, $relation = 'client', $mode = '', $status = 'normal', $origin = '', $orderBy, $pager);
 
         $this->view->title    = $this->lang->order->contact;
         $this->view->contacts = $contacts;
@@ -260,7 +266,7 @@ class order extends control
     public function assign($orderID, $table = null)
     {
         $order   = $this->order->getByID($orderID);
-        $members = $this->loadModel('user')->getPairs('noclosed, nodeleted, devfirst');
+        $members = $this->loadModel('user')->getPairs('noclosed,nodeleted,noforbidden');
         $this->loadModel('common', 'sys')->checkPrivByCustomer(empty($order)? '0' : $order->customer, 'edit');
 
         if($_POST)
@@ -317,7 +323,7 @@ class order extends control
 
         /* Set toList and ccList. */
         $order  = $this->order->getByIdList($orderID);
-        $users  = $this->loadModel('user')->getPairs('noletter');
+        $users  = $this->loadModel('user')->getPairs();
         $order  = $order[$orderID];
         $toList = $order->assignedTo;
 
@@ -330,14 +336,15 @@ class order extends control
         $action->history = isset($history[$actionID]) ? $history[$actionID] : array();
 
         /* Create the email content. */
-        $this->view->order  = $order;
-        $this->view->action = $action;
-        $this->view->users  = $users;
+        $this->view->order    = $order;
+        $this->view->action   = $action;
+        $this->view->users    = $users;
+        $this->view->contract = $this->order->getContract($orderID);
 
         $mailContent = $this->parse($this->moduleName, 'sendmail');
 
         /* Send emails. */
-        $this->loadModel('mail')->send($toList, 'ORDER#' . $order->id . $this->lang->colon . $order->title, $mailContent);
+        $this->loadModel('mail')->send($toList, 'ORDER#' . $order->id . ' ' . $order->title, $mailContent);
         if($this->mail->isError()) trigger_error(join("\n", $this->mail->getError()));
     }
 
@@ -384,7 +391,7 @@ class order extends control
             }
 
             /* Get users, products and projects. */
-            $users    = $this->loadModel('user')->getPairs('noletter');
+            $users    = $this->loadModel('user')->getPairs();
             $products = $this->loadModel('product')->getPairs();
 
             foreach($orders as $order)
@@ -445,7 +452,7 @@ class order extends control
     public function ajaxGetTodoList($account = '', $id = '', $type = 'select')
     {
         $this->app->loadClass('date', $static = true);
-        $customerIdList = $this->loadModel('customer', 'crm')->getCustomersSawByMe();
+        $customerIdList = $this->loadModel('customer')->getCustomersSawByMe();
         $products       = $this->loadModel('product')->getPairs();
         $thisWeek       = date::getThisWeek();
         $orders         = array();
@@ -478,7 +485,7 @@ class order extends control
         }
         if($type == 'board')
         {
-            die($this->loadModel('todo', 'oa')->buildBoardList($orders, 'order'));
+            die($this->loadModel('todo', 'sys')->buildBoardList($orders, 'order'));
         }
         die(json_encode($orders));
     }

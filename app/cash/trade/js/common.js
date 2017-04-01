@@ -1,11 +1,27 @@
 $(document).ready(function()
 {
+    $('#menu a[href*=setReportUnit]').attr({'data-toggle' : 'modal', 'data-width' : 400});
+
     $('[name*=objectType]').change(function()
     {
-        if($(this).prop('checked'))$('[name*=objectType]').not(this).prop('checked', false).change();
+        if($(this).prop('checked')) 
+        {
+            $('[name*=objectType]').not(this).prop('checked', false).change();
+            $('.traderTR').hide();
+        }
+        else
+        {
+            $('.traderTR').show();
+        }
         $('#' + $(this).val()).parents('tr').toggle($(this).prop('checked'))
+        if($(this).val() == 'order') $('.customerTR').toggle($(this).prop('checked'));
+        if($(this).val() == 'contract') $('.allCustomerTR').toggle($(this).prop('checked'));
     })
-    $('[name*=objectType]').change();
+
+    $('[name*=objectType]').each(function()
+    {
+        if($(this).prop('checked')) $(this).change();
+    });
 
     /* Toggle create trader items. */
     $('[name*=createTrader]').change(function()
@@ -29,25 +45,43 @@ $(document).ready(function()
     {
         if(v.mode == 'in')
         {
-            $('#menu li').removeClass('active').find("[href*='=" + v.mode + "']").not('[href*=mode\\=inveset]').parent().addClass('active');
+            $('#mainNavbar li').removeClass('active').find("[href*='mode\\=" + v.mode + "']").not('[href*=mode\\=invest]').parent().addClass('active');
         }
         else
         {
-            $('#menu li').removeClass('active').find("[href*='=" + v.mode + "']").parent().addClass('active');
+            $('#mainNavbar li').removeClass('active').find("[href*='mode\\=" + v.mode + "']").parent().addClass('active');
         }
     }
     else
     {
-        $('#menu li').removeClass('active');
+        $('#mainNavbar li').removeClass('active');
         if(v.mode == 'in')
         {
-            $('#menu li').find("[href*='trade-browse-in.html']").parent().addClass('active');
+            $('#mainNavbar li').find("[href*='trade-browse-in.html']").parent().addClass('active');
         }
         else
         {
-            $('#menu li').find('[href*=' + v.mode + ']').parent().addClass('active');
+            $('#mainNavbar li').find("[href*='-" + v.mode + "']").parent().addClass('active');
         }
     }
+
+    $(document).on('change', '#customer,#trader', function()
+    {
+        if($(this).val())
+        {
+            $.get(createLink('trade', 'ajaxGetDepositor', 'customer=' + $(this).val()), function(depositor)
+            {
+                if(depositor)  $('tr.customer-depositor').show().find('#customerDepositor').val(depositor);
+                if(!depositor) $('tr.customer-depositor').hide();
+            });
+        }
+        else
+        {
+            $('tr.customer-depositor').hide();
+        }
+    })
+
+    $('#customer,#trader').change();
 })
 
 /**

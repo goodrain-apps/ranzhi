@@ -2,7 +2,7 @@
 /**
  * The view file of view method of todo module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     todo
@@ -24,7 +24,7 @@
           <div>
             <?php echo $todo->desc;?>
             <?php 
-            if($todo->type == 'task') echo html::a("javascript:$.openEntry(\"oa\",\"" . $this->createLink('oa.task', 'view', "id={$todo->idvalue}") . "\")", $lang->task->common . '#' . $todo->idvalue, "class='btn'");
+            if($todo->type == 'task') echo html::a("javascript:$.openEntry(\"proj\",\"" . $this->createLink('proj.task', 'view', "id={$todo->idvalue}") . "\")", $lang->task->common . '#' . $todo->idvalue, "class='btn'");
             if($todo->type == 'order') echo html::a("javascript:$.openEntry(\"crm\",\"" . $this->createLink('crm.order', 'view', "id={$todo->idvalue}") . "\")", $lang->order->common . '#' . $todo->idvalue, "class='btn'");
             if($todo->type == 'customer') echo html::a("javascript:$.openEntry(\"crm\",\"" . $this->createLink('crm.customer', 'view', "id={$todo->idvalue}") . "\")", $lang->customer->common . '#' . $todo->idvalue, "class='btn'");
             ?>

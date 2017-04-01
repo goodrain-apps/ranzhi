@@ -1,5 +1,7 @@
 $(document).ready(function()
 {
+    $(document).ready(removeDitto());//Remove 'ditto' in first row.
+
     $(document).on('change', '.type', function()
     {
         var type = $(this).val();

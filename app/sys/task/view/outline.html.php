@@ -2,7 +2,7 @@
 /**
  * The view view file of task module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     task
@@ -13,7 +13,8 @@
 <?php include $app->getModuleRoot() . 'common/view/header.html.php';?>
 <?php $this->loadModel('project')->setMenu($projects, $projectID, $orderBy);?>
 <?php js::set('groupBy', $groupBy);?>
-<div class='with-menu page-content'>
+<?php js::set('backLink', $backLink);?>
+<div class='page-content'>
   <div class='panel'>
     <table class='table table-hover table-striped tablesorter table-data' id='taskList'>
       <thead>

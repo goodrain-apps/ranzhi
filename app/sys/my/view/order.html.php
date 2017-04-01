@@ -2,7 +2,7 @@
 /**
  * The browse view file of order module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     my 
@@ -16,7 +16,7 @@
   <?php commonModel::printLink('crm.order', 'create', '', '<i class="icon-plus"></i> ' . $lang->order->create, 'class="btn btn-primary"');?>
 </div>
 <div class='panel'>
-  <table class='table table-hover table-striped tablesorter table-data table-fixed'>
+  <table class='table table-hover table-striped table-bordered tablesorter table-data table-fixed'>
     <thead>
       <tr class='text-center'>
         <?php $vars = "type={$type}&orderBy=%s&recTotal={$pager->recTotal}&recPerPage={$pager->recPerPage}&pageID={$pager->pageID}";?>
@@ -40,7 +40,7 @@
         <?php $products = ''; foreach($order->products as $product) $products .= $product . ' ';?>
         <td><?php echo $order->id;?></td>
         <td class='visible-lg'><?php echo zget($lang->customer->levelNameList, $order->level, $order->level);?></td>
-        <td class='text-left'><?php echo $order->customerName;?></td>
+        <td class='text-left' title='<?php echo $order->customerName;?>'><?php echo $order->customerName;?></td>
         <td title='<?php echo $products;?>'><?php echo $products;?></td>
         <td class='text-right'><?php echo zget($currencySign, $order->currency, '') . formatMoney($order->plan);?></td>
         <td class='text-right'><?php echo zget($currencySign, $order->currency, '') . formatMoney($order->real);?></td>

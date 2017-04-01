@@ -2,7 +2,7 @@
 /**
  * The todo module zh-cn file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     todo
@@ -13,7 +13,7 @@ if(!isset($lang->todo)) $lang->todo = new stdclass();
 $lang->todo->common       = '待办';
 $lang->todo->index        = "待办一览";
 $lang->todo->browse       = "待办列表";
-$lang->todo->create       = "新增";
+$lang->todo->create       = "新增待办";
 $lang->todo->batchCreate  = "批量添加";
 $lang->todo->edit         = "更新待办";
 $lang->todo->batchEdit    = "批量编辑";
@@ -24,8 +24,7 @@ $lang->todo->batchFinish  = "批量完成";
 $lang->todo->export       = "导出";
 $lang->todo->delete       = "删除待办";
 $lang->todo->browse       = "浏览待办";
-$lang->todo->import2Today = "导入到今天";
-$lang->todo->import       = "导入";
+$lang->todo->import       = "移动";
 $lang->todo->changeStatus = "更改";
 $lang->todo->legendBasic  = "基本信息";
 $lang->todo->calendar     = "日历";
@@ -53,6 +52,9 @@ $lang->todo->finishedBy   = '完成者';
 $lang->todo->finishedDate = '完成时间';
 $lang->todo->closedBy     = '关闭者';
 $lang->todo->closedDate   = '关闭时间';
+$lang->todo->ranzhi       = '然之';
+$lang->todo->task         = '任务';
+$lang->todo->bug          = 'Bug';
 
 $lang->todo->confirmTip  = '该Todo关联的是%s #%s，需要修改它吗？';
 $lang->todo->assignedTip = '%s 于 %s';
@@ -71,7 +73,6 @@ $lang->todo->priList[1] = '最高';
 $lang->todo->priList[2] = '较高';
 $lang->todo->priList[4] = '最低';
 
-$lang->todo->typeList['undone']   = '未完成';
 $lang->todo->typeList['custom']   = '自定义';
 $lang->todo->typeList['task']     = '项目任务';
 $lang->todo->typeList['order']    = '订单沟通';
@@ -81,6 +82,7 @@ $lang->todo->confirmDelete  = "您确定要删除这条待办吗？";
 $lang->todo->successMarked  = "成功切换状态！";
 $lang->todo->thisIsPrivate  = '这是一条私人事务。:)';
 $lang->todo->lblDisableDate = '暂时不设定时间';
+$lang->todo->emptyTodo      = '您今天还没有添加待办。';
 
 $lang->todo->periods['today']      = '今日';
 $lang->todo->periods['yesterday']  = '昨日';

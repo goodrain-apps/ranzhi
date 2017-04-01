@@ -2,11 +2,11 @@
 /**
  * The user module zh-tw file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     user
- * @version     $Id: zh-tw.php 3197 2015-11-20 07:42:06Z chujilu $
+ * @version     $Id: zh-tw.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 $lang->user->common    = '成員';
@@ -66,12 +66,14 @@ $lang->user->goback          = "返回前一頁";
 $lang->user->allUsers        = '全部成員';
 $lang->user->submit          = "提交";
 $lang->user->forbid          = '禁用';
+$lang->user->forbidList      = '禁用成員列表';
 $lang->user->active          = '激活';
 $lang->user->setReferer      = '設置referer';
 $lang->user->vcard           = '獲取二維碼名片';
 $lang->user->uploadAvatar    = '上傳頭像';
 $lang->user->cropAvatar      = '裁剪頭像';
 $lang->user->cropAvatarTip   = '拖拽選框來選擇頭像裁剪範圍';
+$lang->user->adminUser       = '組織';
 
 $lang->user->profile     = '個人信息';
 $lang->user->editProfile = '編輯信息';
@@ -79,11 +81,10 @@ $lang->user->thread      = '我的主題';
 $lang->user->reply       = '我的回貼';
 $lang->user->message     = '我的消息';
 
-$lang->user->inputUserName       = '請輸入成員名';
-$lang->user->inputColleague      = '請輸入同事姓名';
-$lang->user->inputAccountOrEmail = '請輸入成員名或Email';
-$lang->user->inputPassword       = '請輸入密碼';
-$lang->user->searchUser          = '搜索';
+$lang->user->inputAccount   = '請輸入用戶名';
+$lang->user->inputColleague = '請輸入同事姓名';
+$lang->user->inputPassword  = '請輸入密碼';
+$lang->user->searchUser     = '搜索';
 
 $lang->user->errorDeny     = "抱歉，您無權訪問『<b>%s</b>』模組的『<b>%s</b>』功能。請聯繫管理員獲取權限。點擊後退返回上頁。<br/> 5秒鐘後將自動返迴首頁...";
 $lang->user->loginFailed   = "登錄失敗，請檢查您的成員名或密碼是否填寫正確。";

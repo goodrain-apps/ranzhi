@@ -2,7 +2,7 @@
 /**
  * The browse file of todo module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     todo
@@ -15,7 +15,7 @@
 <div class='row page-content'>
   <div class='panel'>
     <form id='ajaxForm' method='post' action="<?php echo $this->createLink('oa.todo', 'batchClose');?>">
-      <table class='table table-hover table-striped tablesorter table-data table-fixed' id='todoList'>
+      <table class='table table-hover table-striped table-bordered tablesorter table-data table-fixed' id='todoList'>
         <thead>
           <tr class='text-center'>
             <?php $vars = "type=$type&orderBy=%s&recTotal={$pager->recTotal}&recPerPage={$pager->recPerPage}&pageID={$pager->pageID}";?>

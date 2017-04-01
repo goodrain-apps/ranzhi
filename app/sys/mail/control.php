@@ -2,11 +2,11 @@
 /**
  * The control file of mail module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     mail 
- * @version     $Id: control.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: control.php 4145 2016-10-14 05:31:16Z liugang $
  * @link        http://www.ranzhico.com
  */
 class mail extends control
@@ -158,7 +158,7 @@ class mail extends control
         }
 
         $this->view->title = $this->lang->mail->common . $this->lang->colon . $this->lang->mail->test;
-        $this->view->users = $this->loadModel('user')->getPairs('nodeleted');
+        $this->view->users = $this->loadModel('user')->getPairs('nodeleted,noforbidden');
         $this->display();
     }
 

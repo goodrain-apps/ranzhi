@@ -2,7 +2,7 @@
 /**
  * The control file of balance module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     balance
@@ -32,7 +32,7 @@ class balance extends control
         $this->view->depositor = $depositor;
         $this->view->orderBy   = $orderBy;
 
-        $this->view->depositorList = $this->loadModel('depositor')->getPairs();
+        $this->view->depositorList = $this->loadModel('depositor', 'cash')->getPairs();
         $this->view->users         = $this->loadModel('user')->getPairs();
         $this->view->currencyList  = $this->loadModel('common', 'sys')->getCurrencyList();
         $this->view->pager         = $pager;
@@ -64,7 +64,7 @@ class balance extends control
 
         $this->view->title            = $this->lang->balance->create;
         $this->view->currentDepositor = $depositor;
-        $this->view->depositorList    = $this->loadModel('depositor')->getList();
+        $this->view->depositorList    = $this->loadModel('depositor', 'cash')->getList();
         $this->view->currencyList     = $this->loadModel('common', 'sys')->getCurrencyList();
 
         $this->display();
@@ -97,7 +97,7 @@ class balance extends control
        
         $this->view->title         = $this->lang->balance->edit;
         $this->view->balance       = $balance;
-        $this->view->depositorList = $this->loadModel('depositor')->getList();
+        $this->view->depositorList = $this->loadModel('depositor', 'cash')->getList();
         $this->view->currencyList  = $this->loadModel('common', 'sys')->getCurrencyList();
 
         $this->display();

@@ -2,7 +2,7 @@
 /**
  * The browse view file of attend module of Ranzhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     attend
@@ -14,7 +14,7 @@
 <?php include '../../../sys/common/view/treeview.html.php';?>
 <?php $lang->attend->abbrStatusList['rest'] = '';?>
 <div id='menuActions'>
-  <?php commonModel::printLink('attend', 'export', "data=$currentYear$currentMonth&company=$company", "{$lang->attend->export}", "class='iframe btn btn-primary'")?>
+  <?php commonModel::printLink('attend', 'export', "date=$currentYear$currentMonth&company=$company", "{$lang->attend->export}", "class='iframe btn btn-primary'")?>
 </div>
 <div class='with-side'>
   <div class='side'>

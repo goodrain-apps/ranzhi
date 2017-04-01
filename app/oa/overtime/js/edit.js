@@ -1,25 +1,26 @@
 $(document).ready(function()
 {
-    $('#begin, #start, #end, #finish').change(function()
+    $('[name=type], #begin, #start, #end, #finish').change(function()
     {
+        var type   = $('input[name=type]:checked').val();
         var begin  = $('#begin').val();
         var end    = $('#end').val();
         var start  = $('#start').val();
         var finish = $('#finish').val();
         if(!begin || !end || !start || !finish) return false;
 
-        begin = begin.replace(/-/g, ',');
-        end   = end.replace(/-/g, ',');
+        begin = begin.replace(/-/g, '/');
+        end   = end.replace(/-/g, '/');
 
         var hours = 0;
         var beginTime = Date.parse(new Date(begin + ' ' + start));
         var endTime   = Date.parse(new Date(end + ' ' + finish));
-        var dayHours  = ((Date.parse(new Date(begin + ' ' + v.signOut)) - Date.parse(new Date(begin + ' ' + v.signIn)))/(3600*100))/10;
         if(beginTime > endTime) return false;
 
         if(begin == end)
         {
-            hours = ((endTime - beginTime)/(3600*100))/10;
+            hours = Math.round((endTime - beginTime)/(3600*1000)*100)/100;
+            if(type == 'compensate' && hours > v.workingHours) hours = v.workingHours;
         }
         else
         {
@@ -28,8 +29,30 @@ $(document).ready(function()
             var hoursStart   = 0;
             var hoursEnd     = 0;
             var hoursContent = 0;
-            if(beginTime < signOutTime) hoursStart = ((signOutTime - beginTime)/(3600*100))/10;
-            if(endTime > signInTime) hoursEnd = ((endTime - signInTime)/(3600*100))/10;
+            
+            if(beginTime < signOutTime)  
+            {
+                hoursStart = Math.round((signOutTime - beginTime)/(3600*1000)*100)/100;
+            }
+            else
+            {
+                hoursStart = Math.round((Date.parse(new Date(begin + ' 23:59:60')) - beginTime)/(3600*1000)*100)/100;
+            }
+            if(type == 'compensate' && hoursStart > v.workingHours) hoursStart = v.workingHours;
+            
+            if(endTime > signInTime)  
+            {
+                hoursEnd = Math.round((endTime - signInTime)/(3600*1000)*100)/100;
+            }
+            else
+            {
+                hoursEnd = Math.round((endTime - Date.parse(new Date(end)))/(3600*1000)*100)/100;
+            }
+            if(type == 'compensate' && hoursEnd > v.workingHours) hoursEnd = v.workingHours;
+            
+            var dayHours = Math.round((Date.parse(new Date(begin + ' ' + v.signOut)) - Date.parse(new Date(begin + ' ' + v.signIn)))/(3600*1000)*100)/100;
+            if(type == 'compensate' && dayHours > v.workingHours) dayHours = v.workingHours;
+            
             var days = Math.floor((Date.parse(new Date(end)) - Date.parse(new Date(begin)))/(24*3600*1000));
             if(days > 1) hoursContent = (days - 1) * dayHours;
 

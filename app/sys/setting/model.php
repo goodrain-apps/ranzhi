@@ -2,11 +2,11 @@
 /**
  * The model file of mail module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     setting
- * @version     $Id: model.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: model.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -57,8 +57,8 @@ class settingModel extends model
         if($level <= 2) return false;
         if($type == 'config')
         {
-        if($level == 3) list($owner, $app, $module, $key) = explode('.', $path);
-        if($level == 4) list($owner, $app, $module, $section, $key) = explode('.', $path);
+            if($level == 3) list($owner, $app, $module, $key) = explode('.', $path);
+            if($level == 4) list($owner, $app, $module, $section, $key) = explode('.', $path);
         }
         elseif($type == 'lang')
         {
@@ -86,6 +86,7 @@ class settingModel extends model
 
         $table = $type == 'config' ? TABLE_CONFIG : TABLE_LANG;
         $this->dao->replace($table)->data($item)->exec();
+        return $this->dao->lastInsertID();
     }
 
     /**
@@ -115,7 +116,7 @@ class settingModel extends model
             }
             else
             {
-                $this->setItem($path . '.' . $key, $item);
+                $this->setItem($path . '.' . $key, $item, $type);
             }
         }
 
@@ -232,7 +233,7 @@ class settingModel extends model
      */
     public function getVersion()
     {
-        $version = isset($this->config->global->version) ? $this->config->global->version : '1.1';    // No version, set as 1.0.
+        $version = isset($this->config->global->version) ? $this->config->global->version : '1.0';    // No version, set as 1.0.
         return $version;
     }
 

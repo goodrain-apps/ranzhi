@@ -2,12 +2,12 @@
 /**
  * The redirect view file of tree module of chanzhiEPS.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Hao Sun <sunhao@cnezsoft.com>
  * @package     article
  * @version     $Id$
- * @link        http://www.chanzhi.org
+ * @link        http://www.ranzhico.com
  */
 ?>
 <?php include '../../common/view/header.lite.html.php';?>

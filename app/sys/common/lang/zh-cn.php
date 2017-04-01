@@ -2,11 +2,11 @@
 /**
  * The zh-cn file of common module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     common 
- * @version     $Id: zh-cn.php 3600 2016-02-15 01:47:04Z liugang $
+ * @version     $Id: zh-cn.php 4194 2016-10-21 09:23:53Z daitingting $
  * @link        http://www.ranzhico.com
  */
 $lang->colon      = ' : ';
@@ -29,16 +29,20 @@ $lang->exportIcon = "<i class='icon-upload-alt'> </i>";
 
 /* Apps lang items.*/
 $lang->apps = new stdclass();
-$lang->apps->crm  = '客户';
-$lang->apps->cash = '财务';
-$lang->apps->oa   = '办公';
-$lang->apps->sys  = '通用';
-$lang->apps->team = '团队';
+$lang->apps->crm        = '客户';
+$lang->apps->cash       = '财务';
+$lang->apps->oa         = '办公';
+$lang->apps->doc        = '文档';
+$lang->apps->proj       = '项目';
+$lang->apps->sys        = '通用';
+$lang->apps->team       = '团队';
+$lang->apps->superadmin = '后台';
 
 /* Lang items for ranzhi. */
 $lang->ranzhi    = '然之协同';
 $lang->agreement = "已阅读并同意<a href='http://zpl.pub/page/zplv11.html' target='_blank'>《Z PUBLIC LICENSE授权协议1.2》</a>。<span class='text-danger'>未经许可，不得去除、隐藏或遮掩然之系统的任何标志及链接。</span>";
 $lang->poweredBy = "<a href='http://www.ranzhico.com/?v=%s' target='_blank'>{$lang->ranzhi} %s</a>";
+$lang->ipLimited = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' /></head><body>抱歉，管理员限制当前IP登录，请联系管理员解除限制。</body></html>";
 
 /* IE6 alert.  */
 $lang->IE6Alert = <<<EOT
@@ -71,7 +75,6 @@ $lang->link           = '友情链接';
 $lang->frontHome      = '前台';
 $lang->forumHome      = '论坛';
 $lang->bookHome       = '手册';
-$lang->dashboard      = '成员中心';
 $lang->register       = '注册';
 $lang->logout         = '退出';
 $lang->login          = '登录';
@@ -97,7 +100,7 @@ $lang->finish         = '完成';
 $lang->cancel         = '取消';
 $lang->import         = '导入';
 $lang->export         = '导出';
-$lang->setFileName    = '文件名：';
+$lang->setFileName    = '文件名';
 $lang->setFileNum     = '记录数';
 $lang->setFileType    = '文件类型';
 $lang->save           = '保存';
@@ -112,6 +115,7 @@ $lang->forbid         = '禁用';
 $lang->activate       = '激活';
 $lang->ignore         = '忽略';
 $lang->view           = '查看';
+$lang->detail         = '详情';
 $lang->more           = '更多';
 $lang->actions        = '操作';
 $lang->history        = '历史记录';
@@ -120,6 +124,7 @@ $lang->switchDisplay  = '切换显示';
 $lang->feature        = '未来';
 $lang->year           = '年';
 $lang->month          = '月';
+$lang->day            = '日';
 $lang->loading        = '稍候...';
 $lang->saveSuccess    = '保存成功';
 $lang->setSuccess     = '设置成功';
@@ -140,10 +145,15 @@ $lang->yes            = '是';
 $lang->no             = '否';
 $lang->signIn         = '签到';
 $lang->signOut        = '签退';
+$lang->sort           = '排序';
+$lang->required       = '必填';
+$lang->custom         = '自定义';
 
 $lang->exportAll      = '导出全部记录';
 $lang->exportThisPage = '导出本页记录';
 $lang->exportTemplate = '导出模板';
+$lang->exportExcel    = '导出Excel';
+$lang->exportWord     = '导出Word';
 $lang->importFile     = '导入文件';
 $lang->importSuccess  = '导入成功';
 $lang->importFail     = '导入失败';
@@ -220,9 +230,10 @@ $lang->group   = new stdclass();
 /* Menu entry. */
 $lang->entry       = new stdclass();
 $lang->entry->menu = new stdclass();
-$lang->entry->menu->admin  = array('link' => '应用列表|entry|admin|', 'alias' => 'edit');
-$lang->entry->menu->create = '添加应用|entry|create|';
-$lang->entry->menu->webapp = 'WEB应用|webapp|obtain|';
+$lang->entry->menu->admin    = array('link' => '应用列表|entry|admin|', 'alias' => 'edit, integration, style, zentaoAdmin');
+$lang->entry->menu->create   = '添加应用|entry|create|';
+$lang->entry->menu->webapp   = 'WEB应用|webapp|obtain|';
+$lang->entry->menu->category = '分组|entry|category|';
 
 /* Menu system. */
 $lang->system       = new stdclass();
@@ -250,21 +261,49 @@ $lang->menu->dashboard->review   = '审批|my|review|';
 $lang->menu->dashboard->company  = '组织|my|company|';
 $lang->menu->dashboard->dynamic  = '动态|my|dynamic|';
 
+/* Menu of customer module. */
+if(!isset($lang->customer)) $lang->customer = new stdclass();
+$lang->customer->menu = new stdclass();
+$lang->customer->menu->browse       = '所有客户|customer|browse|mode=all';
+$lang->customer->menu->assignedTo   = '指派给我|customer|browse|mode=assignedTo';
+$lang->customer->menu->past         = '亟需联系|customer|browse|mode=past';
+$lang->customer->menu->today        = '今天联系|customer|browse|mode=today';
+$lang->customer->menu->tomorrow     = '明天联系|customer|browse|mode=tomorrow';
+$lang->customer->menu->thisweek     = '本周内联系|customer|browse|mode=thisweek';
+$lang->customer->menu->thismonth    = '本月内联系|customer|browse|mode=thismonth';
+$lang->customer->menu->public       = '客户池|customer|browse|mode=public';
+$lang->customer->menu->report       = '报表|report|browse|module=customer';
+
+/* Menu of provider module. */
+if(!isset($lang->provider)) $lang->provider = new stdclass();
+$lang->provider->menu = new stdclass();
+$lang->provider->menu->browse = array('link' => '供应商列表|provider|browse|', 'alias' => 'create,edit,view');
+
+/* Menu of product module. */
+if(!isset($lang->product)) $lang->product = new stdclass();
+$lang->product->menu = new stdclass();
+$lang->product->menu->browse     = '所有产品|product|browse|mode=all';
+$lang->product->menu->normal     = '正常|product|browse|mode=normal';
+$lang->product->menu->developing = '研发中|product|browse|mode=developing';
+$lang->product->menu->offline    = '下线|product|browse|mode=offline';
+
 $lang->todo = new stdclass();
 $lang->todo->menu = new stdclass();
 $lang->todo->menu->calendar        = '日历|todo|calendar|';
+$lang->todo->menu->all             = '所有|todo|browse|mode=all';
 $lang->todo->menu->assignedToOther = '指派他人|todo|browse|mode=assignedtoother';
 $lang->todo->menu->assignedToMe    = '指派给我|todo|browse|mode=assignedtome';
 $lang->todo->menu->undone          = '未完成|todo|browse|mode=undone';
 $lang->todo->menu->future          = '待定|todo|browse|mode=future';
-$lang->todo->menu->all             = '所有|todo|browse|mode=all';
 
 $lang->my = new stdclass();
 $lang->my->review = new stdclass();
 $lang->my->review->menu = new stdclass();
-$lang->my->review->menu->attend = '考勤|my|review|type=attend';
-$lang->my->review->menu->leave  = '请假|my|review|type=leave';
-$lang->my->review->menu->refund = '报销|my|review|type=refund';
+$lang->my->review->menu->attend   = '考勤|my|review|type=attend';
+$lang->my->review->menu->leave    = '请假|my|review|type=leave';
+$lang->my->review->menu->overtime = '加班|my|review|type=overtime';
+$lang->my->review->menu->lieu     = '调休|my|review|type=lieu';
+$lang->my->review->menu->refund   = '报销|my|review|type=refund';
 
 $lang->my->order = new stdclass();
 $lang->my->order->menu = new stdclass();
@@ -291,6 +330,7 @@ $lang->my->task->menu->createdByMe  = '由我创建|my|task|type=createdBy';
 $lang->my->task->menu->finishedByMe = '由我完成|my|task|type=finishedBy';
 $lang->my->task->menu->closedByMe   = '由我关闭|my|task|type=closedBy';
 $lang->my->task->menu->canceledByMe = '由我取消|my|task|type=canceledBy';
+$lang->my->task->menu->unclosed     = '未关闭|my|task|type=unclosed';
 
 $lang->my->dynamic = new stdclass();
 $lang->my->dynamic->menu = new stdclass();
@@ -302,6 +342,8 @@ $lang->my->dynamic->menu->lastweek   = '上周|my|dynamic|period=lastweek';
 $lang->my->dynamic->menu->thismonth  = '本月|my|dynamic|period=thismonth';
 $lang->my->dynamic->menu->lastmonth  = '上月|my|dynamic|period=lastmonth';
 $lang->my->dynamic->menu->all        = '所有|my|dynamic|period=all';
+
+$lang->my->company = new stdclass();
 
 /* Menu of mail module. */
 $lang->mail = new stdclass();
@@ -362,6 +404,12 @@ $lang->pager->pre        = '上页';
 $lang->pager->next       = '下页';
 $lang->pager->last       = '末页';
 $lang->pager->locate     = 'Go!';
+$lang->pager->showMore   = '显示更多 <i class="icon icon-double-angle-down"></i>';
+$lang->pager->noMore     = '没有更多';
+$lang->pager->showTotal  = '已显示 <strong>%s</strong> 项，共 <strong>%s</strong> 项';
+$lang->pager->previousPage = "上一页";
+$lang->pager->nextPage     = "下一页";
+$lang->pager->summery      = "第 <strong>%s-%s</strong> 项，共 <strong>%s</strong> 项";
 
 /* The excel items. */
 $lang->excel = new stdClass();
@@ -459,5 +507,8 @@ define('DT_DATE1',      'Y-m-d');
 define('DT_DATE2',      'Ymd');
 define('DT_DATE3',      'Y年m月d日');
 define('DT_DATE4',      'n月j日');
+define('DT_DATE5',      'Y年m月');
 define('DT_TIME1',      'H:i:s');
 define('DT_TIME2',      'H:i');
+
+include (dirname(__FILE__) . '/menuOrder.php');

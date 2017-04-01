@@ -2,7 +2,7 @@
 /**
  * The create view of leads module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     leads 
@@ -21,12 +21,12 @@
     <form method='post' id='contactForm' class='form-condensed'>
       <div class='row'>
         <div class='col-md-9'>
-          <table class='table table-form'>
-            <tr>
+          <table class='table table-form w-p60'>
+            <tr class='required'>
               <th class='w-100px'><?php echo $lang->contact->realname;?></th>
-              <td class='w-p40'><?php echo html::input('realname', '', "class='form-control'");?><td>
+              <td><?php echo html::input('realname', '', "class='form-control'");?></td>
             </tr>
-            <tr>
+            <tr class='required'>
               <th><?php echo $lang->contact->origin;?></th>
               <td><?php echo html::input('origin', '', "class='form-control'");?></td>
             </tr>
@@ -59,12 +59,16 @@
               <td><?php echo html::input('qq', '', "class='form-control'");?></td>
             </tr>
             <tr>
+              <th><?php echo $lang->contact->weixin;?></th>
+              <td><?php echo html::input('weixin', '', "class='form-control'");?></td>
+            </tr>
+            <tr>
               <th><?php echo $lang->contact->desc;?></th>
-              <td colspan='2'><?php echo html::textarea('desc', '', "rows='3' class='form-control'");?></td>
+              <td><?php echo html::textarea('desc', '', "rows='3' class='form-control'");?></td>
             </tr>
             <tr>
               <th></th>
-              <td colspan='2'>
+              <td>
                 <?php echo html::submitButton() . '&nbsp;&nbsp;' . html::backButton();?>
                 <div id='duplicateError' class='hide'></div>
               </td>

@@ -2,7 +2,7 @@
 /**
  * The manage privilege by group view of group module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Xiying Guan <guanxiying@xirangit.com>
  * @package     group
@@ -41,7 +41,7 @@
         <tr>
           <?php if($i == 1):?>
           <?php $rowspan = $app == 'crm' ? count($lang->appModule->$app) + 1 : count($lang->appModule->$app);?>
-          <th rowspan="<?php echo $rowspan;?>" class='w-70px'>
+          <th rowspan="<?php echo $rowspan;?>" class='w-80px'>
             <label class="checkbox">
               <?php echo $lang->apps->$app;?>
               <input type="checkbox" class='checkApp' /> 
@@ -51,7 +51,11 @@
           <th class='text-right w-120px'>
             <label class="checkbox">
               <?php 
-              if($moduleName == 'user')
+              if($app == 'superadmin' && $moduleName == 'adminUser') 
+              {
+                  echo $this->lang->user->adminUser;
+              }
+              elseif($moduleName == 'user')
               {
                   echo $this->lang->user->colleagueMenu;
               }
@@ -65,6 +69,7 @@
           </th>
           <td id='<?php echo $moduleName;?>'>
             <?php
+            if($app == 'superadmin' && $moduleName == 'adminUser') $moduleName = 'user';
             $options = array();
             foreach($moduleActions as $action => $actionLabel)
             {

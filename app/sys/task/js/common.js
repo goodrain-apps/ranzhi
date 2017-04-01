@@ -1,5 +1,11 @@
 $(function()
 {
+    if(v.backLink !== undefined) $('#menu .nav:first').append('<li>' + v.backLink + '</li>');
+    if($.cookie('projectStatus') && v.projectID)
+    {
+        $('#mainNavbar .nav li').removeClass('active').find('[href*=' + $.cookie('projectStatus') + ']').parent().addClass('active');
+    }
+
     /* Set style of priority options in form */
     $('form .pri[data-value="' + $('form #pri').val() + '"]').addClass('active');
     $('form .pri').click(function()

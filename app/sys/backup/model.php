@@ -2,7 +2,7 @@
 /**
  * The model file of backup module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     backup
@@ -84,6 +84,45 @@ class backupModel extends model
         }
 
         return $return;
+    }
+
+    /**
+     * Set save days for backup
+     * 
+     * @access public
+     * @return bool
+     */
+    public function setSaveDays()
+    {
+        $this->loadModel('setting')->setItem('system.sys.common.backup.saveDays', $this->post->saveDays);
+
+        if(!dao::isError())
+        {
+            $cron = $this->dao->select('*')->from(TABLE_CRON)->where('command')->like('appName=sys&moduleName=backup&methodName=batchdelete%')->fetch();
+            if($cron)
+            {
+                $this->dao->update(TABLE_CRON)
+                    ->set('command')->eq('appName=sys&moduleName=backup&methodName=batchdelete&saveDays=' . $this->post->saveDays)
+                    ->set('remark')->eq(sprintf($this->lang->backup->deleteInfo, $this->post->saveDays))
+                    ->where('id')->eq($cron->id)
+                    ->exec();
+            }
+            else
+            {
+                $cron = new stdclass();
+                $cron->m       = '1';
+                $cron->h       = '1';
+                $cron->dom     = '*';
+                $cron->mon     = '*';
+                $cron->dow     = '*';
+                $cron->command = 'appName=sys&moduleName=backup&methodName=batchdelete&saveDays=' . $this->post->saveDays;
+                $cron->remark  = sprintf($this->lang->backup->deleteInfo, $this->post->saveDays);
+                $cron->type    = 'ranzhi';
+                $cron->status  = 'normal';
+                $this->dao->insert(TABLE_CRON)->data($cron)->autoCheck()->exec();
+            }
+        }
+        return !dao::isError();
     }
 
     /**

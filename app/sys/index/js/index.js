@@ -11,6 +11,88 @@ $(function()
     {
         $('.sign').parent('li').hide();
     }
+
+    $(document).on('mouseover', '.categoryButton', function()
+    {
+        $('.categoryButton').not('.open').removeClass('active');
+        $(this).addClass('active');
+        var id    = $(this).data('id');
+        var menu  = $('#categoryMenu' + id);
+        var lis   = menu.find('li');
+        var color = $('body').css('background-color');
+        menu.css({'background-color' : color, 'top' : $(this).offset().top - 3, 'width' : 40 * lis.size() + 20});
+        $('.categoryMenu').not(menu).hide();
+        menu.show();
+    });
+
+    $(document).on('mouseover', '.categoryMenu li .app-btn', function()
+    {
+        $('.categoryMenu li .app-btn').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $(document).on('mouseout', '.categoryMenu li .app-btn', function()
+    {
+        $('.categoryMenu li .app-btn').removeClass('active');
+        var id = $(this).parents('.categoryMenu').data('id');
+        if(!$('#category' + id).hasClass('open')) $('#category' + id).removeClass('active');
+    });
+
+    $(document).on('click', '.categoryMenu li .app-btn', function()
+    {
+        $('.categoryMenu').hide();
+        $('.categoryButton').removeClass('active');
+
+        var id = $(this).parents('.categoryMenu').data('id');
+        $('#category' + id).addClass('open active');
+    });
+
+    $(document).on('mouseover', '#leftBar #apps-menu .bar-menu li .app-btn', function()
+    {
+        $('.categoryButton').not(this).not('.open').removeClass('active');
+        if(!$(this).hasClass('categoryButton')) $('.categoryMenu').hide();
+    });
+
+    $(document).on('click', '#leftBar #apps-menu .bar-menu li .app-btn', function()
+    {
+        $('.categoryButton').removeClass('active');
+        $('.categoryMenu').hide();
+    });
+
+    $(document).on('click', '#bottomBar #taskbar .bar-menu li .app-btn', function()
+    {
+        $('.categoryButton').removeClass('active');
+        var dataid = $(this).data('id');
+        $('.categoryMenu li .app-btn').each(function()
+        {
+            if($(this).data('id') == dataid)
+            {
+                var id = $(this).parents('.categoryMenu').data('id');
+                $('#category' + id).addClass('active');
+                return;
+            }
+        });
+    });
+
+    $(document).mouseover(function(e)
+    {
+        $('.categoryMenu').each(function()
+        {
+            if($(this).is(':visible'))
+            {
+                var dataid  = $(this).data('id');
+                var button  = $('#category' + dataid);
+                var top     = button.offset().top;
+                var left    = button.offset().left;
+                var right   = left + button.width() + $(this).width();
+                var bottom  = top + button.height() + $(this).height();
+                if(e.pageX < left || e.pageX > right || e.pageY < top || e.pageY > bottom)
+                {
+                    $(this).hide();
+                }
+            }
+        });
+    });
 });
 
 /**
@@ -128,7 +210,7 @@ function sortBlocks(orders)
             var index = $this.data('order');
             var url = createLink('entry', 'printBlock', 'index=' + index);
             /* Update new index for block id edit and delete. */
-            $this.attr('id', 'block' + index).attr('data-id', index).attr('data-url', url).data('url', url);
+            $this.attr('id', 'block' + index).data('id', index).attr('data-url', url).data('url', url);
             $this.find('.panel-actions .edit-block').attr('href', createLink('block', 'admin', 'index=' + index));
         });
     });

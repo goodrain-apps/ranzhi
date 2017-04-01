@@ -2,7 +2,7 @@
 /**
  * The report module zh-cn file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     report
@@ -11,7 +11,7 @@
  */
 if(!isset($lang->report)) $lang->report = new stdclass();
 $lang->report->common     = '报表';
-$lang->report->browse     = '查看报表';
+$lang->report->browse     = '订单报表、客户报表、合同报表';
 $lang->report->list       = '统计报表';
 $lang->report->item       = '条目';
 $lang->report->value      = '值';

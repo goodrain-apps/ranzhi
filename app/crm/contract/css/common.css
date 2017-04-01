@@ -1,2 +1,3 @@
 .form-group span{padding-left: 0;}
 .form-group span.col-sm-1{padding-right: 0;}
+a.disabled {color: #aaa !important;}

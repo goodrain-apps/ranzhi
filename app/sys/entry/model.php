@@ -2,11 +2,11 @@
 /**
  * The model file of entry module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     entry 
- * @version     $Id: model.php 3567 2016-02-01 09:33:14Z daitingting $
+ * @version     $Id: model.php 4205 2016-10-24 08:19:13Z liugang $
  * @link        http://www.ranzhico.com
  */
 class entryModel extends model
@@ -15,22 +15,111 @@ class entryModel extends model
      * Get all entries. 
      * 
      * @param  string $type custom|system
+     * @param  int    $category
      * @access public
      * @return array
      */
-    public function getEntries($type = 'custom')
+    public function getEntries($type = 'custom', $category = 0)
     {
-        $entries = $this->dao->select('*')->from(TABLE_ENTRY)->orderBy('`order, id`')->fetchAll();
+        $entries = $this->dao->select('*')->from(TABLE_ENTRY)
+            ->where(1)
+            ->beginIF(!empty($category))->andWhere('category')->eq($category)->fi()
+            ->orderBy('`order, id`')
+            ->fetchAll();
+        $categories = $this->dao->select('distinct t1.id, t1.name, t1.order')->from(TABLE_CATEGORY)->alias('t1')
+            ->leftJoin(TABLE_ENTRY)->alias('t2')->on('t1.id=t2.category')
+            ->where('t1.type')->eq('entry')
+            ->andWhere('t2.visible')->eq(1)
+            ->andWhere('t2.category')->ne(0)
+            ->orderBy('t1.order')
+            ->fetchAll('id');
+        foreach($categories as $category)
+        {
+            $entry = new stdclass();
+            $entry->id          = $category->id;
+            $entry->name        = $category->name;
+            $entry->code        = '';
+            $entry->abbr        = $category->name;
+            $entry->buildin     = 0;
+            $entry->integration = 0;
+            $entry->open        = '';
+            $entry->key         = '';
+            $entry->ip          = '';
+            $entry->logo        = '';
+            $entry->login       = '';
+            $entry->logout      = '';
+            $entry->block       = '';
+            $entry->control     = '';
+            $entry->size        = '';
+            $entry->position    = '';
+            $entry->visible     = 1;
+            $entry->order       = $category->id;
+            $entry->zentao      = 0;
+            $entry->category    = 0;
+
+            $entries[] = $entry;
+        }
 
         /* Remove entry if no rights and fix logo path. */
         $newEntries = array();
+        $this->app->loadLang('install');
         foreach($entries as $entry)
         {
+            if($entry->buildin == 1)
+            {
+                $entry->name = $this->lang->install->buildinEntry->{$entry->code}['name'];
+                $entry->abbr = $this->lang->install->buildinEntry->{$entry->code}['abbr'];
+            }
+            elseif($entry->category != 0)
+            {
+                $entry->abbr = $entry->name;
+            }
+
             if($entry->logo != '' && substr($entry->logo, 0, 1) != '/') $entry->logo = $this->config->webRoot . $entry->logo;
             if(commonModel::hasAppPriv($entry->code)) $newEntries[] = $entry; 
         }
         $entries = $newEntries;
 
+        if($type == 'mobile')
+        {
+            $this->app->loadLang('index', 'sys');
+
+            $dashboardEntry = new stdclass();
+            $dashboardEntry->id       = 'dashboard';
+            $dashboardEntry->buildin  = true;
+            $dashboardEntry->code     = 'dashboard';
+            $dashboardEntry->name     = $this->lang->index->dashboard;
+            $dashboardEntry->abbr     = $this->lang->index->dashboardAbbr;
+            $dashboardEntry->icon     = 'icon-home';
+            $dashboardEntry->url      = helper::createLink('sys.index');
+            $dashboardEntry->order    = 0;
+            $dashboardEntry->category = 0;
+            $entries[] = $dashboardEntry;
+
+            if($this->app->user->admin == 'super' || commonModel::hasAppPriv('superadmin'))
+            {
+                $adminEntry = new stdclass();
+                $adminEntry->id       = 'superadmin';
+                $adminEntry->buildin  = true;
+                $adminEntry->code     = 'superadmin';
+                $adminEntry->name     = $this->lang->index->superAdmin;
+                $adminEntry->abbr     = $this->lang->index->superAdmin;
+                $adminEntry->icon     = 'icon-cog';
+                $adminEntry->url      = helper::createLink('admin');
+                $adminEntry->order    = 999999;
+                $adminEntry->category = 0;
+                $entries[] = $adminEntry;
+            }
+
+            usort($entries, 'commonModel::sortEntryByOrder');
+            $newEntries = array();
+            foreach($entries as $entry)
+            {
+                if(empty($entry->url)) $entry->url = helper::createLink('entry', 'visit', "entryID=$entry->id");
+                $newEntries[$entry->id] = $entry;
+            }
+            return $newEntries;
+        }
         if($type != 'custom') return $entries;
 
         /* Add custom settings. */
@@ -100,7 +189,7 @@ class entryModel extends model
             ->setIF($this->post->zentao, 'integration', 1)
             ->setIF($this->post->zentao, 'control', 'full')
             ->remove('allip,adminAccount,adminPassword')
-            ->stripTags('login,logout,block', $this->config->allowedTags->admin)
+            ->stripTags('login,logout,block', $this->config->allowedTags)
             ->get();
 
         if($this->post->chanzhi) 
@@ -151,7 +240,7 @@ class entryModel extends model
      */
     public function update($code)
     {
-        $entry = fixer::input('post')->stripTags('login', $this->config->allowedTags->admin)->get();
+        $entry = fixer::input('post')->stripTags('login', $this->config->allowedTags)->get();
         if(!isset($entry->visible)) $entry->visible = 0;
 
         $this->dao->update(TABLE_ENTRY)->data($entry)
@@ -176,6 +265,7 @@ class entryModel extends model
         $entry = fixer::input('post')->get();
 
         if($entry->size == 'custom') $entry->size = helper::jsonEncode(array('width' => (int)$entry->width, 'height' => (int)$entry->height));
+        if($oldEntry->buildin) $entry->open = 'iframe';
         unset($entry->logo);
 
         $this->dao->update(TABLE_ENTRY)->data($entry, $skip = 'width,height,files')
@@ -199,7 +289,7 @@ class entryModel extends model
             ->setDefault('ip', '*')
             ->setDefault('integration', 0)
             ->setIF($this->post->allip, 'ip', '*')
-            ->stripTags('logout,block', $this->config->allowedTags->admin)
+            ->stripTags('logout,block', $this->config->allowedTags)
             ->get();
 
         $this->dao->update(TABLE_ENTRY)->data($entry)->autoCheck()->where('code')->eq($code)->exec();
@@ -320,7 +410,7 @@ class entryModel extends model
     {
         if(empty($entry)) return array();
         $parseUrl   = parse_url($entry->block);
-        $blockQuery = "mode=getblocklist&hash={$entry->key}&lang=" . $this->app->getClientLang();
+        $blockQuery = "mode=getblocklist&hash={$entry->key}&lang=" . str_replace('-', '_', $this->app->getClientLang());
         $parseUrl['query'] = empty($parseUrl['query']) ? $blockQuery : $parseUrl['query'] . '&' . $blockQuery;
 
         $link = '';
@@ -353,7 +443,7 @@ class entryModel extends model
     {
         if(empty($entry)) return array();
         $parseUrl  = parse_url($entry->block);
-        $formQuery = "mode=getblockform&blockid=$blockID&hash={$entry->key}&lang=" . $this->app->getClientLang();
+        $formQuery = "mode=getblockform&blockid=$blockID&hash={$entry->key}&lang=" . str_replace('-', '_', $this->app->getClientLang());
         $parseUrl['query'] = empty($parseUrl['query']) ? $formQuery : $parseUrl['query'] . '&' . $formQuery;
 
         $link = '';
@@ -369,6 +459,7 @@ class entryModel extends model
             if(isset($parseUrl['path'])) $link .= $parseUrl['path']; 
             $link .= '?' . $parseUrl['query'];
         }
+
         $params = commonModel::http($link);
 
         return json_decode($params, true);
@@ -414,6 +505,7 @@ class entryModel extends model
             $tmpEntry['abbr']     = $entry->abbr;
             $tmpEntry['order']    = $entry->order;
             $tmpEntry['sys']      = $entry->buildin;
+            $tmpEntry['category'] = $entry->category;
             $allEntries[] = $tmpEntry;
         }
         return json_encode($allEntries);

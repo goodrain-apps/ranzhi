@@ -2,11 +2,11 @@
 /**
  * The index view file of index module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     index 
- * @version     $Id: index.html.php 3562 2016-01-28 08:56:12Z daitingting $
+ * @version     $Id: index.html.php 4205 2016-10-24 08:19:13Z liugang $
  * @link        http://www.ranzhico.com
  */
 include "../../common/view/header.lite.html.php";
@@ -52,7 +52,7 @@ js::set('attend', commonModel::isAvailable('attend') ? 1 : 0);
     </div>
   </div>
   <div id='home' class='fullscreen fullscreen-active'>
-    <nav class='navbar navbar-inverse navbar-fixed-top' id='mainNavbar'>
+    <nav class='navbar navbar-main navbar-fixed-top' id='mainNavbar'>
       <div class='collapse navbar-collapse'>
         <ul class='nav navbar-nav'>
           <li><?php echo html::a($this->createLink('user', 'profile'), "<i class='icon-user'></i> " . $app->user->realname, "data-toggle='modal' data-id='profile'");?></li>
@@ -105,26 +105,20 @@ js::set('attend', commonModel::isAvailable('attend') ? 1 : 0);
   </div>
   <div id='allapps' class='fullscreen'>
     <header>
-      <div class='row'>
-        <div class='col-xs-4 col-left'>
-          <ul class='nav nav-tabs' id='appSearchNav'>
-            <li class='active'><a href="javascript:;" class='app-search' data-key=''><i class='icon-th-large'></i> <span><?php echo $lang->index->allEntries?></span> &nbsp;<small class='muted entries-count'></small></a></li>
-            <li class='active'><a href="javascript:;" class='app-search' data-key=':menu'><i class=''></i> <span><?php echo $lang->index->showOnLeft?></span> &nbsp;<small class='muted search-count'></small></a></li>
-            <li class='active'><a href="javascript:;" class='app-search' data-key=':!menu'><i class=''></i> <span><?php echo $lang->index->notOnLeft?></span> &nbsp;<small class='muted search-count'></small></a></li>
-          </ul>
-        </div>
-        <div class='col-xs-4 col-middle'>
-          <div class='search-input'>
-            <i class='icon-search icon'></i>
-            <input id='search' type='text' class='form-control-pure form-control'>
-            <button id='cancelSearch' class='btn btn-pure btn-mini' type='button'><i class='icon-remove'></i></button>
-          </div>
-        </div>
-        <div class='col-xs-4 text-right col-right'>
-          <?php if($isSuperAdmin):?>
-          <?php echo html::a($this->createLink('entry', 'create'), "<i class='icon-plus'></i> {$lang->index->addEntry}", "data-id='superadmin' class='app-btn btn btn-pure'")?>
-          <?php endif;?>
-        </div>
+      <ul class='nav' id='appSearchNav'>
+        <li><a href="javascript:;" class='app-search' data-key=''><i class='icon-th-large'></i> <span><?php echo $lang->index->allEntries?></span> &nbsp;<small class='muted entries-count'></small></a></li>
+        <li><a href="javascript:;" class='app-search' data-key=':menu'><i class=''></i> <span><?php echo $lang->index->showOnLeft?></span> &nbsp;<small class='muted search-count'></small></a></li>
+        <li><a href="javascript:;" class='app-search' data-key=':!menu'><i class=''></i> <span><?php echo $lang->index->notOnLeft?></span> &nbsp;<small class='muted search-count'></small></a></li>
+      </ul>
+      <div class='search-input'>
+        <i class='icon-search icon'></i>
+        <input id='search' type='text' class='form-control-pure form-control'>
+        <button id='cancelSearch' class='btn btn-pure btn-mini' type='button'><i class='icon-remove'></i></button>
+      </div>
+      <div class='actions'>
+        <?php if($isSuperAdmin):?>
+        <?php echo html::a($this->createLink('entry', 'create'), "<i class='icon-plus'></i> {$lang->index->addEntry}", "data-id='superadmin' class='app-btn btn btn-pure'")?>
+        <?php endif;?>
       </div>
     </header>
     <div class='all-apps-list' id='allAppsList'>
@@ -138,6 +132,9 @@ js::set('attend', commonModel::isAvailable('attend') ? 1 : 0);
 <div id='noticeBox'>
   <?php echo $notice;?>
 </div>
+<div id='categoryTpl' class='hide'>
+  <ul id='categoryMenucategoryid' class='category categoryMenu dropdown-menu fade' data-id='categoryid'></ul>
+</div>
 <script>
 <?php $dashboardMenu = (isset($dashboard) and isset($dashboard->visible) and $dashboard->visible == 0) ? 'list' : 'all';?>
 var entries = [
@@ -145,6 +142,7 @@ var entries = [
     id        : 'dashboard',
     code      : 'dashboard',
     name      : '<?php echo $lang->index->dashboard;?>',
+    abbr      : '<?php echo $lang->index->dashboardAbbr;?>',
     open      : 'iframe',
     desc      : '<?php echo $lang->index->dashboard?>',
     menu      : '<?php echo $dashboardMenu;?>',
@@ -177,7 +175,7 @@ var entries = [
     order     : 9999998
 }];
 
-<?php if($isSuperAdmin):?>
+<?php if($isSuperAdmin || commonModel::hasAppPriv('superadmin')):?>
 <?php $superadminMenu  = (isset($superadmin) and isset($superadmin->visible) and $superadmin->visible == 0) ? 'list' : 'all';?>
 
 entries.push(

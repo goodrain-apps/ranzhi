@@ -2,11 +2,11 @@
 /**
  * The zh-cn file of file module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     file 
- * @version     $Id: zh-cn.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: zh-cn.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 $lang->file->common     = '附件';
@@ -20,6 +20,7 @@ $lang->file->toggle     = '切换';
 $lang->file->label      = '标题：';
 $lang->file->lblInfo    = '<i>(类型：%s, 大小：%s, 添加于：%s，下载%s次)</i>';
 $lang->file->limit      = "(<span class='text-danger'>2M以内</span>)";
+$lang->file->attachFile = '附加另一个附件';
 
 $lang->file->id          = '编号';
 $lang->file->title       = '名称';
@@ -35,6 +36,7 @@ $lang->file->edit          = '编辑';
 $lang->file->editFile      = '更改附件';
 $lang->file->sizeLimit     = "<p class='text-danger'>附件大小不能大于%sM</p>";
 $lang->file->maxUploadSize = "<span class='red'>%s</span>";
+$lang->file->delete        = '删除';
 
 $lang->file->errorUnwritable = '上传目录不可写，无法上传附件。';
 $lang->file->errorNoFile     = '未选择任何文件。';

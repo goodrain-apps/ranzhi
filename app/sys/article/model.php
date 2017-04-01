@@ -2,11 +2,11 @@
 /**
  * The model file of article module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     article
- * @version     $Id: model.php 3628 2016-02-22 06:22:03Z liugang $
+ * @version     $Id: model.php 4169 2016-10-19 08:57:15Z liugang $
  * @link        http://www.ranzhico.com
  */
 class articleModel extends model
@@ -22,9 +22,8 @@ class articleModel extends model
     public function getByID($articleID, $replaceTag = true)
     {   
         /* Get article self. */
-        $article = $this->dao->select('*')->from(TABLE_ARTICLE)->where('alias')->eq($articleID)->fetch();
-        if(!$article) $article = $this->dao->select('*')->from(TABLE_ARTICLE)->where('id')->eq($articleID)->fetch();
-
+        $article = $this->dao->select('*')->from(TABLE_ARTICLE)->where('id')->eq($articleID)->fetch();
+        if(!$article) $article = $this->dao->select('*')->from(TABLE_ARTICLE)->where('alias')->eq($articleID)->fetch();
         if(!$article) return false;
         
         /* Get it's categories. */
@@ -45,6 +44,9 @@ class articleModel extends model
 
         /* Get it's files. */
         $article->files = $this->loadModel('file')->getByObject($article->type, $articleID);
+
+        $article->readers = explode(',', $article->readers);
+        foreach($article->readers as $key => $reader) if(!$reader) unset($article->readers[$key]);
 
         return $article;
     }   
@@ -75,22 +77,11 @@ class articleModel extends model
             ->beginIf($mode == 'query' and $param)->andWhere($param)->fi()
             ->beginIf($mode == 'bysearch')->andWhere($$moduleQuery)->fi()
             ->groupBy('t2.id')
-            ->orderBy($orderBy)
+            ->orderBy("t1.$orderBy")
             ->fetchAll('id');
         if(!$articles) return array();
 
-        /* Get categories for these articles. */
-        $categories = $this->dao->select('t2.id, t2.name, t2.alias, t1.id AS article')
-            ->from(TABLE_RELATION)->alias('t1')
-            ->leftJoin(TABLE_CATEGORY)->alias('t2')->on('t1.category = t2.id')
-            ->where('t2.type')->eq($type)
-            ->beginIf($categories)->andWhere('t1.category')->in($categories)->fi()
-            ->fetchGroup('article', 'id');
-
-        /* Assign categories to it's article. */
-        foreach($articles as $key => $article) $article->categories = isset($categories[$article->id]) ? $categories[$article->id] : array();
-
-        $articles = $this->process($articles, $orderBy, $pager);
+        $articles = $this->process($articles, $type, $categories, $orderBy, $pager);
 
         /* Get images for these articles. */
         $images = $this->loadModel('file')->getByObject($type, array_keys($articles), $isImage = true);
@@ -106,7 +97,13 @@ class articleModel extends model
         }
 
         /* Assign summary to it's article. */
-        foreach($articles as $article) $article->summary = empty($article->summary) ? helper::substr(strip_tags($article->content), 200, '...') : $article->summary;
+        foreach($articles as $article) 
+        {
+            $article->summary = empty($article->summary) ? helper::substr(strip_tags($article->content), 200, '...') : $article->summary;
+
+            $article->readers = explode(',', $article->readers);
+            foreach($article->readers as $key => $reader) if(!$reader) unset($article->readers[$key]);
+        }
 
         return $articles;
     }
@@ -114,7 +111,7 @@ class articleModel extends model
     /**
      * Get article pairs.
      * 
-     * @param string $modules 
+     * @param string $categories
      * @param string $orderBy 
      * @param string $pager 
      * @access public
@@ -130,7 +127,7 @@ class articleModel extends model
             ->andWhere('t1.status')->eq('normal')
             ->fi()
             ->beginIF($categories)->andWhere('t2.category')->in($categories)->fi()
-            ->orderBy($orderBy)
+            ->orderBy("t1.$orderBy")
             ->page($pager, false)
             ->fetchAll('id');
     }
@@ -138,8 +135,9 @@ class articleModel extends model
     /**
      * get hot articles. 
      *
-     * @param array      $categories
-     * @param int        $count
+     * @param  array   $categories
+     * @param  int     $count
+     * @param  string  $type
      * @access public
      * @return array
      */
@@ -153,8 +151,9 @@ class articleModel extends model
     /**
      * get latest articles. 
      *
-     * @param array      $categories
-     * @param int        $count
+     * @param  array   $categories
+     * @param  int     $count
+     * @param  string  $type
      * @access public
      * @return array
      */
@@ -254,19 +253,21 @@ class articleModel extends model
         $now = helper::now();
         $article = fixer::input('post')
             ->join('categories', ',')
-            ->setDefault('createdDate', $now)
-            ->add('editedDate', $now)
             ->add('author', $this->app->user->account)
+            ->add('createdDate', $now)
             ->add('type', $type)
             ->add('order', 0)
             ->add('keywords', helper::unify($this->post->keywords, ','))
-            ->stripTags('content', $this->config->allowedTags->admin)
+            ->add('readers', $this->app->user->account)
+            ->stripTags('content', $this->config->allowedTags)
             ->join('users', ',')
             ->join('groups', ',')
             ->get();
 
         $article->users  = !empty($article->users) ? ',' . trim($article->users, ',') . ',' : '';
         $article->groups = !empty($article->groups) ? ',' . trim($article->groups, ',') . ',' : '';
+
+        if(empty($article->categories)) dao::$errors['categories'][] = sprintf($this->lang->error->notempty, $this->lang->article->category) ;
 
         $article = $this->loadModel('file')->processEditor($article, $this->config->article->editor->create['id']);
         $this->dao->insert(TABLE_ARTICLE)
@@ -300,7 +301,7 @@ class articleModel extends model
         $category = array_keys($article->categories);
 
         $article = fixer::input('post')
-            ->stripTags('content', $this->config->allowedTags->admin)
+            ->stripTags('content', $this->config->allowedTags)
             ->join('categories', ',')
             ->add('editor', $this->app->user->account)
             ->add('keywords', helper::unify($this->post->keywords, ','))
@@ -414,16 +415,28 @@ class articleModel extends model
      * Process articles and fix pager. 
      * 
      * @param  array  $articles 
+     * @param  string $type
+     * @param  array  $categories
      * @param  string $orderBy
      * @param  object $pager
      * @access public
      * @return array
      */
-    public function process($articles = array(), $orderBy = 'id_desc', $pager = null)
+    public function process($articles = array(), $type = '', $categories = array(), $orderBy = 'id_desc', $pager = null)
     {
+        /* Get categories for these articles. */
+        $categories = $this->dao->select('t2.id, t2.name, t2.alias, t1.id AS article')
+            ->from(TABLE_RELATION)->alias('t1')
+            ->leftJoin(TABLE_CATEGORY)->alias('t2')->on('t1.category = t2.id')
+            ->where('t2.type')->eq($type)
+            ->beginIf($categories)->andWhere('t1.category')->in($categories)->fi()
+            ->fetchGroup('article', 'id');
+
         $idList = array();
         foreach($articles as $key => $article)
         {
+            /* Assign categories to it's article. */
+            $article->categories = isset($categories[$article->id]) ? $categories[$article->id] : array();
             if($this->hasRight($article)) $idList[] = $article->id;
         }
 
@@ -468,14 +481,8 @@ class articleModel extends model
 
             if(!$hasRight && !empty($article->groups))
             {
-                $count = $this->dao->select('count(t2.account) as count')
-                    ->from(TABLE_USER)->alias('t1')
-                    ->leftJoin(TABLE_USERGROUP)->alias('t2')->on('t1.account = t2.account')
-                    ->where('t1.deleted')->eq(0)
-                    ->andWhere('t1.account')->eq($this->app->user->account)
-                    ->andWhere('t2.group')->in($article->groups)
-                    ->fetch('count');
-                $hasRight = $count > 0;
+                $groups   = array_intersect($this->app->user->groups, explode(',', $article->groups));
+                $hasRight = !empty($groups);
             }
         }
 
@@ -495,7 +502,7 @@ class articleModel extends model
                 $this->loadModel('tree');
                 foreach($article->categories as $category)
                 {
-                    $hasRight = $this->tree->hasRight($category->id);
+                    $hasRight = $this->tree->hasRight($category);
                     if($hasRight) break;
                 }
             }

@@ -27,9 +27,7 @@ $(document).ready(function()
 {
     if(v.customer)
     {
-        $('.contactTD select').load(createLink('contact', 'getOptionMenu', 'customerID=' + v.customer));
-        $('#orderTD').load(createLink('contract', 'getOrder', 'customerID=' + v.customer));
-        $('.orderInfo td').load(createLink('contract', 'getOrder', 'customerID=' + v.customer + '&status=normal'));
+        getOrder(v.customer);
     }
 
     $(document).on('change', 'select.select-order:first', function()

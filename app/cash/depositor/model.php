@@ -2,7 +2,7 @@
 /**
  * The model file of depositor module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     contact
@@ -38,6 +38,7 @@ class depositorModel extends model
     /** 
      * Get depositor list.
      * 
+     * @param  string  $tag
      * @param  string  $orderBy 
      * @param  object  $pager 
      * @access public
@@ -244,9 +245,12 @@ class depositorModel extends model
                 if($item->type == 'in')          $money += $item->money;    
                 if($item->type == 'transferin')  $money += $item->money;    
                 if($item->type == 'redeem')      $money += $item->money;    
+                if($item->type == 'loan')        $money += $item->money;    
                 if($item->type == 'out')         $money -= $item->money;    
                 if($item->type == 'transferout') $money -= $item->money;    
-                if($item->type == 'inveset')     $money -= $item->money;    
+                if($item->type == 'invest')      $money -= $item->money;    
+                if($item->type == 'repay')       $money -= $item->money;    
+                if($item->type == 'interest')    $money -= $item->money;    
             }
         }
 

@@ -2,7 +2,7 @@
 /**
  * The control file of resume module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     resume
@@ -20,7 +20,7 @@ class resume extends control
      */
     public function browse($contactID)
     {
-        $contact = $this->loadModel('contact')->getByID($contactID);
+        $contact = $this->loadModel('contact', 'crm')->getByID($contactID);
         $resumes = $this->resume->getList($contactID);
         $this->app->user->canEditResumeIdList = ',' . implode(',', $this->resume->getResumesSawByMe('edit', array_keys($resumes))) . ',';
 
@@ -56,7 +56,7 @@ class resume extends control
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess));
         }
 
-        $this->app->loadLang('contact');
+        $this->app->loadLang('contact', 'crm');
 
         $this->view->title     = $this->lang->resume->create;
         $this->view->customers = $customers;

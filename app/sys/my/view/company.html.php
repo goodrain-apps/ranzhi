@@ -2,7 +2,7 @@
 /**
  * The browse file of todo module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     todo
@@ -60,7 +60,7 @@
       </thead>
       <?php foreach($todoList as $user => $todos):?>
       <tr>
-        <td class='text-center text-middle'><?php echo zget($deptList, $userDept[$user])?></td>
+        <td class='text-center text-middle'><?php echo zget($deptList, $userDept[$user], ' ')?></td>
         <td class='text-center text-middle'><?php echo zget($users, $user)?></td>
         <?php foreach($dateList as $currentDate):?>
         <td>

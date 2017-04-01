@@ -2,7 +2,7 @@
 /**
  * The edit view file of overtime module of Ranzhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     overtime
@@ -12,6 +12,9 @@
 ?>
 <?php include '../../../sys/common/view/header.modal.html.php';?>
 <?php include '../../../sys/common/view/datepicker.html.php';?>
+<?php js::set('signIn', $config->attend->signInLimit)?>
+<?php js::set('signOut', $config->attend->signOutLimit)?>
+<?php js::set('workingHours', $config->attend->workingHours)?>
 <div class='panel-body'>
   <form id='ajaxForm' method='post' action="<?php echo $this->createLink('oa.overtime', 'edit', "id=$overtime->id")?>">
     <table class='table table-form table-condensed'>

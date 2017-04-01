@@ -2,7 +2,7 @@
 /**
  * The report view file of trade module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     trade
@@ -21,12 +21,12 @@
       <ul class='dropdown-menu'>
         <?php foreach($tradeYears as $tradeYear):?>
         <li class='dropdown-submenu'>
-          <?php echo html::a(helper::createLink('trade', 'report', "date=$tradeYear&currency=$currentCurrency"), $tradeYear);?>
+          <?php echo html::a(helper::createLink('trade', 'report', "date=$tradeYear&currency=$currentCurrency&unit=$currentUnit"), $tradeYear);?>
           <ul class='dropdown-menu'>
             <?php foreach($tradeMonths[$tradeYear] as $tradeMonth):?>
-            <li><?php echo html::a(helper::createLink('trade', 'report', "date=$tradeYear$tradeMonth&currency=$currentCurrency"), $tradeMonth . $lang->month);?></li>
+            <li><?php echo html::a(helper::createLink('trade', 'report', "date=$tradeYear$tradeMonth&currency=$currentCurrency&unit=$currentUnit"), $tradeMonth . $lang->month);?></li>
             <?php endforeach;?>
-            <li><?php echo html::a(helper::createLink('trade', 'report', "date={$tradeYear}00&currency=$currentCurrency"), $lang->trade->fullYear);?></li>
+            <li><?php echo html::a(helper::createLink('trade', 'report', "date={$tradeYear}00&currency=$currentCurrency&unit=$currentUnit"), $lang->trade->fullYear);?></li>
           </ul>
         </li>
         <?php endforeach;?>
@@ -36,86 +36,95 @@
       <button type='button' class='btn btn-sm btn-default dropdown-toggle' data-toggle='dropdown'><?php echo $currencyList[$currentCurrency];?> <span class="caret"></span></button>
       <ul class='dropdown-menu'>
         <?php foreach($currencyList as $key => $currency):?>
-        <li>
-          <?php echo html::a(helper::createLink('trade', 'report', "date=$currentYear$currentMonth&currency=$key"), $currency);?>
-        </li>
+        <li><?php echo html::a(helper::createLink('trade', 'report', "date=$currentYear$currentMonth&currency=$key&unit=$currentUnit"), $currency);?></li>
+        <?php endforeach;?>
+      </ul>
+    </div>
+    <div class='unit dropdown'>
+      <button type='button' class='btn btn-sm btn-default dropdown-toggle' data-toggle='dropdown'><?php echo $lang->trade->report->unitList[$currentUnit];?> <span class='caret'></span></button>
+      <ul class='dropdown-menu'>
+        <?php foreach($lang->trade->report->unitList as $key => $unit):?>
+        <li><?php echo html::a(helper::createLink('trade', 'report', "date=$currentYear$currentMonth&currency=$currentCurrency&unit=$key"), $unit);?></li>
         <?php endforeach;?>
       </ul>
     </div>
   </div>
   <div class='panel-body'>
-  <table class='table active-disabled'>
-    <tr>
-      <td colspan='3'>
-        <div class='chart-wrapper text-center'>
-          <h5><?php echo $currentYear . $lang->trade->report->annual . '(' . $currencyList[$currentCurrency] . ')';?></h5>
-          <div class='chart-canvas'><canvas height='260' width='800' id='myBarChart'></canvas></div>
-        </div>
-      </td>
-      <td class='w-400px'>
-        <div class='table-wrapper'>
-          <table id='barChart' class='table table-condensed table-hover table-striped table-bordered table-chart' data-chart='bar' data-target='#myBarChart' data-animation='false'>
-            <thead>
+    <?php if($currentMonth == '00'):?>
+    <table class='table active-disabled'>
+      <tr>
+        <td colspan='3' class='annual'>
+          <div class='chart-wrapper text-center'>
+            <h5><?php echo $currentYear . $lang->trade->report->annual . '(' . $currencyList[$currentCurrency] . ':' . $lang->trade->report->unitList[$currentUnit] . ')';?></h5>
+            <div class='chart-canvas'><canvas height='260' width='800' id='chart-annual'></canvas></div>
+          </div>
+        </td>
+        <td class='w-400px annual'>
+          <div style="overflow:auto;" class='table-wrapper'>
+            <table id='barChart' class='table table-condensed table-hover table-striped table-bordered table-chart' data-chart='bar' data-target='#myBarChart' data-animation='false'>
+              <thead>
+                <tr class='text-center'>
+                  <th><?php echo $lang->trade->month;?></th>
+                  <th class='chart-label-in'><i class='chart-color-dot-in icon-circle'></i> <?php echo $lang->trade->in;?></th>
+                  <th class='chart-label-out'><i class='chart-color-dot-out icon-circle'></i> <?php echo $lang->trade->out;?></th>
+                  <th class='chart-label-profit'><?php echo $lang->trade->profit . '/' . $lang->trade->loss;?></th>
+                </tr>
+              </thead>
+              <tbody>
+              <?php foreach($annualChartDatas as $month => $annualChartData):?>
               <tr class='text-center'>
-                <th><?php echo $lang->trade->month;?></th>
-                <th class='chart-label-in'><i class='chart-color-dot-in icon-circle'></i> <?php echo $lang->trade->in;?></th>
-                <th class='chart-label-out'><i class='chart-color-dot-out icon-circle'></i> <?php echo $lang->trade->out;?></th>
-                <th class='chart-label-profit'><?php echo $lang->trade->profit . '/' . $lang->trade->loss;?></th>
+                <td class='chart-label'><?php echo $month == 'all' ? $lang->trade->total : $month;?></td>
+                <td class='chart-value-in'><?php echo $annualChartData['in'];?></td>
+                <td class='chart-value-out'><?php echo $annualChartData['out'];?></td>
+                <td class='chart-value-profit'><?php echo $annualChartData['profit'];?></td>
               </tr>
-            </thead>
-            <tbody>
-            <?php foreach($annualChartDatas as $month => $annualChartData):?>
-            <tr class='text-center'>
-              <td class='chart-label'><?php echo $month == 'all' ? $lang->trade->total : $month;?></td>
-              <td class='chart-value-in'><?php echo $annualChartData['in'];?></td>
-              <td class='chart-value-out'><?php echo $annualChartData['out'];?></td>
-              <td class='chart-value-profit'><?php echo $annualChartData['profit'];?></td>
-            </tr>
-            <?php endforeach;?>
-            </tbody>
-          </table>
-        </div>
-      </td>
-    </tr>
-  </table>
-  <?php foreach($monthlyChartDatas as $type => $chartDatas):?>
-  <table class='table active-disabled'>
-    <tr class='text-top'>
-      <?php foreach($chartDatas as $groupBy => $datas):?>
-      <td>
-        <div class='chart-wrapper text-center'>
-          <?php $dateTip = $currentMonth == '00' ? $currentYear . $lang->year : $currentMonth . $lang->month;?>
-          <h5><?php echo $dateTip . $lang->trade->$type . $lang->trade->chartList[$groupBy];?></h5>
-          <div class='chart-canvas'><canvas id="<?php echo 'chart-' . $type . '-' . $groupBy;?>" width='320' height='140' data-responsive='true'></canvas></div>
-        </div>
-      </td>
-      <td class='w-300px'>
-        <div style="overflow:auto; max-height:250px" class='table-wrapper'>
-          <table class='table table-condensed table-hover table-striped table-bordered table-chart' data-chart='pie' data-target="<?php echo '#chart-' . $type . '-' . $groupBy;?>" data-animation='false'>
-            <thead>
-              <tr>
-                <th class='w-20px'></th>
-                <th><?php echo $lang->trade->$groupBy;?></th>
-                <th class='text-right'><?php echo $lang->trade->money;?></th>
-                <th class='w-50px'> % </th>
+              <?php endforeach;?>
+              </tbody>
+            </table>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <?php endif;?>
+    <?php foreach($monthlyChartDatas as $groupBy => $chartDatas):?>
+    <table class='table active-disabled'>
+      <?php foreach($chartDatas as $type => $datas):?>
+      <tr class='text-top'>
+        <td></td>
+        <td class='w-p50 monthly'>
+          <div class='chart-wrapper text-center'>
+            <?php $dateTip = $currentMonth == '00' ? $currentYear . $lang->year : $currentMonth . $lang->month;?>
+            <h5><?php echo $dateTip . $lang->trade->$type . $lang->trade->chartList[$groupBy];?></h5>
+            <div class='chart-canvas'><canvas id="<?php echo 'chart-' . $type . '-' . $groupBy;?>" width='400' height='200' data-responsive='true'></canvas></div>
+          </div>
+        </td>
+        <td class='w-p25 monthly'>
+          <div style="overflow:auto;" class='table-wrapper'>
+            <table class='table table-fixed table-condensed table-hover table-striped table-chart' data-scaleLineHeight='1.5' data-chart='pie' data-target="<?php echo '#chart-' . $type . '-' . $groupBy;?>" data-animation='false'>
+              <thead>
+                <tr class='text-center'>
+                  <th><?php echo $lang->trade->$groupBy;?></th>
+                  <th class='w-70px'><?php echo $lang->trade->money;?></th>
+                  <th class='w-50px'><?php echo $lang->report->percent;?></th>
+                </tr>
+              </thead>
+              <tbody>
+              <?php foreach($datas as $data):?>
+              <tr class='text-center'>
+                <td class='chart-label text-left' title="<?php echo $data->name;?>"><i class='chart-color-dot icon-circle'></i> <?php echo $data->name;?></td>
+                <td class='chart-value'><?php echo $data->value;?></td>
+                <td><?php echo ($data->percent * 100) . '%';?></td>
               </tr>
-            </thead>
-            <tbody>
-            <?php foreach($datas as $data):?>
-            <tr class='text-left'>
-              <td class='chart-color'><i class='chart-color-dot icon-circle'></i></td>
-              <td class='chart-label'><?php echo $data->name;?></td>
-              <td class='chart-value text-right'><?php echo $data->value;?></td>
-              <td><?php echo ($data->percent * 100) . '%';?></td>
-            </tr>
-            <?php endforeach;?>
-            </tbody>
-          </table>
-        </div>
-      </td>
+              <?php endforeach;?>
+              </tbody>
+            </table>
+          </div>
+        </td>
+        <td></td>
+      </tr>
       <?php endforeach;?>
-    </tr>
-  </table>
-  <?php endforeach;?>
+    </table>
+    <?php endforeach;?>
+  </div>
 </div>
 <?php include $app->getModuleRoot() . 'common/view/footer.html.php';?>

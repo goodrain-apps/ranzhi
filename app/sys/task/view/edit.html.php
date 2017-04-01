@@ -2,7 +2,7 @@
 /**
  * The edit view file of task module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     task
@@ -14,8 +14,8 @@
 <?php include '../../common/view/kindeditor.html.php';?>
 <?php include '../../common/view/datepicker.html.php';?>
 <?php include '../../common/view/chosen.html.php';?>
-<?php $this->loadModel('project', 'oa')->setMenu($projects, $projectID);?>
-<div class='with-menu page-content'>
+<?php $this->loadModel('project', 'proj')->setMenu($projects, $projectID);?>
+<div class='page-content'>
   <form method='post' id='ajaxForm' enctype='multipart/form-data'>
     <div class='row'>
       <div class='col-md-8'>
@@ -49,10 +49,12 @@
                 <th><?php echo $lang->comment;?></th>
                 <td><?php echo html::textarea('remark', '', "class='form-control'");?></td>
               </tr>
+              <?php if(commonModel::hasPriv('file', 'upload')):?>
               <tr>
                 <th><?php echo $lang->files;?></th>
                 <td><?php echo $this->fetch('file', 'buildForm')?></td>
               </tr>
+              <?php endif;?>
             </table>
           </div>
         </div>
@@ -76,7 +78,7 @@
               </tr>
               <tr>
                 <th><?php echo $lang->task->assignedTo;?></th>
-                <td><?php echo html::select('assignedTo', $members, $task->assignedTo, "class='form-control chosen'");?></td>
+                <td><?php echo html::select('assignedTo', !empty($members) ? $members : $projectMembers, $task->assignedTo, "class='form-control chosen'");?></td>
               </tr>
               <tr class='<?php echo empty($task->team) ? 'hidden' : ''?>' id='teamTr'>
                 <th><?php echo $lang->task->team;?></th>
@@ -166,7 +168,7 @@
           <table class='table table-form'>
             <?php foreach($task->team as $member):?>
             <tr>
-              <td class='w-80px'><?php echo html::select("team[]", $members, $member->account, "class='form-control chosen'")?></td>
+              <td class='w-80px'><?php echo html::select("team[]", $projectMembers, $member->account, "class='form-control chosen'")?></td>
               <td>
                 <div class='input-group'>
                   <span class='input-group-addon'><?php echo $lang->task->estimate?></span>
@@ -185,7 +187,7 @@
             <?php endforeach;?>
             <?php for($i = 0; $i < 3; $i++):?>
             <tr>
-              <td class='w-80px'><?php echo html::select("team[]", $members, '', "class='form-control chosen'")?></td>
+              <td class='w-80px'><?php echo html::select("team[]", $projectMembers, '', "class='form-control chosen'")?></td>
               <td>
                 <div class='input-group'>
                   <span class='input-group-addon'><?php echo $lang->task->estimate?></span>

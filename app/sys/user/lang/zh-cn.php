@@ -2,11 +2,11 @@
 /**
  * The user module zh-cn file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     user
- * @version     $Id: zh-cn.php 3197 2015-11-20 07:42:06Z chujilu $
+ * @version     $Id: zh-cn.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 $lang->user->common    = '成员';
@@ -66,12 +66,14 @@ $lang->user->goback          = "返回前一页";
 $lang->user->allUsers        = '全部成员';
 $lang->user->submit          = "提交";
 $lang->user->forbid          = '禁用';
+$lang->user->forbidList      = '禁用成员列表';
 $lang->user->active          = '激活';
 $lang->user->setReferer      = '设置referer';
 $lang->user->vcard           = '获取二维码名片';
 $lang->user->uploadAvatar    = '上传头像';
 $lang->user->cropAvatar      = '裁剪头像';
 $lang->user->cropAvatarTip   = '拖拽选框来选择头像裁剪范围';
+$lang->user->adminUser       = '组织';
 
 $lang->user->profile     = '个人信息';
 $lang->user->editProfile = '编辑信息';
@@ -79,11 +81,10 @@ $lang->user->thread      = '我的主题';
 $lang->user->reply       = '我的回贴';
 $lang->user->message     = '我的消息';
 
-$lang->user->inputUserName       = '请输入成员名';
-$lang->user->inputColleague      = '请输入同事姓名';
-$lang->user->inputAccountOrEmail = '请输入成员名或Email';
-$lang->user->inputPassword       = '请输入密码';
-$lang->user->searchUser          = '搜索';
+$lang->user->inputAccount   = '请输入用户名';
+$lang->user->inputColleague = '请输入同事姓名';
+$lang->user->inputPassword  = '请输入密码';
+$lang->user->searchUser     = '搜索';
 
 $lang->user->errorDeny     = "抱歉，您无权访问『<b>%s</b>』模块的『<b>%s</b>』功能。请联系管理员获取权限。点击后退返回上页。<br/> 5秒钟后将自动返回首页...";
 $lang->user->loginFailed   = "登录失败，请检查您的成员名或密码是否填写正确。";

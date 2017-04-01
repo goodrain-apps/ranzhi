@@ -1,19 +1,22 @@
 <?php
-$lang->backup->common  = '備份';
-$lang->backup->index   = '備份首頁';
-$lang->backup->history = '備份歷史';
-$lang->backup->delete  = '刪除備份';
-$lang->backup->backup  = '備份';
-$lang->backup->restore = '還原';
+$lang->backup->common      = '備份';
+$lang->backup->index       = '備份首頁';
+$lang->backup->history     = '備份歷史';
+$lang->backup->delete      = '刪除備份';
+$lang->backup->backup      = '備份';
+$lang->backup->restore     = '還原';
+$lang->backup->setSaveDays = '設置保存天數';
 
-$lang->backup->name  = '檔案名稱';
-$lang->backup->time  = '備份時間';
-$lang->backup->files = '備份檔案';
-$lang->backup->size  = '大小';
+$lang->backup->name     = '檔案名稱';
+$lang->backup->time     = '備份時間';
+$lang->backup->files    = '備份檔案';
+$lang->backup->size     = '大小';
+$lang->backup->saveDays = '保存天數';
 
 $lang->backup->waitting       = '還原中...';
 $lang->backup->confirmDelete  = '是否刪除備份？';
 $lang->backup->confirmRestore = '是否還原該備份？';
+$lang->backup->deleteInfo     = '刪除%s天前的備份';
 
 $lang->backup->success = new stdclass();
 $lang->backup->success->backup  = '備份成功！';
@@ -25,3 +28,4 @@ $lang->backup->error->noDelete    = "檔案 %s 無法刪除，修改權限或手
 $lang->backup->error->restoreSQL  = "資料庫還原失敗，錯誤：%s";
 $lang->backup->error->restoreFile = "附件還原失敗，錯誤：%s";
 $lang->backup->error->backupFile  = "附件備份失敗，錯誤：%s";
+$lang->backup->error->setSaveDays = "保存天數應該大於0";

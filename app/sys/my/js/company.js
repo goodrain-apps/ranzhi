@@ -13,4 +13,23 @@ $(document).ready(function()
         location.href = url;
     });
     $('table.datatable').datatable();
+
+    $(window).scroll(function()
+    {
+        fixScrollWrapper();
+    }).resize(function()
+    {
+        fixScrollWrapper();
+    });
+    
+    fixScrollWrapper();
 });
+
+function fixScrollWrapper()
+{
+    var tbHeight   = $(document).height();
+    var wHeight    = $(window).height();
+    var wScrollTop = $(window).scrollTop();
+    var marginBtm  = parseInt($('div.datatable').css('margin-bottom'))
+    $('div.datatable > div.scroll-wrapper').css('bottom', tbHeight - wHeight - wScrollTop - marginBtm);
+}

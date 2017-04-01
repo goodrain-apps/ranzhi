@@ -2,11 +2,11 @@
 /**
  * The control file of upgrade module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     upgrade
- * @version     $Id: control.php 3300 2015-12-02 02:36:17Z chujilu $
+ * @version     $Id: control.php 4227 2016-10-25 08:27:56Z liugang $
  * @link        http://www.ranzhico.com
  */
 class upgrade extends control
@@ -111,18 +111,28 @@ class upgrade extends control
     public function execute($fromVersion)
     {
         $fromVersion = isset($_POST['fromVersion']) ? $this->post->fromVersion : $fromVersion;
-        $this->upgrade->execute($fromVersion);
+        $result = $this->upgrade->execute($fromVersion);
 
         $this->view->title = $this->lang->upgrade->result;
 
-        if(!$this->upgrade->isError())
+        if(!empty($result))
         {
-            $this->view->result = 'success';
+            $result[] = $this->lang->upgrade->afterDeleted; 
+
+            $this->view->result = 'fail';
+            $this->view->errors  = $result;
         }
         else
         {
-            $this->view->result = 'fail';
-            $this->view->errors = $this->upgrade->getError();
+            if(!$this->upgrade->isError())
+            {
+                $this->view->result = 'success';
+            }
+            else
+            {
+                $this->view->result = 'fail';
+                $this->view->errors = $this->upgrade->getError();
+            }
         }
         $this->display();
     }

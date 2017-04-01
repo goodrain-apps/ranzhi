@@ -2,7 +2,7 @@
 /**
  * The model file of attend module of Ranzhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     attend
@@ -75,6 +75,14 @@ class attendModel extends model
             ->beginIf($endDate != '')->andWhere('`date`')->le($endDate)->fi()
             ->orderBy('`date`')
             ->fetchAll('date');
+        $beginDate = isset($this->config->attend->beginDate->$account) ? $this->config->attend->beginDate->$account : $this->config->attend->beginDate->company;
+        if($beginDate)
+        {
+            foreach($attends as $date => $attend)
+            {
+                if($beginDate > $date) unset($attends[$date]);
+            }
+        }
 
         $attends = $this->fixUserAttendList($attends, $startDate, $endDate);
         return $this->processAttendList($attends);
@@ -89,7 +97,21 @@ class attendModel extends model
      */
     public function getStat($date)
     {
-        return $this->dao->select('*')->from(TABLE_ATTENDSTAT)->where('month')->eq($date)->fetchAll('account');
+        $attends = $this->dao->select('*')->from(TABLE_ATTENDSTAT)->where('month')->eq($date)->fetchAll('account');
+        foreach($attends as $account => $attendList)
+        {
+            if(strpos(',' . $this->config->attend->noAttendUsers . ',', ',' . $account . ',') !== false) unset($attends[$account]);
+            $beginDate = isset($this->config->attend->beginDate->$account) ? $this->config->attend->beginDate->$account : $this->config->attend->beginDate->company;
+            if($beginDate)
+            {
+                foreach($attendList as $key => $attend)
+                {
+                    if($beginDate > $attend->date) unset($attends[$account][$key]);
+                }
+            }
+        }
+
+        return $attends;
     }
 
     /**
@@ -104,16 +126,30 @@ class attendModel extends model
     {
         $this->processStatus();
 
-        $users = $this->loadModel('user')->getPairs('noclosed,noempty,nodeleted');
+        $users = $this->loadModel('user')->getPairs('noclosed,noempty,nodeleted,noforbidden');
         $attends = $this->dao->select('*')->from(TABLE_ATTEND)
             ->where(1)
             ->beginIf($startDate != '')->andWhere('`date`')->ge($startDate)->fi()
             ->beginIf($endDate != '')->andWhere('`date`')->le($endDate)->fi()
             ->fetchGroup('account');
+        unset($attends['guest']);
 
         foreach($users as $account => $realname)
         {
             if(!isset($attends[$account])) $attends[$account] = array();
+        }
+
+        foreach($attends as $account => $attendList)
+        {
+            if(strpos(',' . $this->config->attend->noAttendUsers . ',', ',' . $account . ',') !== false) unset($attends[$account]);
+            $beginDate = isset($this->config->attend->beginDate->$account) ? $this->config->attend->beginDate->$account : $this->config->attend->beginDate->company;
+            if($beginDate)
+            {
+                foreach($attendList as $key => $attend)
+                {
+                    if($beginDate > $attend->date) unset($attends[$account][$key]);
+                }
+            }
         }
 
         return $attends;
@@ -132,9 +168,11 @@ class attendModel extends model
     public function getByDept($deptID, $startDate = '', $endDate = '', $reviewStatus = '')
     {
         $this->processStatus();
-        $users = $this->loadModel('user')->getPairs('noclosed,noempty,nodeleted', $deptID);
+        $users = $this->loadModel('user')->getPairs('noclosed,noempty,nodeleted,noforbidden', $deptID);
 
-        $attends = $this->dao->select('t1.*, t2.dept')->from(TABLE_ATTEND)->alias('t1')->leftJoin(TABLE_USER)->alias('t2')->on("t1.account=t2.account")
+        $attends = $this->dao->select('t1.*, t2.dept')
+            ->from(TABLE_ATTEND)->alias('t1')
+            ->leftJoin(TABLE_USER)->alias('t2')->on("t1.account=t2.account")
             ->where('t1.account')->in(array_keys($users))
             ->beginIf($startDate != '')->andWhere('t1.date')->ge($startDate)->fi()
             ->beginIf($endDate != '')->andWhere('t1.date')->le($endDate)->fi()
@@ -151,7 +189,7 @@ class attendModel extends model
         foreach($deptID as $dept)
         {
             if($dept == 0) continue;
-            $deptUsers = $this->loadModel('user')->getPairs('noclosed,noempty,nodeleted', $dept);
+            $deptUsers = $this->user->getPairs('noclosed,noempty,nodeleted,noforbidden', $dept);
             foreach($deptUsers as $account => $realname) if(!isset($newAttends[$dept][$account])) $newAttends[$dept][$account] = array();
         }
 
@@ -160,8 +198,24 @@ class attendModel extends model
         {
             foreach($newAttends[$dept] as $user => $userAttends)
             {
+                if(strpos(",{$this->config->attend->noAttendUsers},", ",$user,") !== false)
+                {
+                    unset($newAttends[$dept][$user]);
+                    continue;
+                }
+                $beginDate = isset($this->config->attend->beginDate->$user) ? $this->config->attend->beginDate->$user : $this->config->attend->beginDate->company;
+                if($beginDate)
+                {
+                    foreach($userAttends as $key => $attend)
+                    {
+                        if($beginDate > $attend->date) unset($newAttends[$dept][$user][$key]);
+                    }
+                }
+
                 if($reviewStatus == '') $newAttends[$dept][$user] = $this->fixUserAttendList($newAttends[$dept][$user], $startDate, $endDate, $user);
                 $newAttends[$dept][$user] = $this->processAttendList($newAttends[$dept][$user]);
+
+                if(!$newAttends[$dept][$user]) unset($newAttends[$dept][$user]);
             }
         }
 
@@ -177,7 +231,7 @@ class attendModel extends model
      */
     public function getWaitAttends($deptID = '')
     {
-        if($deptID != '') $users = $this->loadModel('user')->getPairs('noclosed,noempty,nodeleted', $deptID);
+        if($deptID != '') $users = $this->loadModel('user')->getPairs('noclosed,noempty,nodeleted,noforbidden', $deptID);
         return $this->dao->select('*')->from(TABLE_ATTEND)
             ->where('reviewStatus')->eq('wait')
             ->beginIf($deptID != '')->andWhere('account')->in(array_keys($users))->fi()
@@ -185,15 +239,186 @@ class attendModel extends model
     }
 
     /**
+     * Get detail attends. 
+     * 
+     * @param  string $date 
+     * @param  string $account 
+     * @param  int    $deptID 
+     * @access public
+     * @return array 
+     */
+    public function getDetailAttends($date = '', $account = '', $deptID = 0)
+    {
+        $currentYear  = substr($date, 0, 4);
+        $currentMonth = substr($date, 4, 2);
+        $startDate    = "{$currentYear}-{$currentMonth}-01";
+        $endDate      = date('Y-m-d', strtotime("$startDate +1 month -1 days"));
+        $dayNum       = date('t', strtotime("{$currentYear}-{$currentMonth}"));
+        if($currentYear . $currentMonth == date('Ym') && $dayNum > date('d')) $dayNum = date('d');
+
+        $deptList = array('') + $this->loadModel('tree')->getPairs(0, 'dept');
+        $userList = $this->loadModel('user')->getList();
+        $users    = array();
+        foreach($userList as $user) $users[$user->account] = $user;
+
+        /* Get attends. */
+        $attendList = array();
+        if($account)
+        {
+            $user    = $users[$account];
+            $attends = $this->getByAccount($account, $startDate, $endDate < helper::today() ? $endDate : helper::today());
+            $attendList[$user->dept][$account] = $attends;
+        }
+        else
+        {
+            if($deptID) 
+            {
+                $attendList = $this->getByDept($deptID, $startDate, $endDate < helper::today() ? $endDate : helper::today());
+            }
+            else
+            {
+                $attendList = $this->getByDept(array_keys($deptList), $startDate, $endDate < helper::today() ? $endDate : helper::today());
+            }
+        }
+
+        $attends = array();
+        foreach($attendList as $dept => $deptAttends)
+        {
+            ksort($deptAttends);
+            foreach($deptAttends as $account => $userAttends)
+            {
+                if(strpos(",{$this->config->attend->noAttendUsers},", ",$account,") !== false) continue;
+
+                for($day = 1; $day <= $dayNum; $day++)
+                {
+                    if($day < 10) $day = '0' . $day;
+                    $currentDate = "{$currentYear}-{$currentMonth}-{$day}";
+
+                    $attend = zget($userAttends, $currentDate, '');
+                    if(!$attend) continue;
+
+                    $attend->dept     = isset($users[$account]) ? $deptList[$users[$account]->dept] : '';
+                    $attend->realname = isset($users[$account]) ? $users[$account]->realname : '';
+                    $attend->dayName  = $this->lang->datepicker->dayNames[(int)date('w', strtotime($currentDate))];
+
+                    $desc = zget($this->lang->attend->statusList, $attend->status);
+                    if(strpos(',leave,makeup,overtime,trip,egress,', ",$attend->status,") !== false and $attend->desc)
+                    {
+                        $desc .= $attend->desc . $this->lang->attend->h;
+                    }
+                    elseif($attend->status == 'late' && !empty($attend->signIn))
+                    {
+                        $seconds = strtotime($attend->signIn) - strtotime($this->config->attend->signInLimit);
+                        if($seconds >= 3600)
+                        {
+                            $hours   = floor($seconds / 3600);
+                            $desc   .= $hours . $this->lang->attend->h;
+                            $seconds = $seconds % 3600;
+                        }
+                        if($seconds >= 60)
+                        {
+                            $minutes = floor($seconds / 60);
+                            $seconds = $seconds % 60;
+                            $desc   .= $minutes . $this->lang->attend->m;
+                        }
+                        if($seconds > 0) $desc .= $seconds . $this->lang->attend->s;
+                    }
+                    elseif($attend->status == 'early' && !empty($attend->signOut))
+                    {
+                        $seconds = strtotime($this->config->attend->signOutLimit) - strtotime($attend->signOut);
+                        if($seconds >= 3600)
+                        {
+                            $hours   = floor($seconds / 3600);
+                            $desc   .= $hours . $this->lang->attend->h;
+                            $seconds = $seconds % 3600;
+                        }
+                        if($seconds >= 60)
+                        {
+                            $minutes = floor($seconds / 60);
+                            $seconds = $seconds % 60;
+                            $desc   .= $minutes . $this->lang->attend->m;
+                        }
+                        if($seconds > 0) $desc .= $seconds . $this->lang->attend->s;
+                    }
+                    elseif($attend->status == 'both')
+                    {
+                        $desc = $this->lang->attend->statusList['late'];
+                        if(!empty($attend->signIn))
+                        {
+                            $seconds = strtotime($attend->signIn) - strtotime($this->config->attend->signInLimit);
+                            if($seconds >= 3600)
+                            {
+                                $hours   = floor($seconds / 3600);
+                                $desc   .= $hours . $this->lang->attend->h;
+                                $seconds = $seconds % 3600;
+                            }
+                            if($seconds >= 60)
+                            {
+                                $minutes = floor($seconds / 60);
+                                $seconds = $seconds % 60;
+                                $desc   .= $minutes . $this->lang->attend->m;
+                            }
+                            if($seconds > 0) $desc .= $seconds . $this->lang->attend->s;
+                        }
+
+                        $desc .= ', ' . $this->lang->attend->statusList['early'];
+                        if(!empty($attend->signOut))
+                        {
+                            $seconds = strtotime($this->config->attend->signOutLimit) - strtotime($attend->signOut);
+                            if($seconds >= 3600)
+                            {
+                                $hours   = floor($seconds / 3600);
+                                $desc   .= $hours . $this->lang->attend->h;
+                                $seconds = $seconds % 3600;
+                            }
+                            if($seconds >= 60)
+                            {
+                                $minutes = floor($seconds / 60);
+                                $seconds = $seconds % 60;
+                                $desc   .= $minutes . $this->lang->attend->m;
+                            }
+                            if($seconds > 0) $desc .= $seconds . $this->lang->attend->s;
+                        }
+                    }
+                    $attend->status = zget($this->lang->attend->statusList, $attend->status);
+                    $attend->desc   = $desc == $attend->status ? '' : $desc;
+
+                    $attends[] = $attend;
+                }
+            }
+        }
+
+        return $attends;
+    }
+
+    /**
      * Get all month data.
      * return array[year][month]
      * 
+     * @param  string $type
      * @access public
      * @return array
      */
-    public function getAllMonth()
+    public function getAllMonth($type = '')
     {
-        $dateList = $this->dao->select('date')->from(TABLE_ATTEND)->groupBy('date')->orderBy('date_asc')->fetchAll();
+        if($type == 'department')
+        {
+            $deptList = $this->loadModel('tree')->getDeptManagedByMe($this->app->user->account);
+            $dateList = $this->dao->select('date')->from(TABLE_ATTEND)->alias('t1')
+                ->leftJoin(TABLE_USER)->alias('t2')->on('t1.account=t2.account')
+                ->where('t2.dept')->in(array_keys($deptList))
+                ->groupBy('date')
+                ->orderBy('date_desc')
+                ->fetchAll();
+        }
+        else
+        {
+            $dateList = $this->dao->select('date')->from(TABLE_ATTEND)
+                ->beginIF($type == 'personal')->where('account')->eq($this->app->user->account)->fi()
+                ->groupBy('date')
+                ->orderBy('date_desc')
+                ->fetchAll();
+        }
 
         $monthList = array();
         foreach($dateList as $date)
@@ -214,13 +439,18 @@ class attendModel extends model
     public function getNotice()
     {
         $account = $this->app->user->account;
+        $today   = helper::today();
+        if(strpos(',' . $this->config->attend->noAttendUsers . ',', ',' . $account . ',') !== false ||
+           (isset($this->config->attend->readers->{$today}) and strpos(',' . $this->config->attend->readers->{$today} . ',', ',' . $account . ',') !== false)) return '';
+        $beginDate = isset($this->config->attend->beginDate->$account) ? $this->config->attend->beginDate->$account : $this->config->attend->beginDate->company;
+        if($beginDate && $beginDate > $today) return '';
+
         $link    = helper::createLink('oa.attend', 'personal');
         $misc    = "class='app-btn alert-link' data-id='oa'";
         $notice  = '';
 
         $this->lang->attend->statusList['absent'] = $this->lang->attend->notice['absent'];
 
-        $today  = helper::today();
         $attend = $this->getByDate($today, $account);
         if(empty($attend)) $notice .= sprintf($this->lang->attend->notice['today'], $this->lang->attend->statusList['absent'], $link, $misc); 
         if(!empty($attend) and strpos('late,early,both,absent', $attend->status) !== false and empty($attend->reason)) 
@@ -257,6 +487,8 @@ EOT;
      */
     public function signIn($account = '', $date = '')
     {
+        if(!$this->checkIP()) return array('result' => 'fail', 'message' => $this->lang->attend->note->IPDenied);
+
         if($account == '') $account = $this->app->user->account;
         if($date == '')    $date    = date('Y-m-d');
 
@@ -282,6 +514,25 @@ EOT;
     }
 
     /**
+     * Check user is sign or not
+     * 
+     * @param  string $account
+     * @param  string $date
+     * @access public
+     * @return bool | object
+     */
+    public function checkSignIn($account = '', $date = '')
+    {
+        if(!$this->checkIP()) return false;
+        if($account == '') $account = $this->app->user->account;
+        if($date == '')    $date    = date('Y-m-d');
+
+        $attend = $this->dao->select('*')->from(TABLE_ATTEND)->where('account')->eq($account)->andWhere('`date`')->eq($date)->fetch();
+        if(!empty($attend) and $attend->signIn != '' and $attend->signIn != '00:00:00') return $attend;
+        return false;
+    }
+
+    /**
      * sign out.
      * 
      * @param  string $account 
@@ -291,6 +542,7 @@ EOT;
      */
     public function signOut($account = '', $date = '')
     {
+        if(!$this->checkIP()) return false;
         if($account == '') $account = $this->app->user->account;
         if($date == '')    $date    = date('Y-m-d');
 
@@ -305,10 +557,15 @@ EOT;
             return !dao::isError();
         }
 
+        $attend->signOut = helper::time();
+        $status = $this->computeStatus($attend);
+
         $this->dao->update(TABLE_ATTEND)
             ->set('signOut')->eq(helper::time())
+            ->set('status')->eq($status)
             ->where('id')->eq($attend->id)
             ->exec();
+
         return !dao::isError();
     }
 
@@ -435,10 +692,16 @@ EOT;
      */
     public function computeStatus($attend)
     {
+        $beginDate = isset($this->config->attend->beginDate->{$attend->account}) ? $this->config->attend->beginDate->{$attend->account} : $this->config->attend->beginDate->company;
+        if($beginDate && $beginDate > $attend->date) return 'normal';
+
         /* 'leave': ask for leave. 'trip': biz trip. */
-        if($this->loadModel('leave')->isLeave($attend->date, $attend->account)) return 'leave';
-        if($this->loadModel('trip')->isTrip($attend->date, $attend->account)) return 'trip';
-        if($this->loadModel('overtime')->isOvertime($attend->date, $attend->account)) return 'overtime';
+        if($this->loadModel('leave', 'oa')->isLeave($attend->date, $attend->account)) return 'leave';
+        if($this->loadModel('trip', 'oa')->isTrip('trip', $attend->date, $attend->account)) return 'trip';
+        if($this->loadModel('trip', 'oa')->isTrip('egress', $attend->date, $attend->account)) return 'egress';
+        if($this->loadModel('overtime', 'oa')->isOvertime($attend->date, $attend->account)) return 'overtime';
+        if($this->loadModel('makeup', 'oa')->isMakeup($attend->date, $attend->account)) return 'makeup';
+        if($this->loadModel('lieu', 'oa')->isLieu($attend->date, $attend->account)) return 'lieu';
 
         $status = 'normal';
         if(($attend->signIn == "00:00:00" and $attend->signOut == "00:00:00") or (!$attend->signIn and !$attend->signOut)) 
@@ -452,7 +715,7 @@ EOT;
             if(strtotime("{$attend->date} {$attend->signIn}") > strtotime("{$attend->date} {$this->config->attend->signInLimit}")) $status = 'late';
             if($this->config->attend->mustSignOut == 'yes')
             {
-                if(strtotime("{$attend->date} {$attend->signOut}") <  strtotime("{$attend->date} {$this->config->attend->signOutLimit}"))
+                if(!empty($attend->signOut) && $attend->signOut != '00:00:00' && strtotime("{$attend->date} {$attend->signOut}") <  strtotime("{$attend->date} {$this->config->attend->signOutLimit}"))
                 {
                     $status = $status == 'late' ? 'both' : 'early';
                 }
@@ -460,7 +723,7 @@ EOT;
         }
 
         /* 'rest': rest day. */
-        if($this->isWeekend($attend->date) or $this->loadModel('holiday')->isHoliday($attend->date)) $status = 'rest';
+        if($this->isWeekend($attend->date) or $this->loadModel('holiday', 'oa')->isHoliday($attend->date)) $status = 'rest';
 
         return $status;
     }
@@ -477,6 +740,8 @@ EOT;
         /* Compute status and remove signOut if date is today. */
         if($attend->date == helper::today()) 
         {
+            /* If the user did't quit system across a day, update signin time. */
+            if($attend->signIn == '00:00:00' && $attend->signOut > $this->config->attend->signInLimit) $attend->signIn = $this->config->attend->signInLimit;
             if(time() < strtotime("{$attend->date} {$this->config->attend->signOutLimit}")) $attend->signOut = '00:00:00';
             $status = $this->computeStatus($attend);
             $attend->status = $status;
@@ -484,7 +749,7 @@ EOT;
             if($status == 'both')  $attend->status = 'late';
         }
 
-        if($attend->status == '') $attend->status = $this->computeStatus($attend);
+        if($attend->status == '' or $attend->status == 'rest') $attend->status = $this->computeStatus($attend);
 
         /* Remove time. */
         if($attend->signIn == '00:00:00')    $attend->signIn = '';
@@ -528,7 +793,7 @@ EOT;
         foreach($attends as $attend)
         {
             if(strtotime($attend->date) < strtotime($startDate) or $startDate == '0000-00-00') $startDate = $attend->date;
-            if(strtotime($attend->date) > strtotime($endDate)) $endDate   = $attend->date;
+            if(strtotime($attend->date) > strtotime($endDate)) $endDate = $attend->date;
             if($account == '') $account = $attend->account;
         }
 
@@ -552,6 +817,12 @@ EOT;
                 $attends[$startDate] = $attend;
             }
             $startDate = date("Y-m-d", strtotime("$startDate +1 day"));
+        }
+
+        foreach($attends as $key => $attend)
+        {
+            $beginDate = isset($this->config->attend->beginDate->{$attend->account}) ? $this->config->attend->beginDate->{$attend->account} : $this->config->attend->beginDate->company;
+            if($beginDate && $beginDate > $attend->date) unset($attends[$key]);
         }
 
         return $attends;
@@ -583,6 +854,8 @@ EOT;
      */
     public function isWeekend($date)
     {
+        if($this->loadModel('holiday')->isWorkingDay($date)) return false;
+
         $dayIndex = date('w', strtotime($date));
         if( (($this->config->attend->workingDays == '5' and ($dayIndex == 0 or $dayIndex == 6)) or 
             ($this->config->attend->workingDays == '6' and $dayIndex == 0) or
@@ -598,23 +871,23 @@ EOT;
     }
 
     /**
-     * Compute working days between time.
+     * Compute working dates between time.
      * 
      * @param  date    $begin 
      * @param  date    $end 
      * @access public
-     * @return int
+     * @return array 
      */
-    public function computeWorkingDays($begin, $end)
+    public function computeWorkingDates($begin, $end)
     {
         $dates = range(strtotime($begin), strtotime($end), 60 * 60 * 24);
-        $workingDays = 0;
+        $workingDays = array();
         foreach($dates as $datetime)
         {
             $date = date('Y-m-d', $datetime);
             if($this->isWeekend($date)) continue;
-            if($this->loadModel('holiday')->isHoliday($date)) continue;
-            $workingDays ++;
+            if($this->loadModel('holiday', 'oa')->isHoliday($date)) continue;
+            $workingDays[$date] = $date;
         }
         return $workingDays;
     }
@@ -632,7 +905,7 @@ EOT;
      */
     public function batchUpdate($dates, $account, $status = '', $reason = '', $time = '')
     {
-        if($status != '' and strpos('trip,leave,overtime,normal', $status) === false) return false;
+        if($status != '' and strpos(',normal,leave,makeup,overtime,lieu,trip,egress,', ",$status,") === false) return false;
         if($reason == '') $reason = $status;
 
         foreach($dates as $datetime)
@@ -640,21 +913,54 @@ EOT;
             $date = date('Y-m-d', $datetime);
 
             $attend = new stdclass();
-            $attend->status       = $status ? $status : (($this->isWeekend($date) or $this->loadModel('holiday')->isHoliday($date)) ? 'rest' : 'absent');
+            $attend->status       = $status ? $status : (($this->isWeekend($date) or $this->loadModel('holiday', 'oa')->isHoliday($date)) ? 'rest' : 'absent');
             $attend->reason       = $reason;
             $attend->reviewStatus = '';
             $attend->desc         = '';
 
             if(is_object($time))
             {
-                if($time->begin == $date and $time->end == $date) $hours = floor((strtotime("{$date} {$time->finish}") - strtotime("{$date} {$time->start}")) / 3600);
-                if($time->begin == $date and $time->end != $date) $hours = floor((strtotime("{$date} {$this->config->attend->signOutLimit}") - strtotime("{$date} {$time->start}")) / 3600);
-                if($time->begin != $date and $time->end == $date) $hours = floor((strtotime("{$date} {$time->finish}") - strtotime("{$date} {$this->config->attend->signInLimit}")) / 3600);
+                $hours = '';
+                if($time->begin == $date and $time->end == $date) 
+                {
+                    $hours = round((strtotime("{$date} {$time->finish}") - strtotime("{$date} {$time->start}")) / 3600, 2);
+                }
+                elseif($time->begin == $date and $time->end != $date) 
+                {
+                    if($status == 'leave' || (($status == 'overtime' || $status == 'makeup') && $time->start < $this->config->attend->signOutLimit))    
+                    {
+                        $hours = round((strtotime("{$date} {$this->config->attend->signOutLimit}") - strtotime("{$date} {$time->start}")) / 3600, 2);
+                    }
+                    elseif($status == 'overtime' || $status == 'makeup') 
+                    {
+                        $hours = round((strtotime("{$date} +1 days") - strtotime("{$date} {$time->start}")) / 3600, 2);
+                    }
+                }
+                elseif($time->begin != $date and $time->end == $date) 
+                {
+                    if($status == 'leave' || (($status == 'overtime' || $status == 'makeup') && $time->finish > $this->config->attend->signInLimit))    
+                    {
+                        $hours = round((strtotime("{$date} {$time->finish}") - strtotime("{$date} {$this->config->attend->signInLimit}")) / 3600, 2);
+                    }
+                    elseif($status == 'overtime' || $status == 'makeup') 
+                    {
+                        $hours = round((strtotime("{$date} {$time->finish}") - strtotime("{$date}")) / 3600, 2);
+                    }
+                }
+                else
+                {
+                    if($status == 'leave')    $hours = $this->config->attend->workingHours;
+                    if($status == 'overtime' || $status == 'makeup') $hours = $this->config->attend->signOutLimit - $this->config->attend->signInLimit;
+                }
+                if($hours > $this->config->attend->workingHours && ($status == 'leave' || $status == 'lieu' || $status == 'makeup')) 
+                {
+                    $hours = $this->config->attend->workingHours;
+                }
 
                 $attend->desc = $hours;
             }
 
-            $oldAttend = $this->loadModel('attend')->getByDate($date, $account);
+            $oldAttend = $this->getByDate($date, $account);
             if(isset($oldAttend->new))
             {
                 $attend->date    = $date;
@@ -663,6 +969,7 @@ EOT;
             }
             else
             {
+                if($status && strpos(',leave,makeup,overtime,lieu,', ",$status,") !== false && !empty($oldAttend->desc)) $attend->desc += (float)$oldAttend->desc;
                 $attend->status = $this->computeStatus($oldAttend);
                 $this->dao->update(TABLE_ATTEND)->data($attend)->autoCheck()->where('date')->eq($date)->andWhere('account')->eq($account)->exec();
             }
@@ -689,6 +996,7 @@ EOT;
             $data->early           = $this->post->early[$account];
             $data->absent          = $this->post->absent[$account];
             $data->trip            = $this->post->trip[$account];
+            $data->egress          = $this->post->egress[$account];
             $data->paidLeave       = $this->post->paidLeave[$account];
             $data->unpaidLeave     = $this->post->unpaidLeave[$account];
             $data->timeOvertime    = $this->post->timeOvertime[$account];
@@ -701,6 +1009,57 @@ EOT;
 
             $this->dao->replace(TABLE_ATTENDSTAT)->data($data)->autoCheck()->exec();
         }
+
+        return !dao::isError();
+    }
+
+    /**
+     * Check ip if is allowed.
+     * 
+     * @access public
+     * @return bool 
+     */
+    public function checkIP()
+    {
+        $ipParts  = explode('.', helper::getRemoteIp());
+        $allowIPs = explode(',', $this->config->attend->ip);
+
+        foreach($allowIPs as $allowIP)
+        {
+            if($allowIP == '*') return true;
+            $allowIPParts = explode('.', $allowIP);
+            foreach($allowIPParts as $key => $allowIPPart)
+            {
+                if($allowIPPart == '*') $allowIPParts[$key] = $ipParts[$key];
+            }
+            if(implode('.', $allowIPParts) == $_SERVER['REMOTE_ADDR']) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Save personal settings. 
+     * 
+     * @access public
+     * @return bool 
+     */
+    public function savePersonalSettings()
+    {
+        $this->dao->delete()->from(TABLE_CONFIG)
+            ->where('`owner`')->eq('system')
+            ->andWhere('`app`')->eq('oa')
+            ->andWhere('`module`')->eq('attend')
+            ->andWhere('`section`')->eq('beginDate')
+            ->andWhere('`key`')->ne('company')
+            ->exec();
+        $beginDates = array();
+        foreach($this->post->account as $key => $account)
+        {
+            $date = $this->post->date[$key];
+            if(!$account or !$date) continue;
+            $beginDates[$account] = $date;
+        }
+        if($beginDates) $this->loadModel('setting')->setItems('system.oa.attend.beginDate', $beginDates);
 
         return !dao::isError();
     }

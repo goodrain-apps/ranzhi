@@ -2,11 +2,11 @@
 /**
  * The control file of tree module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     tree
- * @version     $Id: control.php 3549 2016-01-26 09:35:02Z liugang $
+ * @version     $Id: control.php 4145 2016-10-14 05:31:16Z liugang $
  * @link        http://www.ranzhico.com
  */
 class tree extends control
@@ -45,10 +45,10 @@ class tree extends control
         }
         elseif(strpos($type, 'doc') !== false)
         {
-            $type = 'customdoc';
-            $this->lang->tree->menu = $this->loadModel('doc')->getSubMenus();
+            if($this->session->docFrom == 'doc') $this->loadModel('doc', 'doc')->setMainMenu();
             $this->lang->menuGroups->tree = 'doc';
-            if($root == 'product' or $root == 'project') $type = $root . 'doc';
+            $this->view->lib = $this->loadModel('doc', 'doc')->getLibById($root);
+            $this->view->projects = $this->loadModel('project', 'proj')->getPairs();
         }
 
         $this->view->title    = $this->lang->category->common;
@@ -104,7 +104,7 @@ class tree extends control
 
         if(strpos('forum,blog', $category->type) !== false) $this->view->aliasAddon .=  $category->type . '/';
 
-        if($category->type == 'dept' or $category->type == 'forum' or $category->type == 'blog') $this->view->users = $this->loadModel('user')->getPairs('nodeleted, noclosed');
+        if($category->type == 'dept' or $category->type == 'forum' or $category->type == 'blog') $this->view->users = $this->loadModel('user')->getPairs('nodeleted,nodeleted,noclosed');
 
         $groups = $this->loadModel('group')->getPairs();
         $this->view->groups = $groups;
@@ -112,6 +112,29 @@ class tree extends control
         /* remove left menu. */
         unset($this->lang->tree->menu);
 
+        $this->display();
+    }
+
+    /**
+     * Merge category for trade.
+     * 
+     * @param  string  $type 
+     * @access public
+     * @return void
+     */
+    public function merge($type = 'in')
+    {
+        if($_POST)
+        {
+            $result = $this->tree->merge();
+            if(is_array($result))  $this->send($result);
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => 'reload'));
+        }
+
+        $this->view->title      = $this->lang->tree->merge;
+        $this->view->type       = $type;
+        $this->view->categories = $this->tree->getOptionMenu($type, 0, $removeRoot = true);
         $this->display();
     }
 
@@ -170,6 +193,7 @@ class tree extends control
     {
         /* If type is 'forum' and has children, warning. */
         $category = $this->tree->getByID($categoryID);
+        if($category->major) return false;
 
         if($category->type == 'out') $this->tree->checkRight($categoryID);
 

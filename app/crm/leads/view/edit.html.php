@@ -2,7 +2,7 @@
 /**
  * The edit view of contact module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     contact 
@@ -49,8 +49,8 @@
         <div class='panel-heading'><strong><?php echo $lang->contact->basicInfo;?></strong></div>
         <div class='panel-body'>
           <table class='table table-info table-form'>
-            <tr>
-              <th class='w-80px'><?php echo $lang->contact->realname;?></th>
+            <tr class='required'>
+              <th class='w-70px'><?php echo $lang->contact->realname;?></th>
               <td><?php echo html::input('realname', $contact->realname, "class='form-control'");?></td>
             </tr>
             <tr>

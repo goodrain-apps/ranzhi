@@ -2,7 +2,7 @@
 /**
  * The browse view file of contract module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     my
@@ -16,7 +16,7 @@
   <?php commonModel::printLink('crm.contract', 'create', '', '<i class="icon-plus"></i> ' . $lang->contract->create, "class='btn btn-primary'");?>
 </div>
 <div class='panel'>
-  <table class='table table-hover table-striped tablesorter table-data table-fixed' id='contractList'>
+  <table class='table table-hover table-striped table-bordered tablesorter table-data table-fixed' id='contractList'>
     <thead>
       <tr class='text-center'>
         <?php $vars = "type={$type}&orderBy=%s&recTotal={$pager->recTotal}&recPerPage={$pager->recPerPage}&pageID={$pager->pageID}";?>
@@ -38,7 +38,7 @@
       <tr class='text-center'>
         <td><?php echo $contract->id;?></td>
         <td><?php echo $contract->code;?></td>
-        <td class='text-left actions'><?php echo html::a($this->createLink('crm.contract', 'view', "id=$contract->id"), $contract->name);?></td>
+        <td class='text-left' title='<?php echo $contract->name;?>'><?php echo html::a($this->createLink('crm.contract', 'view', "id=$contract->id"), $contract->name);?></td>
         <td class='text-right'><?php echo zget($currencySign, $contract->currency, '') . formatMoney($contract->amount);?></td>
         <td class='visible-lg'><?php echo substr($contract->createdDate, 0, 10);?></td>
         <td><?php echo substr($contract->begin, 0, 10);?></td>

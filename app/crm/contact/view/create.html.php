@@ -2,7 +2,7 @@
 /**
  * The create view of contact module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     contact 
@@ -84,6 +84,10 @@
             <tr>
               <th><?php echo $lang->contact->qq;?></th>
               <td><?php echo html::input('qq', '', "class='form-control'");?></td>
+            </tr>
+            <tr>
+              <th><?php echo $lang->contact->weixin;?></th>
+              <td><?php echo html::input('weixin', '', "class='form-control'");?></td>
             </tr>
             <tr class='customerInfo hide'>
               <th><?php echo $lang->customer->type;?></th>

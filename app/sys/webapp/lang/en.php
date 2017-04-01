@@ -2,7 +2,7 @@
 /**
  * The webapp module en file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     webapp
@@ -47,8 +47,8 @@ $lang->webapp->packup      = 'Fold';
 $lang->webapp->custom      = 'Custom';
 
 $lang->webapp->byDownloads   = 'Most Downloads';
-$lang->webapp->byAddedTime   = 'New Add';
-$lang->webapp->byUpdatedTime = 'New Update';
+$lang->webapp->byAddedTime   = 'Latest Added';
+$lang->webapp->byUpdatedTime = 'Latest Update';
 $lang->webapp->bySearch      = 'Search';
 $lang->webapp->byCategory    = 'Category';
 

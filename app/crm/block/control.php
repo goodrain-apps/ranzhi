@@ -2,7 +2,7 @@
 /**
  * The control file for block module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     block
@@ -110,7 +110,6 @@ class block extends control
      */
     public function printOrderBlock()
     {
-        $this->lang->order = new stdclass();
         $this->app->loadLang('order', 'crm');
 
         $params = $this->get->param;
@@ -125,7 +124,7 @@ class block extends control
         $this->view->products  = $this->loadModel('product')->getPairs();
         $this->view->customers = $this->loadModel('customer')->getPairs('client');
 
-        $customerIdList = $this->loadModel('customer', 'crm')->getCustomersSawByMe('view');
+        $customerIdList = $this->customer->getCustomersSawByMe('view');
 
         $this->view->orders = $this->dao->select('*')->from(TABLE_ORDER)
             ->where('deleted')->eq(0)
@@ -209,8 +208,6 @@ class block extends control
      */
     public function printCustomerBlock()
     {
-        $this->app->loadLang('customer', 'crm');
-
         $params = $this->get->param;
         $params = json_decode(base64_decode($params));
         if(!isset($params->type)) $params->type = '';
@@ -220,7 +217,7 @@ class block extends control
         $this->session->set('customerList', $this->createLink('crm.dashboard', 'index'));
         if($this->get->app == 'sys') $this->session->set('customerList', 'javascript:$.openEntry("home")');
 
-        $customerIdList = $this->loadModel('customer', 'crm')->getCustomersSawByMe();
+        $customerIdList = $this->loadModel('customer')->getCustomersSawByMe();
         if(empty($customerIdList))
         {
             $customers = array();

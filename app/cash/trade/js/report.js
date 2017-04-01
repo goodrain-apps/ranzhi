@@ -1,5 +1,8 @@
 $(document).ready(function()
 {
+    $("#menu .nav a[href*=" + config.currentMethod + "]").parent().addClass('active');
+    $('#menu .nav a[href*=export2Excel]').addClass('iframe');
+
     var labels   = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
     var datasets = [];
 
@@ -20,7 +23,7 @@ $(document).ready(function()
             {
                 if($(this).parent('tr').find('.chart-label').text() == value)
                 {
-                    datasetIn.data.push(parseInt($(this).text()));
+                    datasetIn.data.push(parseFloat($(this).text()));
                 }
             })
 
@@ -28,21 +31,21 @@ $(document).ready(function()
             {
                 if($(this).parent('tr').find('.chart-label').text() == value)
                 {
-                    datasetOut.data.push(parseInt($(this).text()));
+                    datasetOut.data.push(parseFloat($(this).text()));
                 }
             })
         }
         else
         {
-            datasetIn.data.push(parseInt(0));
-            datasetOut.data.push(parseInt(0));
+            datasetIn.data.push(parseFloat(0));
+            datasetOut.data.push(parseFloat(0));
         }
     })
     
     var data = {labels: labels, datasets: [datasetIn, datasetOut]};
     
     var options = {multiTooltipTemplate: "<%= datasetLabel %> <%= value %>"};
-    chart = $('#myBarChart').barChart(data, options);
+    chart = $('#chart-annual').barChart(data, options);
     
     $('#currency').change(function()
     {
@@ -50,4 +53,7 @@ $(document).ready(function()
        var selectCurrency = $('#currency').val();
        location.href = createLink('trade', 'report', "date=" + selectYear + "&currency=" + selectCurrency);
     })
+
+    $('td.monthly > .table-wrapper').height($('td.monthly > .chart-wrapper').outerHeight() - 2);
+    $('td.annual > .table-wrapper').height($('td.annual > .chart-wrapper').outerHeight() - 2);
 })

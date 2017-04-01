@@ -2,7 +2,7 @@
 /**
  * The control file of webapp of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <Yidong@cnezsoft.com>
  * @package     webapp
@@ -85,7 +85,7 @@ class webapp extends control
     {
         $this->view->title   = $this->lang->webapp->common . $this->lang->colon . $this->lang->webapp->edit;
         $this->view->modules = $this->loadModel('tree')->getOptionMenu(0, 'webapp');
-        $this->view->users   = $this->loadModel('user')->getPairs('noletter');
+        $this->view->users   = $this->loadModel('user')->getPairs();
         $this->view->webapp  = $type == 'local' ? $this->webapp->getLocalAppByID($webappID) : $this->webapp->getAppInfoByAPI($webappID)->webapp;
         $this->view->type    = $type;
         $this->display();

@@ -2,7 +2,7 @@
 /**
  * The receive payments file of contract module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     contract 
@@ -48,7 +48,7 @@
     </tr>
     <tr class='tradeTR'>
       <th><?php echo $lang->trade->product;?></th>
-      <td><?php echo html::select('product', $productList, '', "class='form-control chosen'");?></td>
+      <td><?php echo html::select('product', $productList, $product, "class='form-control chosen'");?></td>
     </tr>
     <tr>
       <th><?php echo $lang->contract->returnedBy;?></th>
@@ -60,7 +60,7 @@
     </tr>
     <tr>
       <th><?php echo $lang->contract->handlers;?></th>
-      <td colspan='2'><?php echo html::select('handlers[]', $users, $this->app->user->account, "class='form-control chosen' multiple");?></td>
+      <td colspan='2'><?php echo html::select('handlers[]', $users, $contract->handlers . ',' . $this->app->user->account, "class='form-control chosen' multiple");?></td>
     </tr>
     <tr>
       <th><?php echo $lang->comment;?></th>

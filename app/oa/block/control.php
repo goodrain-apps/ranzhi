@@ -2,7 +2,7 @@
 /**
  * The control file for block module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     block
@@ -113,6 +113,7 @@ class block extends control
     {
         $this->lang->announce = new stdclass();
         $this->app->loadLang('announce', 'oa');
+        $this->app->loadLang('article', 'sys');
 
         $this->processParams();
 
@@ -122,167 +123,7 @@ class block extends control
             ->limit($this->params->num)
             ->fetchAll('id');
 
-        $this->display();
-    }
-
-    /**
-     * Print task block.
-     * 
-     * @access public
-     * @return void
-     */
-    public function printTaskBlock()
-    {
-        $this->lang->task = new stdclass();
-        $this->app->loadLang('task', 'sys');
-        $this->session->set('taskList', $this->createLink('dashboard', 'index'));
-        if($this->get->app == 'sys') $this->session->set('taskList', 'javascript:$.openEntry("home")');
-
-        $this->processParams();
-        if(strpos(join($this->params->status), 'unfinished') !== false)
-        {
-            $this->params->status[] = 'wait';
-            $this->params->status[] = 'doing';
-        }
-
-        /* Get project ids. */
-        $projects = $this->loadMOdel('project')->getPairs();
-        $ids = '';
-        foreach($projects as $key => $project) $ids .= ',' . $key;
-
-        $this->view->tasks = $this->dao->select('*')->from(TABLE_TASK)
-            ->where('deleted')->eq(0)
-            ->andWhere('project')->ne(0)
-            ->andWhere('project')->in($ids)
-            ->beginIF(isset($this->params->status) and join($this->params->status) != false)->andWhere('status')->in($this->params->status)->fi()
-            ->beginIF($this->params->type)->andWhere($this->params->type)->eq($this->params->account)->fi()
-            ->orderBy($this->params->orderBy)
-            ->limit($this->params->num)
-            ->fetchAll('id');
-
-        $this->view->type = $this->params->type;
-
-        $this->display();
-    }
-
-    /**
-     * Print task block for created by me.
-     * 
-     * @access public
-     * @return void
-     */
-    public function printMyCreatedTaskBlock()
-    {
-        $this->lang->task = new stdclass();
-        $this->app->loadLang('task', 'sys');
-        $this->session->set('taskList', $this->createLink('dashboard', 'index'));
-        if($this->get->app == 'sys') $this->session->set('taskList', 'javascript:$.openEntry("home")');
-
-        $this->processParams();
-
-        $this->view->tasks = $this->dao->select('*')->from(TABLE_TASK)
-            ->where('createdBy')->eq($this->params->account)
-            ->andWhere('deleted')->eq(0)
-            ->andWhere('project')->ne(0)
-            ->beginIF(isset($this->params->status) and join($this->params->status) != false)->andWhere('status')->in($this->params->status)->fi()
-            ->orderBy($this->params->orderBy)
-            ->limit($this->params->num)
-            ->fetchAll('id');
-
-        $this->display();
-    }
-
-    /**
-     * Print task block for assigned to me.
-     * 
-     * @access public
-     * @return void
-     */
-    public function printAssignedMeTaskBlock()
-    {
-        $this->lang->task = new stdclass();
-        $this->app->loadLang('task', 'sys');
-        $this->session->set('taskList', $this->createLink('dashboard', 'index'));
-        if($this->get->app == 'sys') $this->session->set('taskList', 'javascript:$.openEntry("home")');
-
-        $this->processParams();
-
-        $this->view->tasks = $this->dao->select('*')->from(TABLE_TASK)
-            ->where('assignedTo')->eq($this->params->account)
-            ->andWhere('deleted')->eq(0)
-            ->andWhere('project')->ne(0)
-            ->beginIF(isset($this->params->status) and join($this->params->status) != false)->andWhere('status')->in($this->params->status)->fi()
-            ->orderBy($this->params->orderBy)
-            ->limit($this->params->num)
-            ->fetchAll('id');
-
-        $this->display();
-    }
-
-    /**
-     * Print broject block.
-     * 
-     * @access public
-     * @return void
-     */
-    public function printProjectBlock()
-    {
-        $this->lang->project = new stdclass();
-        $this->app->loadLang('project', 'oa');
-        $this->loadModel('task', 'sys');
-
-        $this->processParams();
-
-        if($this->params->status == 'involved')
-        {
-            $projects = $this->dao->select('t1.*')->from(TABLE_PROJECT)->alias('t1')
-                ->leftJoin(TABLE_TEAM)->alias('t2')->on('t1.id=t2.id')
-                ->where('t1.deleted')->eq(0)
-                ->andWhere('t2.type')->eq('project')
-                ->andWhere('t2.account')->eq($this->app->user->account)
-                ->fetchAll('id');
-        }
-        else
-        {
-            $projects = $this->dao->select('*')->from(TABLE_PROJECT)
-                ->where('deleted')->eq(0)
-                ->andWhere('status')->eq(isset($this->params->status) ? $this->params->status : 'doing')
-                ->orderBy($this->params->orderBy)
-                ->limit($this->params->num)
-                ->fetchAll('id');
-        }
-
-        /* Get task info of project. */
-        foreach($projects as $project)
-        {
-            if(!$this->loadModel('project')->checkPriv($project->id))
-            {
-                unset($projects[$project->id]);
-                continue;
-            }
-
-            $tasks = $this->task->getList($project->id, null, 'id_desc', null, 'status');
-
-            $left     = 0;
-            $consumed = 0;
-            foreach($tasks as $group)
-            {
-                foreach($group as $task)
-                {
-                    $left     += $task->left;
-                    $consumed += $task->consumed;
-                }
-            }
-            $total = $left + $consumed;
-
-            $project->wait = isset($tasks['wait']) ? count($tasks['wait']) : 0;
-            $project->done = (isset($tasks['done']) ? count($tasks['done']) : 0) + (isset($tasks['closed']) ? count($tasks['closed']) : 0);
-            $project->rate = $total ? round(($consumed / $total), 3) * 100 . '%' : '0%';
-        }
-
-        $this->view->users    = $this->loadModel('user')->getPairs();
-        $this->view->projects = $projects;
-
+        $this->view->users = $this->loadModel('user')->getPairs();
         $this->display();
     }
 

@@ -2,7 +2,7 @@
 /**
  * The report view file of report module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     report
@@ -19,8 +19,7 @@
       <div class='panel-body'>
         <form method='post'>
           <?php echo html::checkBox('charts', $lang->report->{$module}->chartList, $checkedCharts, '', 'block');?>
-          <p><?php echo html::selectButton();?></p>
-          <p><?php echo html::submitButton($lang->report->create);?></p>
+          <p><?php echo html::selectAll() . html::submitButton($lang->report->create);?></p>
         </form>
       </div>
     </div>
@@ -52,7 +51,7 @@
                 <?php foreach($datas[$chartType] as $key => $data):?>
                 <tr class='text-center'>
                   <td class='chart-color'><i class='chart-color-dot icon-circle'></i></td>
-                  <td class='chart-label'><?php echo $data->name;?></td>
+                  <td class='chart-label text-left'><?php echo $data->name;?></td>
                   <td class='chart-value'><?php echo $data->value;?></td>
                   <td><?php echo ($data->percent * 100) . '%';?></td>
                 </tr>

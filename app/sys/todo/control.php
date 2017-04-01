@@ -2,7 +2,7 @@
 /**
  * The control file of todo module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     todo
@@ -23,7 +23,7 @@ class todo extends control
         $this->app->loadClass('date');
         $this->loadModel('task');
         $this->loadModel('order', 'crm');
-        $this->loadModel('customer', 'crm');
+        $this->loadModel('customer');
     }
 
     /**
@@ -43,12 +43,26 @@ class todo extends control
         $todoList['order']    = array();
         $todoList['customer'] = array();
 
-        $this->view->title      = $this->lang->todo->calendar;
-        $this->view->date       = $date;
-        $this->view->data       = $this->todo->getCalendarData($date);
-        $this->view->todoList   = $todoList;
-        $this->view->moduleMenu = commonModel::createModuleMenu($this->moduleName);
-        $this->view->users      = $this->loadModel('user')->getPairs();
+        $this->app->loadLang('entry');
+        $zentaoEntryList = $this->dao->select('code, name')->from(TABLE_ENTRY)->where('zentao')->eq(1)->fetchPairs();
+        foreach($zentaoEntryList as $code => $name)
+        {
+            $zentaoTodoList = $this->loadModel('sso')->getZentaoTodoList($code, $this->app->user->account);
+            if(!commonModel::hasAppPriv($code) or empty($zentaoTodoList))
+            {
+                unset($zentaoEntryList[$code]);
+                continue;
+            }
+            $todoList[$code] = array();
+        }
+
+        $this->view->title           = $this->lang->todo->calendar;
+        $this->view->date            = $date;
+        $this->view->data            = $this->todo->getCalendarData($date);
+        $this->view->todoList        = $todoList;
+        $this->view->zentaoEntryList = $zentaoEntryList;
+        $this->view->moduleMenu      = commonModel::createModuleMenu($this->moduleName);
+        $this->view->users           = $this->loadModel('user')->getPairs();
         $this->display();
     }
 
@@ -85,6 +99,14 @@ class todo extends control
         else
         {
             $todos = $this->todo->getList($mode, $this->app->user->account, 'all', 'unclosed', $orderBy, $pager);
+        }
+
+        $zentaoEntryList = $this->dao->select('code, name')->from(TABLE_ENTRY)->where('zentao')->eq(1)->fetchPairs();
+        foreach($zentaoEntryList as $code => $name)
+        {
+            if(!commonModel::hasAppPriv($code)) continue;
+            $this->lang->todo->typeList["{$code}_task"] = $name . $this->lang->todo->task;
+            $this->lang->todo->typeList["{$code}_bug"]  = $name . $this->lang->todo->bug;
         }
 
         $this->view->title      = $this->lang->todo->browse;
@@ -145,8 +167,13 @@ class todo extends control
         if($date == 'today') $date = date(DT_DATE1, time());
         if(!empty($_POST))
         {
-            $this->todo->batchCreate();
+            $actionList = $this->todo->batchCreate();
             if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+
+            foreach($actionList as $todoID => $actionID)
+            {
+                $this->sendmail($todoID, $actionID);
+            }
 
             /* Locate the browser. */
             $date = str_replace('-', '', $this->post->date);
@@ -166,7 +193,7 @@ class todo extends control
         $this->view->date  = (int)$date == 0 ? $date : date('Y-m-d', strtotime($date));
         $this->view->times = date::buildTimeList($this->config->todo->times->begin, $this->config->todo->times->end, $this->config->todo->times->delta);
         $this->view->time  = date::now();
-        $this->view->users = $this->loadModel('user')->getPairs('noclosed,nodeleted');
+        $this->view->users = $this->loadModel('user')->getPairs('noclosed,noforbidden,nodeleted');
         $this->view->modalWidth = '85%';
 
         $this->display();
@@ -176,6 +203,7 @@ class todo extends control
      * Edit a todo.
      * 
      * @param  int    $todoID 
+     * @param  bool   $comment
      * @access public
      * @return void
      */
@@ -199,9 +227,15 @@ class todo extends control
                 $actionID = $this->loadModel('action')->create('todo', $todoID, 'edited', $this->post->comment);
                 $this->action->logHistory($actionID, $changes);
             }
-            $date = str_replace('-', '', $this->post->date);
             if(!$comment) $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'closeModal' => 'true', 'locate' => 'reload'));
             if($comment)  $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => 'loadInModal'));
+        }
+
+        $zentaoEntryList = $this->dao->select('code, name')->from(TABLE_ENTRY)->where('zentao')->eq(1)->fetchPairs();
+        foreach($zentaoEntryList as $code => $name)
+        {
+            $this->lang->todo->typeList["{$code}_task"] = $name . $this->lang->todo->task;
+            $this->lang->todo->typeList["{$code}_bug"]  = $name . $this->lang->todo->bug;
         }
        
         if($todo->date != '00000000') $todo->date = strftime("%Y-%m-%d", strtotime($todo->date));
@@ -210,6 +244,42 @@ class todo extends control
         $this->view->position[] = $this->lang->todo->edit;
         $this->view->times      = date::buildTimeList($this->config->todo->times->begin, $this->config->todo->times->end, $this->config->todo->times->delta);
         $this->view->todo       = $todo;
+        $this->display();
+    }
+
+    /**
+     * Batch edit todos. 
+     * 
+     * @param  string $mode 
+     * @access public
+     * @return void
+     */
+    public function batchEdit($mode = 'all')
+    {
+        $todoIDList = $this->post->todoIDList ? $this->post->todoIDList : array();
+
+        if($this->post->names)
+        {
+            $this->todo->batchUpdate();
+
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('browse', "mode=$mode")));
+        }
+
+        $zentaoEntryList = $this->dao->select('code, name')->from(TABLE_ENTRY)->where('zentao')->eq(1)->fetchPairs();
+        foreach($zentaoEntryList as $code => $name)
+        {
+            $this->lang->todo->typeList["{$code}_task"] = $name . $this->lang->todo->task;
+            $this->lang->todo->typeList["{$code}_bug"]  = $name . $this->lang->todo->bug;
+        }
+
+        $this->loadModel('my');
+        $this->view->title      = $this->lang->todo->batchEdit;
+        $this->view->mode       = $mode;
+        $this->view->todos      = $this->todo->getByIdList($todoIDList);
+        $this->view->times      = date::buildTimeList($this->config->todo->times->begin, $this->config->todo->times->end, $this->config->todo->times->delta);
+        $this->view->users      = $this->loadModel('user')->getPairs('noclosed,nodeleted,noforbidden');
+        $this->view->moduleMenu = commonModel::createModuleMenu($this->moduleName);
         $this->display();
     }
 
@@ -232,11 +302,19 @@ class todo extends control
         if($todo->type == 'order')    $this->session->set('orderList', "javascript:$.openEntry(\"dashboard\")");
         if($todo->type == 'customer') $this->session->set('customerList', "javascript:$.openEntry(\"dashboard\")");
 
+        $zentaoEntryList = $this->dao->select('code, name')->from(TABLE_ENTRY)->where('zentao')->eq(1)->fetchPairs();
+        foreach($zentaoEntryList as $code => $name)
+        {
+            if(!commonModel::hasAppPriv($code)) continue;
+            $this->lang->todo->typeList["{$code}_task"] = $name . $this->lang->todo->task;
+            $this->lang->todo->typeList["{$code}_bug"]  = $name . $this->lang->todo->bug;
+        }
+
         $this->view->title      = "{$this->lang->todo->common} #$todo->id $todo->name";
         $this->view->modalWidth = '80%';
         $this->view->todo       = $todo;
         $this->view->times      = date::buildTimeList($this->config->todo->times->begin, $this->config->todo->times->end, $this->config->todo->times->delta);
-        $this->view->users      = $this->loadModel('user')->getPairs('noletter');
+        $this->view->users      = $this->loadModel('user')->getPairs();
         $this->view->actions    = $this->loadModel('action')->getList('todo', $todoID);
         $this->view->from       = $from;
 
@@ -294,7 +372,7 @@ class todo extends control
             if($this->todo->checkPriv($todo, 'close') and $todo->status == 'done') $this->todo->close($todoID);
         }
 
-        $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => 'reload'));
+        $this->send(array('result' => 'success'));
     }
 
     /**
@@ -309,7 +387,7 @@ class todo extends control
         $todo = $this->todo->getById($todoID);
         $this->checkPriv($todo, 'activate', 'json');
 
-        if($todo->status == 'closed') $this->todo->activate($todoID);
+        if(strpos('done,closed', $todo->status) !== false) $this->todo->activate($todoID);
         $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess));
     }
 
@@ -345,7 +423,68 @@ class todo extends control
             $confirmURL  = $this->createLink("{$entry}.{$todo->type}", 'view', "id=$todo->idvalue", 'html');
             $this->send(array('result' => 'success', 'confirm' => array('note' => $confirmNote, 'url' => $confirmURL, 'entry' => $entry)));
         }
+
+        $zentaoEntryList = $this->dao->select('*')->from(TABLE_ENTRY)->where('zentao')->eq(1)->fetchAll();
+        foreach($zentaoEntryList as $zentaoEntry)
+        {
+            $code = $zentaoEntry->code;
+            if(!commonModel::hasAppPriv($code)) continue;
+
+            if($todo->type == $code . '_task' or $todo->type == $code . '_bug') 
+            {
+                if(strpos($zentaoEntry->login, '&') === false) $zentaoUrl = substr($zentaoEntry->login, 0, strrpos($zentaoEntry->login, '/') + 1); 
+                if(strpos($zentaoEntry->login, '&') !== false) $zentaoUrl = substr($zentaoEntry->login, 0, strpos($zentaoEntry->login, '?'));
+                $zentaoConfig = $this->loadModel('sso')->getZentaoServerConfig($zentaoUrl);
+
+                $confirmNote = sprintf($this->lang->todo->confirmTip, $zentaoEntry->name, $todo->id);
+                if($todo->type == $code . '_task') $referer = base64_encode($this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, 'task', 'view', "id=$todo->idvalue", 'html', false));
+                if($todo->type == $code . '_bug')  $referer = base64_encode($this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, 'bug', 'view', "id=$todo->idvalue", 'html', false));
+                $confirmURL = $this->createLink('entry', 'visit', "entryID=$zentaoEntry->id", 'html');
+                $pathinfo = parse_url($confirmURL);
+                if(!empty($pathinfo['query']))
+                {
+                    $confirmURL = rtrim($confirmURL, '&') . "&referer=$referer";
+                }
+                else
+                {
+                    $confirmURL = rtrim($confirmURL, '?') . "?referer=$referer";
+                }
+                $this->send(array('result' => 'success', 'confirm' => array('note' => $confirmNote, 'url' => $confirmURL, 'entry' => $zentaoEntry->id)));
+            }
+        }
         $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess));
+    }
+
+    /**
+     * Batch finish todos. 
+     * 
+     * @access public
+     * @return void
+     */
+    public function batchFinish()
+    {
+        $todoIDList = $this->post->todoIDList ? $this->post->todoIDList : array();
+        foreach($todoIDList as $todoID)
+        {
+            $todo = $this->todo->getById($todoID);
+            $this->checkPriv($todo, 'finish', 'json');
+            if(strpos('done,closed', $todo->status) === false) $this->todo->finish($todoID);
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+
+            if($todo->type == 'task') 
+            {
+                $task = $this->loadModel('task')->getById($todo->idvalue);
+                $_POST['consumed'] = $task->left == 0 ? 1 : $task->left;
+                $changes = $this->loadModel('task')->finish($todo->idvalue);
+                if(!empty($changes))
+                {
+                    $actionID = $this->loadModel('action')->create('task', $todo->idvalue, 'Finished');
+                    $this->action->logHistory($actionID, $changes);
+                }
+            }
+        }
+
+        $this->send(array('result' => 'success'));
     }
 
     /**
@@ -376,7 +515,7 @@ class todo extends control
         if($todo->date != '00000000') $todo->date = strftime("%Y-%m-%d", strtotime($todo->date));
         $this->view->title = $this->lang->todo->assignTo;
         $this->view->todo  = $todo;
-        $this->view->users = $this->loadModel('user')->getPairs('nodeleted,noclosed');
+        $this->view->users = $this->loadModel('user')->getPairs('nodeleted,noforbidden,noclosed');
         $this->view->times = date::buildTimeList($this->config->todo->times->begin, $this->config->todo->times->end, $this->config->todo->times->delta);
         $this->display();
     }
@@ -416,9 +555,9 @@ class todo extends control
 
         /* Set toList. */
         $todo    = $this->todo->getById($todoID);
-        $users   = $this->loadModel('user')->getPairs('noletter');
+        $users   = $this->loadModel('user')->getPairs();
         $toList  = $todo->assignedTo;
-        $subject = "{$this->lang->todo->common}#{$todo->id}{$this->lang->colon}{$todo->name}";
+        $subject = "{$this->lang->todo->common}#{$todo->id} {$todo->name}";
 
         /* send notice if user is online and return failed accounts. */
         $toList = $this->loadModel('action')->sendNotice($actionID, $toList);
@@ -451,14 +590,14 @@ class todo extends control
             if($errorType == '') $errorType = empty($_POST) ? 'html' : 'json';
             if($errorType == 'json')
             {
-                $this->app->loadLang('error');
-                $this->send(array('result' => 'fail', 'message' => $this->lang->error->typeList['accessLimited']));
+                $this->app->loadLang('notice');
+                $this->send(array('result' => 'fail', 'message' => $this->lang->notice->typeList['accessLimited']));
             }
             else
             {
                 $locate = helper::safe64Encode($this->server->http_referer);
-                $errorLink = helper::createLink('error', 'index', "type=accessLimited&locate={$locate}");
-                $this->locate($errorLink);
+                $noticeLink = helper::createLink('notice', 'index', "type=accessLimited&locate={$locate}");
+                $this->locate($noticeLink);
             }
         }
         return true;

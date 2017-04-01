@@ -2,11 +2,11 @@
 /**
  * The kindeditor view of common module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     common 
- * @version     $Id: kindeditor.html.php 3407 2015-12-22 02:41:47Z liugang $
+ * @version     $Id: kindeditor.html.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 if($extView = $this->getExtViewFile(__FILE__)){include $extView; return helper::cd();}
@@ -156,13 +156,12 @@ function initKindeditor(afterInit)
                             var html = K(doc.body).html();
                             if(html.search(/<img src="data:.+;base64,/) > -1)
                             {
-                                K(doc.body).html(html.replace(/<img src="data:.+;base64,.*".*\/>/, ''));
                                 $.post(createLink('file', 'ajaxPasteImage', "uid=" + v.uid), {editor: html}, function(data)
                                 {
                                     if(data) return K(doc.body).html(data);
 
                                     alert(v.errorUnwritable);
-                                    return K(doc.body).html(html);
+                                    return K(doc.body).html(data);
                                 });
                             }
                         }, 80);

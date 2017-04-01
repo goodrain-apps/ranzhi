@@ -2,7 +2,7 @@
 /**
  * The view file for create function of order module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     order 
@@ -23,7 +23,7 @@
           <th class='w-120px'><?php echo $lang->order->customer;?></th>
           <td>
             <div class='input-group'>
-              <?php echo html::select('customer', $customers, '', "class='form-control chosen'");?>
+              <?php echo html::select('customer', $customers, $customer, "class='form-control chosen'");?>
               <?php echo html::input('name', '', "class='form-control' style='display:none'");?>
               <span class='input-group-addon'>
                 <label class='checkbox'>
@@ -64,6 +64,13 @@
                 </label>
               </span>
             </div>
+          </td>
+        </tr>
+        <tr class='productInfo hide'>
+          <th><?php echo $lang->product->code;?></th>
+          <td>
+            <div class='required required-wrapper'></div>
+            <?php echo html::input("code", '', "class='form-control' placeholder={$lang->product->placeholder->code}");?>
           </td>
         </tr>
         <tr class='productInfo hide'>

@@ -484,9 +484,28 @@
             var start = Math.floor((maxHeight - (2 * iconHeight)) / iconHeight);
             if($btn.data('icons-count') != (iconsCount - start))
             {
-                var $moreIcons = $icons.removeClass('option')
-                .slice(start)
-                .addClass('option').clone().removeClass('option');
+                var $moreIcons = $icons.removeClass('option').slice(start).addClass('option');
+
+                /* display the real apps instead of category button. */
+                var newIcons = new Array();
+                $moreIcons.each(function()
+                {
+                    if($(this).find('button').hasClass('categoryButton'))
+                    {
+                        var dataid = $(this).find('button').attr('data-id');
+                        $('#categoryMenu' + dataid).find('li').each(function()
+                        {
+                            newIcons.push($(this)[0]);
+                        });
+                    }
+                    else
+                    {
+                        newIcons.push($(this)[0]);
+                    }
+                });
+                var $newIcons = $(newIcons);
+
+                $moreIcons = $newIcons.clone().removeClass('option');
                 $moreIcons.children('.app-btn').attr('data-btn-type', 'list').attr('data-placement', 'bottom').attr('data-tip-class', '');
 
                 $btn.addClass('active').data('icons-count', $moreIcons.length)
@@ -730,6 +749,14 @@
             if(!q) q = $(this).closest('.app-btn').attr('data-id');
             if(!q) q = $('#taskMenu.show').data('id');
             windows.close(q);
+            $('.categoryMenu li .app-btn').each(function()
+            {
+                if($(this).attr('data-id') == q) 
+                {
+                    var dataid = $(this).parents('.categoryMenu').attr('data-id');
+                    $('#category' + dataid).removeClass('open active'); 
+                }
+            });
         }).on('click', '.min-win', function(event) // min-win
         {
             windows.opens[$(this).closest('.window').attr('id')].hide();
@@ -1073,7 +1100,7 @@
                     if(win.firstLoad)
                     {
                         win.indexUrl = url;
-                        var colorTone = $frame.find('.navbar-inverse');
+                        var colorTone = $frame.find('.navbar-main');
                         if(colorTone.length)
                         {
                             win.tone = colorTone.css('background-color');
@@ -1288,12 +1315,12 @@
             /* toggle desktop and others entry. */
             $('#s-menu-dashboard button').click(function()
             {
-                var et = getEntry('dashboard');
-                if(!et.opened)
-                {
+                //var et = getEntry('dashboard');
+                //if(!et.opened)
+                //{
                     desktop.fullScreenApps.toggle('home');
                     return false;
-                }
+                //}
             });
         };
 
@@ -1489,11 +1516,12 @@
         /* Initialize */
         this.init = function()
         {
-            this.$leftBar     = $('#leftBar');
-            this.$taskBar     = $('#taskbar');
-            this.$appsMenu    = $('#apps-menu .bar-menu');
-            this.$allAppsList = $("#allAppsList .bar-menu");
-            this.firstRender = true;
+            this.$leftBar      = $('#leftBar');
+            this.$taskBar      = $('#taskbar');
+            this.$appsMenu     = $('#apps-menu .bar-menu');
+            this.$allAppsList  = $("#allAppsList .bar-menu");
+            this.$categoryMenu = $('.categoryMenu');
+            this.firstRender   = true;
 
             this.render();
             this.bindEvents();
@@ -1504,6 +1532,8 @@
         {
             this.$appsMenu.empty();
             this.$allAppsList.empty();
+            this.$categoryMenu.empty();
+            $('.categoryMenu').empty();
             this.showAll();
 
             if(this.firstRender)
@@ -1543,7 +1573,6 @@
                         }
                     });
 
-
                     settings.onSortEntries(orders, function(result)
                     {
                         if(result)
@@ -1562,12 +1591,13 @@
         /* Show all shortcuts */
         this.showAll = function()
         {
+            /* Show entries has no category. */
             for(var index in entries)
             {
                 this.show(entries[index]);
             }
 
-            $('.entries-count').text(entries.length - 1);
+            $('.entries-count').text(entries.length - 2);
 
             if(desktop && desktop.isFullscreenMode && $('#search').val() !== '')
             {
@@ -1576,23 +1606,40 @@
         };
 
         /* show a shortcut */
-        this.show = function(entry)
+        this.show = function(et)
         {
             var $shortcut;
             var activedId = (windows && windows.shows.length) ? windows.shows[windows.shows.length - 1] : null;
-            if(entry.hasMenu)
+            if(et.hasMenu)
             {
-                $shortcut = $(entry.toLeftBarShortcutHtml());
-                if(activedId && entry.id === activedId)
+                $shortcut = $(et.toLeftBarShortcutHtml());
+                if(et.code == '')
                 {
-                    $shortcut.find('.app-btn').addClass('active');
+                    $shortcut.find('button').attr('id', 'category' + et.id).addClass('categoryButton');
+                    $shortcut.find('button').removeAttr('title');
                 }
-                this.$appsMenu.append($shortcut);
+                if(et.category !== undefined && et.category != 0) 
+                {
+                    if($('#categoryMenu' + et.category).length == 0)
+                    {
+                        $('#leftBar #apps-menu .bar-menu:first').after($('#categoryTpl').html().replace(/categoryid/g, et.category));
+                    }
+                    $shortcut.find('.app-btn').removeAttr('title');
+                    $('#categoryMenu' + et.category).append($shortcut);
+                }
+                else
+                {
+                    if(activedId && et.id === activedId)
+                    {
+                        $shortcut.find('.app-btn').addClass('active');
+                    }
+                    this.$appsMenu.append($shortcut);
+                }
             }
-            if(entry.menu == 'all' || entry.menu == 'list')
+            if(et.menu == 'all' || et.menu == 'list')
             {
-                $shortcut = $(entry.toEntryListShortcutHtml());
-                if(entry.opened)
+                $shortcut = $(et.toEntryListShortcutHtml());
+                if(et.opened)
                 {
                     $shortcut.find('.app-btn').addClass('open');
                 }
@@ -1617,6 +1664,7 @@
                 return false;
             }).on('click', '.app-btn', function(event)
             {
+                if($(this).hasClass('categoryButton')) return false;
                 var $this = $(this);
                 var et = getEntry($this.attr('data-id'));
                 if(et)
@@ -1912,4 +1960,7 @@
 
     /* make jquery object call the ips interface manager */
     $.extend({ipsStart: start, closeModal: closeModal, openEntry: openEntry, getQueryString: getQueryString, refreshDesktop: refreshDesktop});
+
+    var bgImg = $.zui.store.get('bgImg');
+    if(bgImg) $('body').css('background-image', bgImg);
 }(jQuery, window, document, Math);

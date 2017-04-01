@@ -2,11 +2,11 @@
 /**
  * The model file of thread module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     thread
- * @version     $Id: model.php 3628 2016-02-22 06:22:03Z liugang $
+ * @version     $Id: model.php 4169 2016-10-19 08:57:15Z liugang $
  * @link        http://www.ranzhico.com
  */
 class threadModel extends model
@@ -182,10 +182,9 @@ class threadModel extends model
         $now   = helper::now();
         $isAdmin     = $this->app->user->admin == 'super';
         $canManage   = $this->canManage($boardID);
-        $allowedTags = $this->app->user->admin == 'super' ? $this->config->allowedTags->admin : $this->config->allowedTags->front;
 
         $thread = fixer::input('post')
-            ->stripTags('content', $allowedTags)
+            ->stripTags('content', $this->config->allowedTags)
             ->setIF(!$canManage, 'readonly', 0)
             ->setForce('board', $boardID)
             ->setForce('author', $this->app->user->account)
@@ -213,7 +212,7 @@ class threadModel extends model
             $this->file->saveUpload('thread', $threadID);
 
             /* Update board stats. */
-            $this->loadModel('forum')->updateBoardStats($boardID);
+            $this->loadModel('forum', 'team')->updateBoardStats($boardID);
 
             return $threadID;
         }
@@ -248,11 +247,10 @@ class threadModel extends model
         $thread      = $this->getByID($threadID);
         $isAdmin     = $this->app->user->admin == 'super';
         $canManage   = $this->canManage($thread->board);
-        $allowedTags = $this->app->user->admin == 'super' ? $this->config->allowedTags->admin : $this->config->allowedTags->front;
 
         $thread = fixer::input('post')
             ->setIF(!$canManage, 'readonly', 0)
-            ->stripTags('content', $allowedTags)
+            ->stripTags('content', $this->config->allowedTags)
             ->setForce('editor', $this->session->user->account)
             ->setForce('editedDate', helper::now())
             ->setDefault('readonly', 0)
@@ -293,8 +291,8 @@ class threadModel extends model
 
         if(dao::isError()) return false;
 
-        $this->loadModel('forum')->updateBoardStats($oldBoard);
-        $this->loadModel('forum')->updateBoardStats($targetBoard);
+        $this->loadModel('forum', 'team')->updateBoardStats($oldBoard);
+        $this->forum->updateBoardStats($targetBoard);
         return true;
     }
 
@@ -313,7 +311,7 @@ class threadModel extends model
         if(dao::isError()) return false;
 
         /* Update board stats. */
-        $this->loadModel('forum')->updateBoardStats($thread->board);
+        $this->loadModel('forum', 'team')->updateBoardStats($thread->board);
         return !dao::isError();
     }
 
@@ -332,7 +330,7 @@ class threadModel extends model
         if(dao::isError()) return false;
 
         /* Update board stats. */
-        $this->loadModel('forum')->updateBoardStats($thread->board);
+        $this->loadModel('forum', 'team')->updateBoardStats($thread->board);
         return !dao::isError();
     }
 
@@ -482,7 +480,7 @@ EOT;
         /* Then check the user is a moderator or not. */
         $user = ",{$this->app->user->account},";
         $board = $this->loadModel('tree')->getByID($boardID);
-        $moderators = implode($board->moderators, ',');
+        $moderators = implode(array_flip($board->moderators), ',');
         $moderators = ',' . str_replace(' ', '', $moderators) . ',';
         $users = $moderators . str_replace(' ', '', $users) . ',';
         if(strpos($users, $user) !== false) return true;

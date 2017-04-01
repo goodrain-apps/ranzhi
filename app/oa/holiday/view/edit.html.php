@@ -2,7 +2,7 @@
 /**
  * The create view file of holiday module of ZenTaoPMS.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     attend
@@ -16,7 +16,12 @@
     <form id='ajaxForm' method='post' action="<?php echo $this->createLink('oa.holiday', 'edit', "id=$holiday->id")?>">
     <table class='table table-form table-condensed'>
       <tr>
-        <th><?php echo $lang->holiday->name?></th>
+        <th class='w-80px'><?php echo $lang->holiday->type;?></th>
+        <td><?php echo html::radio('type', $lang->holiday->typeList, $holiday->type);?></td>
+        <td></td>
+      </tr>
+      <tr>
+        <th class='w-80px'><?php echo $lang->holiday->name?></th>
         <td><?php echo html::input('name', $holiday->name, "class='form-control'")?></td>
         <td></td>
       </tr>

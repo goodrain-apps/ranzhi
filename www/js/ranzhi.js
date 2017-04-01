@@ -52,7 +52,8 @@ $.extend(
                 {
                     if(response.message && response.message.length)
                     {
-                        submitButton.popover({trigger:'manual', content:response.message, placement:'right'}).popover('show');
+                        var placement = response.placement ? response.placement : 'right';
+                        submitButton.popover({trigger:'manual', content:response.message, placement:placement}).popover('show');
                         submitButton.next('.popover').addClass('popover-success');
                         function distroy(){submitButton.popover('destroy')}
                         setTimeout(distroy,2000);
@@ -125,7 +126,8 @@ $.extend(
                 {
                     if($('#responser').length == 0)
                     {
-                        submitButton.popover({trigger:'manual', content:response.message, placement:'right'}).popover('show');
+                        var placement = response.placement ? response.placement : 'right';
+                        submitButton.popover({trigger:'manual', content:response.message, placement: placement}).popover('show');
                         submitButton.next('.popover').addClass('popover-danger');
                         function distroy(){submitButton.popover('destroy')}
                         setTimeout(distroy,2000);
@@ -735,9 +737,10 @@ function selectLang(lang)
  */
 function fixTableHeader()
 {
-    var table = $('.page-content > .panel > .table, #tradeList, #todoList, #attendStat, .calendar-view .table');
+    var table = $('.page-content > .panel > .table, #tradeList, #todoList, #attendStat, .calendar-view .table, .table-fixedHeader');
 
     if(!table.length) return;
+    if(table.parent('.panel').css('display') == 'none') return;
 
     var tHead     = table.find('thead');
     var navHeight = $('#mainNavbar').outerHeight();
@@ -746,6 +749,8 @@ function fixTableHeader()
 
     $(window).scroll(function()
     {
+        if(table.parent('.panel').css('display') == 'none') return;
+
         var fixedHeader = $('#fixedHeader');
         if(!fixedHeader.length)
         {

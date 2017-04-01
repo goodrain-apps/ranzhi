@@ -2,7 +2,7 @@
 /**
  * The en file of task module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     task 
@@ -10,7 +10,7 @@
  * @link        http://www.ranzhico.com
  */
 $lang->task->common = 'Task';
-$lang->task->list   = 'Task list';
+$lang->task->list   = 'Tasks';
 
 $lang->task->browse    = 'Browse';
 $lang->task->view      = 'Info';
@@ -39,59 +39,59 @@ $lang->task->order          = 'Order';
 $lang->task->category       = 'Category';
 $lang->task->name           = 'Name';
 $lang->task->type           = 'Type';
-$lang->task->pri            = 'Primary';
-$lang->task->estimate       = 'Estimate';
-$lang->task->estimateAB     = 'Est';
+$lang->task->pri            = 'Priority';
+$lang->task->estimate       = 'Man-Hour Estimated';
+$lang->task->estimateAB     = 'Est.';
 $lang->task->consumed       = 'Consumed';
 $lang->task->consumedAB     = 'Use';
-$lang->task->left           = 'Time Left';
-$lang->task->leftAB         = 'Left';
+$lang->task->left           = 'Remained';
+$lang->task->leftAB         = 'Remianed';
 $lang->task->deadline       = 'Deadline';
 $lang->task->deadlineAB     = 'Deadline';
 $lang->task->status         = 'Status';
 $lang->task->statusAB       = 'Status';
 $lang->task->statusCustom   = 'Status Order';
 $lang->task->mailto         = 'Mailto';
-$lang->task->desc           = 'Desc';
+$lang->task->desc           = 'Description';
 $lang->task->createdBy      = 'Created By';
 $lang->task->createdByAB    = 'Create';
-$lang->task->createdDate    = 'Create Date';
+$lang->task->createdDate    = 'Create On';
 $lang->task->createdDateAB  = 'Create';
 $lang->task->editedBy       = 'Edited By';
-$lang->task->editedDate     = 'Edited Date';
-$lang->task->assignedTo     = 'Assigned To';
-$lang->task->assignedDate   = 'Assigned Date';
-$lang->task->estStarted     = 'Estimate start';
-$lang->task->realStarted    = 'Real start';
+$lang->task->editedDate     = 'Edited On';
+$lang->task->assignedTo     = 'Assign';
+$lang->task->assignedDate   = 'Assigned On';
+$lang->task->estStarted     = 'Est. Start';
+$lang->task->realStarted    = 'Actual Start';
 $lang->task->finishedBy     = 'Finished By';
 $lang->task->finishedByAB   = 'Finish';
-$lang->task->finishedDate   = 'Finished Date';
+$lang->task->finishedDate   = 'Finished On';
 $lang->task->finishedDateAB = 'Date';
-$lang->task->canceledBy     = 'Canceled By';
-$lang->task->canceledDate   = 'Canceled Date';
+$lang->task->canceledBy     = 'CancelLed By';
+$lang->task->canceledDate   = 'CancelLed On';
 $lang->task->closedBy       = 'Closed By';
-$lang->task->closedDate     = 'Closed Date';
+$lang->task->closedDate     = 'Closed On';
 $lang->task->closedReason   = 'Closed Reason';
 $lang->task->lastEditedBy   = 'Last Edited By';
-$lang->task->lastEditedDate = 'Last Edited Date';
+$lang->task->lastEditedDate = 'Last Edited On';
 $lang->task->lastEdited     = 'Last Edited';
 $lang->task->hour           = 'Hour';
-$lang->task->leftThisTime   = 'Left';
+$lang->task->leftThisTime   = 'Remained';
 $lang->task->date           = 'Date';
-$lang->task->multiple       = 'Multiple Task';
+$lang->task->multiple       = 'Multiple Tasks';
 $lang->task->multipleAB     = 'Multiple';
 $lang->task->team           = 'Team';
-$lang->task->transmit       = 'Transmit';
-$lang->task->transmitTo     = 'Transmit To';
-$lang->task->children       = 'Children';
+$lang->task->transmit       = 'Transfer';
+$lang->task->transmitTo     = 'Transfer To';
+$lang->task->children       = 'Child';
 $lang->task->childrenAB     = 'Child';
 $lang->task->parent         = 'Parent Task';
 $lang->task->unfinished     = 'Unfinished';
 $lang->task->end            = 'End';
-$lang->task->myConsumption  = 'My Consumption';
-$lang->task->recordEstimate = 'Record';
+$lang->task->myConsumption  = 'Man-Hour Consumed';
+$lang->task->recordEstimate = 'Man-Hour';
 
-$lang->task->confirmFinish     = '"Left" is zero, this task will be done. Are you sure?';
+$lang->task->confirmFinish     = '"Remained" is zero, so the status of this task will be "done". Do you want to finish it?';
 $lang->task->consumedBefore    = 'consumed before';
 $lang->task->mailtoPlaceholder = 'Choose users to mail...';
 
@@ -99,10 +99,10 @@ $lang->task->lblPri  = 'P';
 $lang->task->lblHour = '(h)';
 
 $lang->task->statusList['']        = '';
-$lang->task->statusList['wait']    = 'Pending';
+$lang->task->statusList['wait']    = 'Wait';
 $lang->task->statusList['doing']   = 'Doing';
 $lang->task->statusList['done']    = 'Done';
-$lang->task->statusList['cancel']  = 'Canceled';
+$lang->task->statusList['cancel']  = 'Cancelled';
 $lang->task->statusList['closed']  = 'Closed';
 
 $lang->task->typeList['']        = '';
@@ -118,20 +118,20 @@ $lang->task->priList[4]  = '4';
 
 $lang->task->reasonList['']       = '';
 $lang->task->reasonList['done']   = 'Done';
-$lang->task->reasonList['cancel'] = 'Canceled';
+$lang->task->reasonList['cancel'] = 'Cancelled';
 
-$lang->task->createdByMe  = 'MyCreate';
-$lang->task->assignedToMe = 'MyTasks';
-$lang->task->finishedByMe = 'MyFinish';
-$lang->task->untilToday   = 'UntilToday';
+$lang->task->createdByMe  = 'Created By Me';
+$lang->task->assignedToMe = 'Assigned To Me';
+$lang->task->finishedByMe = 'Finished By Me';
+$lang->task->untilToday   = 'Until Today';
 $lang->task->expired      = 'Expired';
 $lang->task->all          = 'All';
 
 $lang->task->basicInfo = 'Basic Info';
 $lang->task->life      = 'Task Life';
 
-$lang->task->kanban  = 'Boards';
-$lang->task->mind    = 'Mind map';
+$lang->task->kanban  = 'Kanban';
+$lang->task->mind    = 'Mind Map';
 $lang->task->list    = 'List';
 $lang->task->outline = 'Outline';
 
@@ -140,17 +140,17 @@ $lang->task->kanbanGroup['status']     = 'By Status';
 $lang->task->kanbanGroup['assignedTo'] = 'By Assigned';
 
 $lang->task->groups['']           = 'Choose group';
-$lang->task->groups['status']     = 'Group by status';
+$lang->task->groups['status']     = 'by Status';
 $lang->task->groups['assignedTo'] = 'Assigned To';
 $lang->task->groups['createdBy']  = 'Created By';
 $lang->task->groups['finishedBy'] = 'Finished By';
 $lang->task->groups['closedBy']   = 'Closed By';
 
 $lang->task->unkown     = 'Unkown';
-$lang->task->unAssigned = 'Un assigned';
+$lang->task->unAssigned = 'Unassigned';
 
 $lang->task->mindMoveTip = 'You should move a task to a sub node.';
-$lang->task->notAllowed  = 'Can not move like this.';
-$lang->task->skipClose   = 'The status of Tasks : %s are not finished or canceled, can not close.';
+$lang->task->notAllowed  = 'Not allowed.';
+$lang->task->skipClose   = 'The status of Tasks : %s are unfinished or cancelled. Not allowed to close.';
 
-$lang->task->groupinfo = "<div class='text-muted'>Total <strong>%s</strong>,waitin <strong>%s</strong>,doing <strong>%s</strong>,finished <strong>%s</strong>,closed <strong>%s</strong></div>";
+$lang->task->groupinfo = "<div class='text-muted'>Total <strong>%s</strong>, Wait <strong>%s</strong>, Doing <strong>%s</strong>, Finished <strong>%s</strong>, Closed <strong>%s</strong></div>";

@@ -2,11 +2,11 @@
 /**
  * The model file of upgrade module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     upgrade
- * @version     $Id: model.php 3642 2016-02-24 06:17:54Z daitingting $
+ * @version     $Id: model.php 4227 2016-10-25 08:27:56Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -31,6 +31,21 @@ class upgradeModel extends model
      */
     public function execute($fromVersion)
     {
+        $result = array();
+    
+        /* Delete useless file.*/
+        foreach($this->config->delete as $deleteFiles)
+        {
+            $basePath = $this->app->getBasePath();
+            foreach($deleteFiles as $file)
+            {
+                $fullPath = $basePath . str_replace('/', DIRECTORY_SEPARATOR, $file);
+                if(is_dir($fullPath)  and !rmdir($fullPath))  $result[] = sprintf($this->lang->upgrade->deleteDir, $fullPath);
+                if(is_file($fullPath) and !unlink($fullPath)) $result[] = sprintf($this->lang->upgrade->deleteFile, $fullPath);
+            }
+        }
+        if(!empty($result)) return array('' => $this->lang->upgrade->deleteTips) + $result;
+    
         switch($fromVersion)
         {
             case '1_0_beta':
@@ -95,7 +110,27 @@ class upgradeModel extends model
                 $this->execSQL($this->getUpgradeFile('3.1'));
             case '3_2':
                 $this->execSQL($this->getUpgradeFile('3.2'));
-
+            case '3_2_1':
+                $this->execSQL($this->getUpgradeFile('3.2.1'));
+            case '3_3':
+                $this->execSQL($this->getUpgradeFile('3.3'));
+            case '3_4':
+                $this->execSQL($this->getUpgradeFile('3.4'));
+                $this->updateTradeCategories();
+            case '3_5':
+                $this->execSQL($this->getUpgradeFile('3.5'));
+                $this->setSystemCategories();
+                $this->setSalesAdminPrivileges();
+            case '3_6':
+                $this->execSQL($this->getUpgradeFile('3.6'));
+            case '3_7':
+                $this->execSQL($this->getUpgradeFile('3.7'));
+                $this->updateDocPrivileges();
+                $this->moveDocContent();
+                $this->addProjectDoc();
+            case '4_0':$this->addProjPrivilege();
+            case '4_1': $this->execSQL($this->getUpgradeFile('4.1'));
+                $this->updateMakeupActions();
             default: if(!$this->isError()) $this->loadModel('setting')->updateVersion($this->config->version);
         }
 
@@ -131,6 +166,12 @@ class upgradeModel extends model
             case '3_0'     : $confirmContent .= file_get_contents($this->getUpgradeFile('3.0'));
             case '3_1'     : $confirmContent .= file_get_contents($this->getUpgradeFile('3.1'));
             case '3_2'     : $confirmContent .= file_get_contents($this->getUpgradeFile('3.2'));
+            case '3_2_1'   : $confirmContent .= file_get_contents($this->getUpgradeFile('3.2.1'));
+            case '3_3'     : $confirmContent .= file_get_contents($this->getUpgradeFile('3.3'));
+            case '3_4'     : $confirmContent .= file_get_contents($this->getUpgradeFile('3.4'));
+            case '3_5'     : $confirmContent .= file_get_contents($this->getUpgradeFile('3.5'));
+            case '3_6'     : $confirmContent .= file_get_contents($this->getUpgradeFile('3.6'));
+            case '3_7'     : $confirmContent .= file_get_contents($this->getUpgradeFile('3.7'));
         }
         return $confirmContent;
     }
@@ -906,7 +947,7 @@ class upgradeModel extends model
             }
 
             $this->app->loadLang('contact', 'crm');
-            $this->app->loadConfig('contact', 'crm');
+            $this->app->loadModuleConfig('contact', 'crm');
             $contacts = $this->dao->select('*')->from(TABLE_CONTACT)->where('customer')->eq($customer->id)->fetchAll('id');
             foreach($contacts as $contact) 
             {
@@ -1023,6 +1064,260 @@ class upgradeModel extends model
         foreach($contactList as $id => $contact)
         {
             $this->dao->update(TABLE_CONTACT)->set('status')->eq('normal')->where('id')->eq($id)->exec();
+        }
+
+        return !dao::isError();
+    }
+
+    /**
+     * Update trade categories.
+     * 
+     * @access public
+     * @return bool
+     */
+    public function updateTradeCategories() 
+    {
+        $this->app->loadLang('tree', 'sys');
+
+        $majorIncomeCategories = $this->dao->select('*')->from(TABLE_CATEGORY)
+            ->where('major')->eq('1')
+            ->andWhere('type')->eq('in')
+            ->andWhere('grade')->eq('1')
+            ->fetchAll();
+
+        $majorExpenseCategories = $this->dao->select('*')->from(TABLE_CATEGORY)
+            ->where('major')->eq('1')
+            ->andWhere('type')->eq('out')
+            ->andWhere('grade')->eq('1')
+            ->fetchAll();
+
+        $this->dao->update(TABLE_CATEGORY)->set('major')->eq(0)->where('type')->in('in,out')->andWhere('grade')->ne('1')->exec();
+
+        foreach($this->lang->upgrade->majorList['3_5'] as $key => $major)
+        {
+            $data = new stdclass();
+            $data->name  = $major;
+            $data->major = $key;
+            $data->type  = $key < 3 ? 'in' : 'out';
+            $data->grade = '1';
+
+            $this->dao->insert(TABLE_CATEGORY)->data($data)->exec();
+            $newCategoryID = $this->dao->lastInsertID();
+            $this->dao->update(TABLE_CATEGORY)->set('path')->eq(',' . $newCategoryID . ',')->where('id')->eq($newCategoryID)->exec();
+            
+            if($key == '1' or $key == '3')
+            {
+                $categories = $key == '1' ? $majorIncomeCategories : $majorExpenseCategories;
+                foreach($categories as $category)
+                {
+                    $children = $this->dao->select('*')->from(TABLE_CATEGORY)->where('path')->like($category->path . '%')->fetchAll();
+                    foreach($children as $child)
+                    {
+                        $path  = ',' . $newCategoryID . $child->path;
+                        $grade = $child->grade + 1;
+                        if($grade == 2) $this->dao->update(TABLE_CATEGORY)->set('major')->eq(0)->set('path')->eq($path)->set('grade')->eq($grade)->set('parent')->eq($newCategoryID)->where('id')->eq($child->id)->exec();
+                        if($grade != 2) $this->dao->update(TABLE_CATEGORY)->set('major')->eq(0)->set('path')->eq($path)->set('grade')->eq($grade)->where('id')->eq($child->id)->exec();
+                    }
+                }
+            }
+        }
+
+        return !dao::isError();
+    }
+
+    /**
+     * Set system category.
+     * 
+     * @access public
+     * @return bool
+     */
+    public function setSystemCategories()
+    {
+        $this->app->loadLang('tree', 'sys');
+        foreach($this->lang->upgrade->majorList['3_6'] as $key => $major)
+        {
+            if($key < 5) continue;
+
+            $data = new stdclass();
+            $data->name  = $major;
+            $data->major = $key;
+            $data->type  = $key == 5 ? 'in' : 'out';
+            $data->grade = '1';
+
+            $this->dao->insert(TABLE_CATEGORY)->data($data)->exec();
+            $newCategoryID = $this->dao->lastInsertID();
+            $this->dao->update(TABLE_CATEGORY)->set('path')->eq(',' . $newCategoryID . ',')->where('id')->eq($newCategoryID)->exec();
+
+            if($key == 5) $this->dao->update(TABLE_TRADE)->set('category')->eq($newCategoryID)->where('category')->eq('profit')->exec();
+            if($key == 6) $this->dao->update(TABLE_TRADE)->set('category')->eq($newCategoryID)->where('category')->eq('loss')->exec();
+            if($key == 7) $this->dao->update(TABLE_TRADE)->set('category')->eq($newCategoryID)->where('category')->eq('fee')->exec();
+        }
+
+        return !dao::isError();
+    }
+
+    /**
+     * Set sales admin privileges.
+     * 
+     * @access public
+     * @return void
+     */
+    public function setSalesAdminPrivileges()
+    {
+        $groups = $this->dao->select('`group`')->from(TABLE_GROUPPRIV)->where('module')->eq('sales')->andWhere('method')->eq('browse')->fetchPairs();
+        $grouppriv = new stdclass();
+        $grouppriv->module = 'sales';
+        $grouppriv->method = 'admin';
+        foreach($groups as $group)
+        {
+            $grouppriv->group = $group;
+            $this->dao->insert(TABLE_GROUPPRIV)->data($grouppriv)->exec();
+        }
+    }
+
+    /**
+     * Set doc entry privileges when upgrade from 3.7.
+     * 
+     * @access public
+     * @return void
+     */
+    public function updateDocPrivileges()
+    {
+        $groups = $this->dao->select('`group`')->from(TABLE_GROUPPRIV)->where('module')->eq('doc')->fetchPairs();
+        foreach($groups as $group)
+        {
+            $data = new stdclass();
+            $data->group = $group;
+            $data->module = 'apppriv';
+            $data->method = 'doc';
+            $this->dao->replace(TABLE_GROUPPRIV)->data($data)->exec();
+
+            $data->module = 'doc';
+            $data->method = 'index';
+            $this->dao->replace(TABLE_GROUPPRIV)->data($data)->exec();
+
+            $data->method = 'allLibs';
+            $this->dao->replace(TABLE_GROUPPRIV)->data($data)->exec();
+
+            $data->method = 'showFiles';
+            $this->dao->replace(TABLE_GROUPPRIV)->data($data)->exec();
+
+            $data->method = 'projectLibs';
+            $this->dao->replace(TABLE_GROUPPRIV)->data($data)->exec();
+
+            $data->method = 'sort';
+            $this->dao->replace(TABLE_GROUPPRIV)->data($data)->exec();
+        }
+
+        return !dao::isError();
+    }
+
+    /**
+     * Move doc content to table oa_doccontent.
+     * 
+     * @access public
+     * @return bool
+     */
+    public function moveDocContent()
+    {
+        $descDoc = $this->dao->query('DESC ' .  TABLE_DOC)->fetchAll();
+        $processFields = 0;
+        foreach($descDoc as $field)
+        {
+            if($field->Field == 'content' or $field->Field == 'digest' or $field->Field == 'url') $processFields ++; 
+        }
+        if($processFields < 3) return true;
+
+        $this->dao->exec('TRUNCATE TABLE ' . TABLE_DOCCONTENT);
+        $stmt = $this->dao->select('id,title,digest,content,url')->from(TABLE_DOC)->query();
+        $fileGroups = $this->dao->select('id,objectID')->from(TABLE_FILE)->where('objectType')->eq('doc')->fetchGroup('objectID', 'id');
+        while($doc = $stmt->fetch())
+        {
+            $url = empty($doc->url) ? '' : urldecode($doc->url);
+            $docContent = new stdclass();
+            $docContent->doc      = $doc->id;
+            $docContent->title    = $doc->title;
+            $docContent->digest   = $doc->digest;
+            $docContent->content  = $doc->content;
+            $docContent->content .= empty($url) ? '' : $url;
+            $docContent->version  = 1;
+            $docContent->type     = 'html';
+            if(isset($fileGroups[$doc->id])) $docContent->files = join(',', array_keys($fileGroups[$doc->id]));
+            $this->dao->insert(TABLE_DOCCONTENT)->data($docContent)->exec();
+        }
+        $this->dao->exec('ALTER TABLE ' . TABLE_DOC . ' DROP `digest`');
+        $this->dao->exec('ALTER TABLE ' . TABLE_DOC . ' DROP `content`');
+        $this->dao->exec('ALTER TABLE ' . TABLE_DOC . ' DROP `url`');
+        return true;
+    }
+
+    /**
+     * Add project default doc.
+     * 
+     * @access public
+     * @return bool
+     */
+    public function addProjectDoc()
+    {
+        set_time_limit(0);
+        $this->app->loadLang('doc', 'doc');
+
+        $allProjectIdList  = $this->dao->select('id,name,whitelist')->from(TABLE_PROJECT)->where('deleted')->eq('0')->fetchAll('id');
+        foreach($allProjectIdList as $projectID => $project)
+        {
+            $this->dao->delete()->from(TABLE_DOCLIB)->where('project')->eq($projectID)->exec();
+
+            $lib = new stdclass();
+            $lib->project = $projectID;
+            $lib->name    = $this->lang->doc->projectMainLib;
+            $lib->main    = 1;
+            $lib->private = 0;
+            $lib->createdDate = helper::now();
+
+            $teams = $this->dao->select('account')->from(TABLE_TEAM)->where('type')->eq('project')->andWhere('id')->eq($projectID)->fetchPairs('account', 'account');
+            $lib->users = join(',', $teams);
+            $lib->groups = isset($project->whitelist) ? $project->whitelist : '';
+            $this->dao->insert(TABLE_DOCLIB)->data($lib)->exec();
+        }
+
+        return !dao::isError();
+    }
+
+    /**
+     * Add privilege of proj app when upgrade from 4.0.
+     * 
+     * @access public
+     * @return void
+     */
+    public function addProjPrivilege()
+    {
+        $groups = $this->dao->select('*')->from(TABLE_GROUP)->fetchAll();
+
+        $data = new stdclass();
+        $data->module = 'apppriv';
+        $data->method = 'proj';
+
+        foreach($groups as $group)
+        {
+            $data->group = $group->id;
+            $this->dao->replace(TABLE_GROUPPRIV)->data($data)->exec();
+        }
+
+        return !dao::isError();
+    }
+
+    /**
+     * Update makeup actions. 
+     * 
+     * @access public
+     * @return void
+     */
+    public function updateMakeupActions()
+    {
+        $makeupList = $this->loadModel('makeup', 'oa')->getList();
+        foreach($makeupList as $makeup)
+        {
+            $this->dao->update(TABLE_ACTION)->set('objectType')->eq('makeup')->where('objectType')->eq('overtime')->andWhere('objectID')->eq($makeup->id)->exec();
         }
 
         return !dao::isError();

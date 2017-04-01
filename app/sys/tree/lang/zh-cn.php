@@ -2,11 +2,11 @@
 /**
  * The tree module zh-cn file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     tree
- * @version     $Id: zh-cn.php 3605 2016-02-15 06:09:58Z liugang $
+ * @version     $Id: zh-cn.php 4103 2016-09-30 09:22:14Z daitingting $
  * @link        http://www.ranzhico.com
  */
 $lang->tree->common        = "类目";
@@ -17,6 +17,7 @@ $lang->tree->delete        = "删除类目";
 $lang->tree->browse        = "区域设置、行业设置、收入科目、支出科目、论坛版块、博客类目、维护部门";
 $lang->tree->manage        = "维护类目";
 $lang->tree->fix           = "修复数据";
+$lang->tree->merge         = "合并科目";
 
 $lang->tree->noCategories  = '您还没有添加类目，请添加类目。';
 $lang->tree->noBoards      = '您还没有设置版块，请设置版块。';
@@ -28,6 +29,7 @@ $lang->tree->hasChildren   = '该版块存在子版块，不能删除。';
 $lang->tree->hasThreads    = '该版块存在帖子，不能删除。';
 $lang->tree->confirmDelete = "您确定删除该类目吗？";
 $lang->tree->successFixed  = "成功修复";
+$lang->tree->asParent      = '[%s]存在子科目，不能被合并';
 
 /* Lang items for article, products. */
 $lang->category = new stdclass();
@@ -41,6 +43,8 @@ $lang->category->children = '子类目';
 $lang->category->rights   = '权限';
 $lang->category->users    = '授权用户';
 $lang->category->groups   = '授权分组';
+$lang->category->origin   = '源科目';
+$lang->category->target   = '目标科目';
 
 /* Lang items for area. */
 $lang->area = new stdclass();
@@ -71,6 +75,7 @@ $lang->in->parent   = '上级科目';
 $lang->in->desc     = '描述';
 $lang->in->keywords = '关键词';
 $lang->in->children = '子科目';
+$lang->in->merge    = '科目合并';
 
 /* Lang items for expend. */
 $lang->out = new stdclass();
@@ -83,6 +88,7 @@ $lang->out->keywords = '关键词';
 $lang->out->children = '子科目';
 $lang->out->rights   = '权限';
 $lang->out->refund   = '报销科目';
+$lang->out->merge    = '合并科目';
 
 $lang->out->refundList[1] = '是';
 $lang->out->refundList[0] = '否';

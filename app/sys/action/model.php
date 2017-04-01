@@ -2,7 +2,7 @@
 /**
  * The model file of action module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     action
@@ -47,7 +47,7 @@ class actionModel extends model
         $action->nextDate   = $this->post->nextDate;
 
         /* If objectType is customer or contact, save objectID as customer id or contact id. */
-        if($objectType == 'customer') $action->customer = $objectID;
+        if($objectType == 'customer' || $objectType == 'provider') $action->customer = $objectID;
         if($objectType == 'contact')  $action->contact  = $objectID;
 
         $this->dao->insert(TABLE_ACTION)
@@ -109,25 +109,27 @@ class actionModel extends model
     /**
      * Get actions of an object.
      * 
-     * @param  int       $objectType 
-     * @param  int       $objectID 
-     * @param  string    $action 
+     * @param  string $objectType 
+     * @param  int    $objectID 
+     * @param  string $action 
+     * @param  object $pager
      * @access public
      * @return array
      */
-    public function getList($objectType, $objectID, $action = '', $pager = null)
+    public function getList($objectType, $objectID, $action = '', $pager = null, $origin = '')
     {
         $actions = $this->dao->select('*')->from(TABLE_ACTION)
             ->where('1 = 1')
-            ->beginIF($objectType == 'customer')->andWhere('customer')->eq($objectID)->fi()
+            ->beginIF($objectType == 'customer' || $objectType == 'provider')->andWhere('customer')->eq($objectID)->fi()
             ->beginIF($objectType == 'contact')->andWhere('contact')->eq($objectID)->fi()
-            ->beginIF($objectType != 'customer' and $objectType != 'contact')
+            ->beginIF($objectType != 'customer' and $objectType != 'provider' and $objectType != 'contact')
               ->andWhere('objectType')->eq($objectType)
               ->andWhere('objectID')->eq($objectID)
             ->fi()
             ->beginIF($action)->andWhere('action')->eq($action)->fi()
+            ->orderBy('id_desc')
             ->page($pager)
-            ->orderBy('id')->fetchAll('id');
+            ->fetchAll('id');
 
         $histories = $this->getHistory(array_keys($actions));
         $contacts  = $this->loadModel('contact', 'crm')->getPairs(0, false, '');
@@ -309,8 +311,7 @@ class actionModel extends model
     /**
      * Get actions as dynamic.
      * 
-     * @param  string $objectType 
-     * @param  string $count 
+     * @param  string $account 
      * @param  string $period 
      * @param  string $orderBy 
      * @param  object $pager
@@ -319,6 +320,9 @@ class actionModel extends model
      */
     public function getDynamic($account = 'all', $period = 'all', $orderBy = 'date_desc', $pager = null)
     {
+        if($this->session->myQuery == false) $this->session->set('myQuery', ' 1 = 1');
+        $myQuery = $this->loadModel('search', 'sys')->replaceDynamic($this->session->myQuery);
+
         /* Computer the begin and end date of a period. */
         $beginAndEnd = $this->computeBeginAndEnd($period);
         extract($beginAndEnd);
@@ -326,13 +330,13 @@ class actionModel extends model
         /* Get actions. */
         $actions = $this->dao->select('*')->from(TABLE_ACTION)
             ->where(1)
-            ->beginIF($period != 'all')->andWhere('date')->gt($begin)->fi()
-            ->beginIF($period != 'all')->andWhere('date')->lt($end)->fi()
-            ->beginIF($account != 'all')->andWhere('actor')->eq($account)->fi()
+            ->andWhere('objectType')->notin('attend,refund,leave,overtime,trip,egress,action')
+            ->beginIF($period != 'bysearch' && $period  != 'all')->andWhere('date')->gt($begin)->fi()
+            ->beginIF($period != 'bysearch' && $period  != 'all')->andWhere('date')->lt($end)->fi()
+            ->beginIF($period != 'bysearch' && $account != 'all')->andWhere('actor')->eq($account)->fi()
+            ->beginIF($period == 'bysearch')->andWhere($myQuery)->fi()
             ->orderBy($orderBy)
             ->fetchAll();
-
-        foreach($actions as $key => $action) if(strpos('attend,refund,leave,trip,action', $action->objectType) !== false) unset($actions[$key]);
 
         if(!$actions) return array();
         $actions = $this->transformActions($actions);
@@ -373,7 +377,11 @@ class actionModel extends model
             if($table != '`oa_todo`' and $table != '`cash_trade`')
             {
                 $objectNames[$objectType] = $this->dao->select("id, $field AS name")->from($table)->where('id')->in($objectIds)->fetchPairs();
-                if($objectType == 'order') $objectNames[$objectType] = $this->dao->select('o.id, concat(c.name, o.createdDate) as name')->from(TABLE_ORDER)->alias('o')->leftJoin(TABLE_CUSTOMER)->alias('c')->on('o.customer=c.id')->where('o.id')->in($objectIds)->fetchPairs(); 
+                if($objectType == 'order') $objectNames[$objectType] = $this->dao->select('o.id, concat(c.name, o.createdDate) as name')
+                    ->from(TABLE_ORDER)->alias('o')
+                    ->leftJoin(TABLE_CUSTOMER)->alias('c')->on('o.customer=c.id')
+                    ->where('o.id')->in($objectIds)
+                    ->fetchPairs(); 
             }
             elseif($table == '`oa_todo`')
             {
@@ -384,7 +392,11 @@ class actionModel extends model
                     if($todo->type == 'customer') $todo->name = $this->dao->findById($todo->idvalue)->from(TABLE_CUSTOMER)->fetch('name'); 
                     if($todo->type == 'order') 
                     {
-                        $order = $this->dao->select('c.name, o.createdDate')->from(TABLE_ORDER)->alias('o')->leftJoin(TABLE_CUSTOMER)->alias('c')->on('o.customer=c.id')->where('o.id')->eq($todo->idvalue)->fetch(); 
+                        $order = $this->dao->select('c.name, o.createdDate')
+                            ->from(TABLE_ORDER)->alias('o')
+                            ->leftJoin(TABLE_CUSTOMER)->alias('c')->on('o.customer=c.id')
+                            ->where('o.id')->eq($todo->idvalue)
+                            ->fetch(); 
                         $todo->name = $order->name . '|' . date('Y-m-d', strtotime($order->createdDate));
                     }
                     if(isset($this->lang->action->objectTypes[$todo->type])) $todo->name = $this->lang->action->objectTypes[$todo->type] . ':' . $todo->name;
@@ -478,8 +490,11 @@ class actionModel extends model
 
             $fieldName = $history->field;
             $history->fieldLabel = isset($this->lang->$objectType->$fieldName) ? $this->lang->$objectType->$fieldName : $fieldName;
-            if(strpos($action, 'order') !== false) $history->fieldLabel = isset($this->lang->order->$fieldName) ? $this->lang->order->$fieldName : $fieldName;
-            if(strpos($action, 'contract') !== false) $history->fieldLabel = isset($this->lang->contract->$fieldName) ? $this->lang->contract->$fieldName : $fieldName;
+            if(isset($this->config->action->actionModules[$action]))
+            {
+                $module = $this->config->action->actionModules[$action];
+                $history->fieldLabel = isset($this->lang->$module->$fieldName) ? $this->lang->$module->$fieldName : $fieldName;
+            }
             if($objectType == 'contact') $history->fieldLabel = isset($this->lang->contact->$fieldName) ? $this->lang->contact->$fieldName : (isset($this->lang->resume->$fieldName) ? $this->lang->resume->$fieldName : $fieldName);
             if(($length = strlen($history->fieldLabel)) > $maxLength) $maxLength = $length;
             $history->diff ? $historiesWithDiff[] = $history : $historiesWithoutDiff[] = $history;
@@ -673,8 +688,6 @@ class actionModel extends model
             ->orderBy('id_desc')
             ->fetchAll('id');
 
-        $histories = $this->getHistory(array_keys($actions));
-        foreach($actions as $actionID => $action) $action->history = isset($histories[$actionID]) ? $histories[$actionID] : array();
         if(!empty($actions)) $actions = $this->transformActions($actions);
 
         /* Create action notices. */
@@ -688,11 +701,13 @@ class actionModel extends model
             $notice->read  = helper::createLink('action', 'read', "actionID={$notice->id}");
 
             /* process user and status. */
-            if($action->objectType == 'leave')  $this->loadModel('leave', 'oa');
-            if($action->objectType == 'attend') $this->loadModel('attend', 'oa');
-            if($action->objectType == 'refund') $this->loadModel('refund', 'oa');
+            if($action->objectType == 'leave')    $this->loadModel('leave', 'oa');
+            if($action->objectType == 'overtime') $this->loadModel('overtime', 'oa');
+            if($action->objectType == 'egress')   $this->loadModel('egress', 'oa');
+            if($action->objectType == 'attend')   $this->loadModel('attend', 'oa');
+            if($action->objectType == 'refund')   $this->loadModel('refund', 'oa');
             if(isset($users[$action->actor])) $action->actor = $users[$action->actor];
-            if($action->action == 'assigned' and isset($users[$action->extra]) ) $action->extra = $users[$action->extra];
+            if($action->action == 'assigned' and isset($users[$action->extra])) $action->extra = $users[$action->extra];
             if($action->action == 'reviewed' and isset($this->lang->{$action->objectType}->statusList[$action->extra])) $action->extra = $this->lang->{$action->objectType}->statusList[$action->extra];
             if($action->action == 'reviewed' and isset($this->lang->{$action->objectType}->reviewStatusList[$action->extra])) $action->extra = $this->lang->{$action->objectType}->reviewStatusList[$action->extra];
 
@@ -706,32 +721,51 @@ class actionModel extends model
         }
 
         /* Create todo notices. */
-        $date  = helper::today();
-        $now   = helper::now();
-        $link  = helper::createLink('sys.todo', 'calendar');
-        $todos = $this->loadModel('todo', 'sys')->getList('self', $account, $date, 'undone');
-
-        $interval  = $this->config->pingInterval;
-        $begin[1]  = date('Hi', strtotime($now));
-        $end[1]    = date('Hi', strtotime("+$interval seconds $now"));
-        $begin[10] = date('Hi', strtotime("+10 minute $now"));
-        $end[10]   = date('Hi', strtotime("+10 minute $interval seconds $now"));
-        $begin[30] = date('Hi', strtotime("+30 minute $now"));
-        $end[30]   = date('Hi', strtotime("+30 minute $interval seconds $now"));
-        foreach($todos as $todo)
+        $interval = $this->config->pingInterval;
+        $now      = helper::now();
+        $link     = helper::createLink('sys.todo', 'calendar');
+        $todos    = $this->loadModel('todo', 'sys')->getList('self', $account, date(DT_DATE1), 'undone');
+        if($todos)
         {
-            if(empty($todo->begin)) continue;
-            $time = str_replace(':', '', $todo->begin);
+            $begins[1]  = date('Hi', strtotime($now));
+            $ends[1]    = date('Hi', strtotime("+$interval seconds $now"));
+            $begins[10] = date('Hi', strtotime("+10 minute $now"));
+            $ends[10]   = date('Hi', strtotime("+10 minute $interval seconds $now"));
+            $begins[30] = date('Hi', strtotime("+30 minute $now"));
+            $ends[30]   = date('Hi', strtotime("+30 minute $interval seconds $now"));
+            foreach($todos as $todo)
+            {
+                if(empty($todo->begin)) continue;
+                $time = str_replace(':', '', $todo->begin);
 
-            $lastTime = 0;
-            if((int)$time > (int)$begin[1]  and (int)$time <= (int)$end[1])  $lastTime = 1;
-            if((int)$time > (int)$begin[10] and (int)$time <= (int)$end[10]) $lastTime = 10;
-            if((int)$time > (int)$begin[30] and (int)$time <= (int)$end[30]) $lastTime = 30;
-            if($lastTime)
+                $lastTime = 0;
+                if((int)$time > (int)$begins[1]  and (int)$time <= (int)$ends[1])  $lastTime = 1;
+                if((int)$time > (int)$begins[10] and (int)$time <= (int)$ends[10]) $lastTime = 10;
+                if((int)$time > (int)$begins[30] and (int)$time <= (int)$ends[30]) $lastTime = 30;
+                if($lastTime)
+                {
+                    $notice = new stdclass();
+                    $notice->id      = 'todo' . $todo->id;
+                    $notice->title   = sprintf($this->lang->action->noticeTitle, $this->lang->todo->common, $link, 'oa', "{$todo->begin} {$todo->name}");
+                    $notice->content = ''; 
+                    $notice->type    = 'success';
+                    $notice->read    = '';
+
+                    $notices[$notice->id] = $notice;
+                }
+            }
+        }
+        else
+        {
+            $this->app->loadModuleConfig('attend', 'oa');
+            $signInLimit = date('Y-m-d ') . $this->config->attend->signInLimit;
+            $begin = (int)date('Hi', strtotime("+30 minute $signInLimit"));
+            $end   = (int)date('Hi', strtotime("+30 minute $interval seconds $signInLimit"));
+            if((int)date('Hi') >= $begin and (int)date('Hi') <= $end)
             {
                 $notice = new stdclass();
-                $notice->id      = 'todo' . $todo->id;
-                $notice->title   = sprintf($this->lang->action->noticeTitle, $this->lang->todo->common, $link, 'oa', "{$todo->begin} {$todo->name}");
+                $notice->id      = "emptyTodo";
+                $notice->title   = sprintf($this->lang->action->noticeTitle, $this->lang->todo->common, $link, 'oa', "{$this->lang->todo->emptyTodo}");
                 $notice->content = ''; 
                 $notice->type    = 'success';
                 $notice->read    = '';
@@ -813,7 +847,7 @@ class actionModel extends model
         if($action->customer)
         {
             static $customers = array();
-            if(empty($customers)) $customers = $this->loadModel('customer', 'crm')->getCustomersSawByMe();
+            if(empty($customers)) $customers = $this->loadModel('customer')->getCustomersSawByMe();
             if(!in_array($action->customer, $customers)) $canView = false;
         }
 
@@ -831,7 +865,7 @@ class actionModel extends model
             if(!in_array($action->objectID, $orders)) $canView = false;
         }
 
-        if($action->objectType == 'project' && !($this->loadModel('project', 'oa')->checkPriv($action->objectID))) $canView = false;
+        if($action->objectType == 'project' && !($this->loadModel('project', 'proj')->checkPriv($action->objectID))) $canView = false;
 
         if($action->objectType == 'task')
         {
@@ -854,13 +888,13 @@ class actionModel extends model
 
         if($action->objectType == 'doc')
         {
-            $doc     = $this->loadModel('doc', 'oa')->getById($action->objectID);
+            $doc     = $this->loadModel('doc', 'doc')->getById($action->objectID);
             $canView = $this->doc->hasRight($doc);
         }
 
         if($action->objectType == 'doclib')
         {
-            $lib     = $this->loadModel('doc', 'oa')->getLibById($action->objectID);
+            $lib     = $this->loadModel('doc', 'doc')->getLibById($action->objectID);
             $canView = $this->doc->hasRight($lib);
         }
 

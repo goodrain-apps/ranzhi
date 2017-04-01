@@ -2,11 +2,11 @@
 /**
  * The thread module english file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     thread
- * @version     $Id: en.php 3529 2016-01-21 01:27:31Z chujilu $
+ * @version     $Id: en.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 $lang->thread->common    = 'Thread';
@@ -17,8 +17,8 @@ $lang->thread->board      = 'Board';
 $lang->thread->author     = 'Author';
 $lang->thread->content    = 'Content ';
 $lang->thread->file       = 'File ';
-$lang->thread->postedDate = 'Posted date';
-$lang->thread->replies    = 'Replies';
+$lang->thread->postedDate = 'Posted on';
+$lang->thread->replies    = 'Reply';
 $lang->thread->views      = 'Views';
 $lang->thread->lastReply  = 'Last reply';
 

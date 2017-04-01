@@ -2,7 +2,7 @@
 /**
  * The control file of holiday of Ranzhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     holiday
@@ -52,8 +52,11 @@ class holiday extends control
     {
         if($_POST)
         {
-            $result = $this->holiday->create();
-            if(!$result) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+            $holidayID = $this->holiday->create();
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+            $actionID = $this->loadModel('action')->create('holiday', $holidayID, 'created');
+            $users = $this->loadModel('user')->getPairs('nodeleted,noforbidden,noclosed,noempty');
+            $this->action->sendNotice($actionID, array_keys($users), true);
            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => 'reload'));
         }
 
@@ -97,4 +100,3 @@ class holiday extends control
         $this->send(array('result' => 'success'));
     }
 }
-

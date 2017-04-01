@@ -2,11 +2,11 @@
 /**
  * The edit reply view file of block module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     block
- * @version     $Id: edit.html.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: edit.html.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -33,6 +33,7 @@
             <label class='col-md-1 col-sm-2 control-label'><?php echo $lang->reply->content;?></label>
             <div class='col-md-11 col-sm-10'><?php echo html::textarea('content', $reply->content, "rows='15' class='form-control'");?></div>
           </div>
+          <?php if(commonModel::hasPriv('file', 'upload')):?>
           <div class='form-group'>
             <label class='col-md-1 col-sm-2 control-label'><?php echo $lang->thread->file;?></label>
             <div class='col-md-7 col-sm-8 col-xs-11'>
@@ -42,6 +43,7 @@
               ?>
             </div>
           </div>
+          <?php endif;?>
           <div class='form-group'>
             <label class='col-md-1 col-sm-2'></label>
             <div class='col-md-11 col-sm-10'><?php echo html::submitButton() . ' &nbsp; ' . html::backButton();?></div>

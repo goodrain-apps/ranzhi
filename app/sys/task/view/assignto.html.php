@@ -2,7 +2,7 @@
 /**
  * The assignTo view file of task module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     task
@@ -13,7 +13,7 @@
 <?php include '../../common/view/header.modal.html.php';?>
 <?php include '../../common/view/kindeditor.html.php';?>
 <?php include '../../common/view/chosen.html.php';?>
-<form method='post' id='ajaxForm' action='<?php echo $this->createLink('task', 'assignTo', "taskID=$taskID")?>'>
+<form method='post' id='assignToForm' action='<?php echo $this->createLink('task', 'assignTo', "taskID=$taskID")?>'>
   <table class='table table-form'>
     <tr>
       <th class='w-100px'><?php echo empty($task->team) ? $lang->task->assignedTo : $lang->task->transmitTo;?></th>

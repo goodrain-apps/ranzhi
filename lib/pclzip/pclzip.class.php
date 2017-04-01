@@ -22,7 +22,7 @@
 //   The use of this software is at the risk of the user.
 //
 // --------------------------------------------------------------------------------
-// $Id: pclzip.class.php 129 2013-12-23 07:51:50Z wwccss $
+// $Id: pclzip.class.php 3736 2016-04-13 07:42:25Z daitingting $
 // --------------------------------------------------------------------------------
 
   // ----- Constants
@@ -2480,6 +2480,7 @@
       if ($p_filedescr_list[$j]['filename'] == "") {
         continue;
       }
+      if(filesize($p_filedescr_list[$j]['filename']) == 0) continue;
 
       // ----- Check the filename
       if (   ($p_filedescr_list[$j]['type'] != 'virtual_file')

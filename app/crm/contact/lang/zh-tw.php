@@ -2,7 +2,7 @@
 /**
  * The contact module zh-tw file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     contact
@@ -78,6 +78,7 @@ $lang->contact->noFile       = '沒有檔案';
 $lang->contact->importResult = '%s條數據導入成功，%s條數據導入失敗，失敗數據如下：';
 $lang->contact->failReason   = '原因';
 $lang->contact->showImport   = '查看已導入聯繫人';
+$lang->contact->template     = '聯繫人模板';
 
 $lang->contact->genderList['m'] = '男';
 $lang->contact->genderList['f'] = '女';

@@ -2,11 +2,11 @@
 /**
  * The control file of thread module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     thread
- * @version     $Id: control.php 3138 2015-11-09 07:32:18Z chujilu $
+ * @version     $Id: control.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 class thread extends control
@@ -20,7 +20,7 @@ class thread extends control
      */
     public function post($boardID = 0)
     {
-        $this->loadModel('forum');
+        $this->loadModel('forum', 'team');
         if($this->app->user->account == 'guest') die(js::locate($this->createLink('user', 'login', "referer=" . helper::safe64Encode($this->app->getURI()))));
 
         /* Get the board. */
@@ -73,7 +73,7 @@ class thread extends control
         $thread = $this->thread->getByID($threadID);
         if(!$thread) die(js::locate('back'));
 
-        /* Judge current user has priviledge to edit the thread or not. */
+        /* Judge current user has Privilege to edit the thread or not. */
         if(!$this->thread->canManage($thread->board, $thread->author)) die(js::locate('back'));
 
         /* Set editor for current user. */
@@ -91,7 +91,7 @@ class thread extends control
         $this->view->title     = $this->lang->thread->edit . $this->lang->minus . $thread->title;
         $this->view->thread    = $thread;
         $this->view->board     = $board;
-        $this->view->boards    = $this->loadModel('forum')->getBoards();
+        $this->view->boards    = $this->loadModel('forum', 'team')->getBoards();
         $this->view->canManage = $this->thread->canManage($board->id);
 
         $this->display();
@@ -110,6 +110,8 @@ class thread extends control
         $thread = $this->thread->getByID($threadID);
         if(!$thread) die(js::locate('back'));
 
+        $this->lang->menuGroups->thread = 'forum';
+
         /* Set editor for current user. */
         $this->thread->setEditor($thread->board, 'view');
 
@@ -119,14 +121,14 @@ class thread extends control
         /* Get replies. */
         $this->app->loadClass('pager', $static = true);
         $pager   = new pager(0, 10, $pageID);
-        $replies = $this->loadModel('reply')->getByThread($threadID, $pager);
+        $replies = $this->loadModel('reply', 'team')->getByThread($threadID, $pager);
 
         /* Get all speakers. */
         $speakers = $this->thread->getSpeakers($thread, $replies);
         $speakers = $this->loadModel('user')->getBasicInfo($speakers);
         foreach($speakers as $account => $speaker)
         {
-            $moderators = implode($board->moderators, ',');
+            $moderators = implode(array_flip($board->moderators), ',');
             $speaker->isModerator = strpos(",{$moderators},", ",{$account},") !== false;       
         }
 
@@ -139,7 +141,7 @@ class thread extends control
         $this->view->replies  = $replies;
         $this->view->pager    = $pager;
         $this->view->speakers = $speakers;
-        $this->view->boards   = $this->loadModel('forum')->getBoards();
+        $this->view->boards   = $this->loadModel('forum', 'team')->getBoards();
 
         $this->display();
     }
@@ -182,7 +184,7 @@ class thread extends control
      */
     public function locate($threadID, $replyID = 0)
     {
-        $position = $replyID ? $this->loadModel('reply')->getPosition($replyID) : ''; 
+        $position = $replyID ? $this->loadModel('reply', 'team')->getPosition($replyID) : ''; 
         $location = $this->createLink('thread', 'view', "threadID=$threadID", $position);
         header("location:$location");
     }
@@ -275,7 +277,7 @@ class thread extends control
         $thread = $this->thread->getByID($threadID);
         if(!$thread) $this->send(array('result'=>'fail', 'message'=> 'data error'));
 
-        /* Judge current user has priviledge to edit the thread or not. */
+        /* Judge current user has Privilege to edit the thread or not. */
         if($this->thread->canManage($thread->board, $thread->author))
         {
             if($this->loadModel('file')->delete($fileID)) $this->send(array('result'=>'success'));

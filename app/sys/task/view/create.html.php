@@ -2,7 +2,7 @@
 /**
  * The edit view file of task module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     task
@@ -15,7 +15,7 @@
 <?php include '../../common/view/datepicker.html.php';?>
 <?php include '../../common/view/chosen.html.php';?>
 <?php $this->loadModel('project')->setMenu($projects, $projectID);?>
-<div class='with-menu page-content'>
+<div class='page-content'>
   <form method='post' id='ajaxForm' enctype='multipart/form-data' action="<?php echo $this->createLink('task', 'create', "projectID=$projectID")?>">
     <div class='panel'>
       <div class='panel-heading'><strong><?php echo $lang->task->create;?></strong></div>
@@ -24,10 +24,14 @@
             <tr>
               <th class='w-80px'><?php echo $lang->task->name?></th>
               <td class='w-p50'>
-                <div class='input-group'>
-                  <?php echo html::input('name', '', "class='form-control'");?>
-                  <span class='input-group-addon fix-border'><?php echo $lang->task->pri;?></span>
-                  <?php echo html::select('pri', $lang->task->priList, '', "class='form-control'")?>
+                <div class='row'>
+                  <div class='col-md-9'><?php echo html::input('name', '', "class='form-control'");?></div>
+                  <div class='col-md-3 pd-0'>
+                    <div class='input-group'>
+                      <span class='input-group-addon fix-border'><?php echo $lang->task->pri;?></span>
+                      <?php echo html::select('pri', $lang->task->priList, '', "class='form-control'")?>
+                    </div>
+                  </div>
                 </div>
               </td><td></td>
             </tr>
@@ -66,10 +70,12 @@
               <th><?php echo $lang->task->mailto;?></th>
               <td colspan='2'><?php echo html::select('mailto[]', $users, '', "class='form-control chosen' multiple data-placeholder='{$lang->task->mailtoPlaceholder}'");?></td>
             </tr>
+            <?php if(commonModel::hasPriv('file', 'upload')):?>
             <tr>
               <th><?php echo $lang->files;?></th>
               <td colspan='2'><?php echo $this->fetch('file', 'buildForm')?></td>
             </tr>
+            <?php endif;?>
             <tr>
               <th></th>
               <td colspan='2'><?php echo html::submitButton();?></td>

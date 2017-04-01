@@ -2,7 +2,7 @@
 /**
  * The control file of cron of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     cron
@@ -137,7 +137,7 @@ class cron extends control
             /* When cron is null then die. */
             if(empty($crons)) break;
             if(empty($parsedCrons)) break;
-            if(!$this->cron->getTurnon()) break;
+            if(!$this->config->global->cron) break;
 
             /* Run crons. */
             $now = new datetime('now');

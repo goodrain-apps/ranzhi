@@ -46,7 +46,7 @@
 </div>
 <?php endforeach;?>
 
-<div class='clearfix pager'><?php $pager->show('right', 'short');?></div>
+<div class='clearfix pager'><?php $pager->show('right');?></div>
 
 <?php if($this->session->user->account != 'guest'):?>
 <div class='panel'>
@@ -56,11 +56,13 @@
       <div class='form-group' id='reply'>
         <?php echo html::textarea('content', '', "rows='6' class='form-control'"); ?>
       </div>
+      <?php if(commonModel::hasPriv('file', 'upload')):?>
       <div class='row'>
         <div class='col-md-8 col-sm-12'>
           <?php echo $this->fetch('file', 'buildForm'); ?>
         </div>
       </div>
+      <?php endif;?>
       <div class='form-group'><?php echo html::submitButton(); ?></div>
       <?php 
       echo html::hidden('recTotal',   $pager->recTotal);

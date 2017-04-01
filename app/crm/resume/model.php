@@ -2,7 +2,7 @@
 /**
  * The model file of resume module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     resume
@@ -18,7 +18,7 @@ class resumeModel extends model
      * @access public
      * @return object
      */
-    public function getByID($resumeID)
+    public function getByID($resumeID = 0)
     {
         return $this->dao->select('*')->from(TABLE_RESUME)->where('id')->eq($resumeID)->fetch();
     }
@@ -53,7 +53,7 @@ class resumeModel extends model
      * @access public
      * @return array
      */
-    public function getList($contactID)
+    public function getList($contactID = 0)
     {
         return $this->dao->select('*')->FROM(TABLE_RESUME)->where('contact')->eq($contactID)->andWhere('deleted')->eq(0)->orderBy('id')->fetchAll('id');
     }
@@ -91,7 +91,7 @@ class resumeModel extends model
                 if($return['result'] == 'fail') return false;
 
                 $resume->customer = $return['customerID'];
-                $this->loadModel('action')->create('customer', $resume->customer, 'Created');
+                $this->loadModel('action', 'sys')->create('customer', $resume->customer, 'Created');
             }
         }
 

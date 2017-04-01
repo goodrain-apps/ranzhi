@@ -2,24 +2,19 @@
 /**
  * The header view of common module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     common 
- * @version     $Id: header.html.php 3381 2015-12-18 06:43:59Z daitingting $
+ * @version     $Id: header.html.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
 <?php if($extView = $this->getExtViewFile(__FILE__)){include $extView; return helper::cd();}?>
 <?php include 'header.lite.html.php';?>
 <style>body {padding-top: 58px}</style>
-<nav class='navbar navbar-inverse navbar-fixed-top' role='navigation' id='mainNavbar'>
+<nav class='navbar navbar-main navbar-fixed-top' role='navigation' id='mainNavbar'>
   <div class='navbar-header'>
-    <button type='button' class='navbar-toggle' data-toggle='collapse' data-target='.navbar-ex1-collapse'>
-      <span class='icon-bar'></span>
-      <span class='icon-bar'></span>
-      <span class='icon-bar'></span>
-    </button>
     <?php
     if(isset($lang->app))
     {
@@ -31,9 +26,7 @@
     }
     ?>
   </div>
-  <div class='collapse navbar-collapse'>
-    <?php echo commonModel::createMainMenu($this->moduleName);?>
-  </div>
+  <?php echo commonModel::createMainMenu($this->moduleName);?>
 </nav>
 <?php 
 if(!isset($moduleMenu)) $moduleMenu = commonModel::createModuleMenu($this->moduleName);

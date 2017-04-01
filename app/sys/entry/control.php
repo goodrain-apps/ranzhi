@@ -2,11 +2,11 @@
 /**
  * The control file of entry module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     entry 
- * @version     $Id: control.php 3569 2016-02-02 02:01:32Z daitingting $
+ * @version     $Id: control.php 4227 2016-10-25 08:27:56Z liugang $
  * @link        http://www.ranzhico.com
  */
 class entry extends control
@@ -17,14 +17,43 @@ class entry extends control
      * @access public
      * @return void
      */
-    public function admin()
+    public function admin($category = 0)
     {
-        $entries = $this->entry->getEntries();
+        $entries      = $this->entry->getEntries($type = 'custom', $category);
+        $categories   = $this->dao->select('id, name')->from(TABLE_CATEGORY)->where('type')->eq('entry')->orderBy('`order`')->fetchPairs();
+        $tmpEntries   = array();
+        $showCategory = false;
+        foreach($entries as $key => $entry)
+        {
+            /* Remove category. */
+            if($entry->code == '') 
+            {
+                unset($entries[$key]);
+                continue;
+            }
+            if(isset($categories[$entry->category]))
+            {
+                $showCategory = true;
+                $tmpEntries[$entry->category][] = $entry;
+                unset($entries[$key]);
+            }
+        }
+        foreach($tmpEntries as $categoryEntries)
+        {
+            foreach($categoryEntries as $entry)
+            {
+                $entries[] = $entry;
+            }
+        }
+
         /* add web root if logo not start with /  */
         foreach($entries as $entry) if(!empty($entry->logo) && substr($entry->logo, 0, 1) != '/') $entry->logo = $this->config->webRoot . $entry->logo;
         
-        $this->view->title   = $this->lang->entry->common . $this->lang->colon . $this->lang->entry->admin;
-        $this->view->entries = $entries;
+        $this->view->title        = $this->lang->entry->common . $this->lang->colon . $this->lang->entry->admin;
+        $this->view->treeMenu     = $this->loadModel('tree')->getTreeMenu('entry', 0, array('treeModel', 'createEntryAdminLink'));
+        $this->view->entries      = $entries;
+        $this->view->categories   = $categories;
+        $this->view->showCategory = $showCategory;
         $this->display();
     }
 
@@ -57,6 +86,8 @@ class entry extends control
                 /* Get zentao config. */
                 $zentaoConfig = $this->loadModel('sso')->getZentaoServerConfig($zentaoUrl);
                 if(empty($zentaoConfig)) $this->send(array('result' => 'fail', 'message' => $this->lang->entry->error->zentaoUrl));
+                if(strpos($zentaoConfig->version, 'pro') !== false and version_compare($zentaoConfig->version, 'pro5.0', '<')) $this->send(array('result' => 'fail', 'message' => sprintf($this->lang->entry->error->version, 'pro5.0')));
+                if(strpos($zentaoConfig->version, 'pro') === false and version_compare($zentaoConfig->version, '7.4', '<')) $this->send(array('result' => 'fail', 'message' => sprintf($this->lang->entry->error->version, '7.4')));
 
                 $_POST['login']  = $this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, "sso", "login", '', 'html', false);
                 $_POST['logout'] = $this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, "sso", "logout", '', 'html', false);
@@ -73,9 +104,10 @@ class entry extends control
             if($this->post->zentao) $locate = inlink('bindUser', "id=$entryID&sessionID=$zentaoConfig->sessionID");
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => $locate, 'entries' => $this->entry->getJSONEntries()));
         }
-        $this->view->title  = $this->lang->entry->common . $this->lang->colon . $this->lang->entry->create;
-        $this->view->key    = $this->entry->createKey();
-        $this->view->groups = $this->loadModel('group')->getPairs();
+        $this->view->title      = $this->lang->entry->common . $this->lang->colon . $this->lang->entry->create;
+        $this->view->key        = $this->entry->createKey();
+        $this->view->groups     = $this->loadModel('group')->getPairs();
+        $this->view->categories = array('0' => '') + $this->loadModel('tree')->getOptionMenu('entry', 0, $removeRoot = true);
         $this->display();
     }
 
@@ -246,9 +278,10 @@ class entry extends control
             $entry->height = $size->height;
         }
 
-        $this->view->title = $this->lang->entry->common . $this->lang->colon . $this->lang->entry->edit;
-        $this->view->entry = $entry;
-        $this->view->code  = $code;
+        $this->view->title      = $this->lang->entry->common . $this->lang->colon . $this->lang->entry->edit;
+        $this->view->entry      = $entry;
+        $this->view->code       = $code;
+        $this->view->categories = array('0' => '') + $this->loadModel('tree')->getOptionMenu('entry', 0, $removeRoot = true);
         $this->display();
     }
 
@@ -269,7 +302,7 @@ class entry extends control
                 $entry        = new stdclass();
                 $entry->id    = $id;
                 $entry->order = $order;
-                $entries[]    = $entry;
+                $entries[$id]    = $entry;
             }
             usort($entries, 'commonModel::sortEntryByOrder');
 
@@ -289,6 +322,8 @@ class entry extends control
                 unset($entry->order);
             }
             $this->loadModel('setting')->setItem("{$this->app->user->account}.sys.common.customApp", json_encode($allEntries));
+            /* Refresh config to sort custom apps. */
+            $this->config->personal->common->customApp->value = helper::jsonEncode($entries);
 
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('admin'), 'entries' => $this->entry->getJSONEntries()));
         }
@@ -480,7 +515,7 @@ class entry extends control
         $this->get->set('sso', base64_encode(commonModel::getSysURL() . helper::createLink('entry', 'visit', "entry=$entry->id")));
         $this->get->set('param', $params);
         $html = $this->fetch('block', 'index', array(), $entry->code);
-
+        
         die($html);
     }
 
@@ -524,6 +559,10 @@ class entry extends control
         {
             $id      = $this->post->id;
             $visible = $this->post->menu == 'all' ? 1 : 0;
+
+            $this->dao->update(TABLE_ENTRY)->set('visible')->eq($visible)->where('id')->eq($id)->exec();
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+
             $allEntries = isset($this->config->personal->common->customApp) ? json_decode($this->config->personal->common->customApp->value) : new stdclass();
             if(!isset($allEntries->$id))
             {
@@ -531,6 +570,8 @@ class entry extends control
                 $allEntries->{$id}->id = $id;
             }
             $allEntries->{$id}->visible = $visible;
+            if(!$visible) unset($allEntries->{$id}->visible);
+
             $this->loadModel('setting')->setItem("{$this->app->user->account}.sys.common.customApp", json_encode($allEntries));
             if(dao::isError()) $this->send(array('result' => 'fael', 'message' => dao::getError()));
         }
@@ -590,6 +631,7 @@ class entry extends control
                 if(isset($this->post->createUsers[$key]) and $this->post->createUsers[$key])
                 {
                     $user = $this->loadModel('user')->getByAccount($ranzhiAccount);
+                    if($user->gender == 'u') $user->gender = 'm';
                     $createUrl = $this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, 'sso', 'createUser');
                     $result = commonModel::http($createUrl, $user);
                     if($result != 'success') $this->send(array('result' => 'fail', 'message' => $result));
@@ -608,18 +650,40 @@ class entry extends control
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('bindUser', "id=$id&sessionID=$sessionID")));
         }
 
-        $getUsersUrl = $this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, 'sso', 'getUserPairs');
+        $getUsersUrl  = $this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, 'sso', 'getUserPairs');
+        $getUsersUrl .= "&hash={$entry->key}";
         $results = commonModel::http($getUsersUrl);
         $zentaoUsers = json_decode($results, true);
 
-        $getBindUsersUrl = $this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, 'sso', 'getBindUsers');
+        $getBindUsersUrl  = $this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, 'sso', 'getBindUsers');
+        $getBindUsersUrl .= "&hash={$entry->key}";
         $results = commonModel::http($getBindUsersUrl);
         $bindUsers = json_decode($results, true);
 
         $this->view->title       = $this->lang->entry->bindUser;
-        $this->view->ranzhiUsers = $this->loadModel('user')->getPairs('noempty,noclosed,nodeleted');
+        $this->view->ranzhiUsers = $this->loadModel('user')->getPairs('noempty,noclosed,nodeleted,noforbidden');
         $this->view->zentaoUsers = $zentaoUsers;
         $this->view->bindUsers   = $bindUsers;
+        $this->display();
+    }
+
+    /**
+     * Set category. 
+     * 
+     * @access public
+     * @return void
+     */
+    public function category()
+    {
+        if($_POST)
+        {
+            $result = $this->loadModel('tree')->manageChildren('entry', 0, $this->post->children);
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => inlink('admin')));
+        }
+
+        $this->view->title    = $this->lang->entry->common . $this->lang->colon . $this->lang->entry->setCategory;
+        $this->view->children = $this->loadModel('tree')->getChildren(0, 'entry');
         $this->display();
     }
 }

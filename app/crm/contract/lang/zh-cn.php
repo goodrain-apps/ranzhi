@@ -2,7 +2,7 @@
 /**
  * The zh-cn file of crm contract module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     contract 
@@ -33,6 +33,7 @@ $lang->contract->returnedBy    = '由谁回款';
 $lang->contract->returnedDate  = '回款时间';
 $lang->contract->status        = '状态';
 $lang->contract->contact       = '联系人';
+$lang->contract->address       = '合同地址';
 $lang->contract->signedBy      = '由谁签署';
 $lang->contract->signedDate    = '签署日期';
 $lang->contract->finishedBy    = '由谁完成';
@@ -43,10 +44,12 @@ $lang->contract->createdBy     = '由谁创建';
 $lang->contract->createdDate   = '创建时间';
 $lang->contract->editedBy      = '最后修改';
 $lang->contract->editedDate    = '最后修改时间';
-$lang->contract->handlers      = '经手人';
+$lang->contract->handlers      = '贡献者';
 $lang->contract->contactedBy   = '由谁联系';
 $lang->contract->contactedDate = '最后联系';
 $lang->contract->nextDate      = '下次联系';
+$lang->contract->product       = '产品';
+$lang->contract->productLine   = '产品线';
 
 $lang->contract->browse           = '浏览合同';
 $lang->contract->receive          = '回款';
@@ -70,6 +73,7 @@ $lang->contract->editDelivery     = '编辑交付';
 $lang->contract->deleteReturn     = '删除回款';
 $lang->contract->deleteDelivery   = '删除交付';
 $lang->contract->export           = '导出';
+$lang->contract->totalReturn      = '回款合计';
 
 $lang->contract->deliveryList[]        = '';
 $lang->contract->deliveryList['wait']  = '等待交付';
@@ -96,7 +100,7 @@ $lang->contract->codeUnitList['input'] = '输入值';
 $lang->contract->placeholder = new stdclass();
 $lang->contract->placeholder->real = '成交金额';
 
-$lang->contract->totalAmount        = '本页合同总金额：%s，已回款：%s；';
+$lang->contract->totalAmount        = '本页合同总金额：%s，已回款：%s，其中本月回款：%s；';
 $lang->contract->returnInfo         = "<p>%s, 由 <strong>%s</strong> 回款%s。</p>";
 $lang->contract->deliveryInfo       = "<p>%s由%s交付。</p>";
 $lang->contract->deleteReturnInfo   = "%s的回款%s";

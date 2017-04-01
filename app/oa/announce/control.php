@@ -2,7 +2,7 @@
 /**
  * The control file of announce module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Xiying Guan <guanxiying@xirangit.com>
  * @package     announce
@@ -11,6 +11,19 @@
  */
 class announce extends control
 {
+    /**
+     * __construct 
+     * 
+     * @access public
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->loadModel('article');
+    }
+
     /** 
      * The index page, locate to the first category or home page if no category.
      * 
@@ -35,7 +48,6 @@ class announce extends control
      */
     public function browse($type = 'announce', $categoryID = 0, $mode = 'all', $orderBy = 'id_desc', $recTotal = 0, $recPerPage = 20, $pageID = 1)
     {   
-        $this->loadModel('article');
         $this->lang->article->menu = $this->lang->$type->menu;
         $this->lang->menuGroups->article = $type;
 
@@ -47,14 +59,14 @@ class announce extends control
         $this->config->announce->search['actionURL'] = $this->createLink('announce', 'browse', "type=announce&categoryID=$categoryID&mode=bysearch");
         $this->search->setSearchParams($this->config->announce->search);
 
-        $families = $categoryID ? $this->loadModel('tree')->getFamily($categoryID, $type) : '';
-        $articles = $this->article->getList($type, $families, $mode, $param = null, $orderBy, $pager);
+        $families  = $categoryID ? $this->loadModel('tree')->getFamily($categoryID, $type) : '';
+        $announces = $this->article->getList($type, $families, $mode, $param = null, $orderBy, $pager);
 
         $this->view->title      = $this->lang->announce->browse;
         $this->view->mode       = $mode;
         $this->view->users      = $this->loadModel('user')->getPairs();
         $this->view->categories = $this->loadModel('tree')->getPairs($categoryID, $type);
-        $this->view->articles   = $articles;
+        $this->view->announces  = $announces;
         $this->view->pager      = $pager;
 
         $this->display();
@@ -69,7 +81,6 @@ class announce extends control
      */
     public function create($categoryID = '')
     {
-        $this->loadModel('article');
         $categories = $this->loadModel('tree')->getOptionMenu('announce', 0, $removeRoot = true);
         if(empty($categories))
         {
@@ -80,8 +91,8 @@ class announce extends control
         {
             $announceID = $this->article->create('announce');
             $actionID = $this->loadModel('action')->create('announce', $announceID, 'created');
-            $users = $this->loadModel('user')->getPairs('nodeleted,noclosed,noempty');
-            $this->loadModel('action')->sendNotice($actionID, array_keys($users), true);
+            $users = $this->loadModel('user')->getPairs('nodeleted,noforbidden,noclosed,noempty');
+            $this->action->sendNotice($actionID, array_keys($users), true);
             if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
             $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => $this->createLink('announce', 'browse')));
         }
@@ -89,7 +100,7 @@ class announce extends control
         unset($this->lang->announce->menu);
         $this->view->title           = $this->lang->announce->create;
         $this->view->currentCategory = $categoryID;
-        $this->view->categories      = $this->loadModel('tree')->getOptionMenu('announce', 0, $removeRoot = true);
+        $this->view->categories      = $this->tree->getOptionMenu('announce', 0, $removeRoot = true);
 
         $this->display();
     }
@@ -103,7 +114,7 @@ class announce extends control
      */
     public function edit($articleID)
     {
-        $article    = $this->loadModel('article')->getByID($articleID, $replaceTag = false);
+        $article    = $this->article->getByID($articleID, $replaceTag = false);
         $categories = $this->loadModel('tree')->getOptionMenu('announce', 0, $removeRoot = true);
 
         if($_POST)
@@ -128,7 +139,7 @@ class announce extends control
      */
     public function view($announceID)
     {
-        $announce = $this->loadModel('article')->getByID($announceID);
+        $announce = $this->article->getByID($announceID);
 
         /* fetch category for display. */
         $category = array_slice($announce->categories, 0, 1);
@@ -138,16 +149,44 @@ class announce extends control
         if($currentCategory > 0 && isset($announce->categories[$currentCategory])) $category = $currentCategory;  
 
         $category = $this->loadModel('tree')->getByID($category);
+        $users    = $this->loadModel('user')->getPairs();
 
         $this->view->title       = $announce->title . ' - ' . $category->name;
         $this->view->category    = $category;
         $this->view->announce    = $announce;
         $this->view->author      = $this->loadModel('user')->getByAccount($announce->author);
+        $this->view->users       = $users; 
         $this->view->prevAndNext = $this->article->getPrevAndNext($announce->id, $category->id);
         $this->view->modalWidth  = 800;
 
-        $this->dao->update(TABLE_ARTICLE)->set('views = views + 1')->where('id')->eq($announceID)->exec(false);
+        if(!in_array($this->app->user->account, $announce->readers)) $announce->readers[] = $this->app->user->account;
+        $readers = array();
+        foreach($announce->readers as $reader) $readers[] = zget($users, $reader);
+        $announce->readers = implode(',', $announce->readers);
+        $this->dao->update(TABLE_ARTICLE)->set('views = views + 1')->set('readers')->eq($announce->readers)->where('id')->eq($announceID)->exec(false);
 
+        $this->view->readers = $readers;
+
+        $this->display();
+    }
+
+    /**
+     * View readers. 
+     * 
+     * @param  int    $announceID 
+     * @access public
+     * @return void
+     */
+    public function viewReaders($announceID = 0)
+    {
+        $announce = $this->article->getById($announceID);
+        $users    = $this->loadModel('user')->getPairs();
+
+        $readers = array();
+        foreach($announce->readers as $reader) $readers[] = zget($users, $reader);
+
+        $this->view->title   = $announce->title . ' - ' . sprintf($this->lang->article->lblReaders, count($readers));
+        $this->view->readers = implode(', ', $readers);
         $this->display();
     }
 
@@ -160,7 +199,7 @@ class announce extends control
      */
     public function delete($articleID)
     {
-        if($this->loadModel('article')->delete($articleID)) $this->send(array('result' => 'success'));
+        if($this->article->delete($articleID)) $this->send(array('result' => 'success'));
         $this->send(array('result' => 'fail', 'message' => dao::getError()));
     }
 }

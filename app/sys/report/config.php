@@ -4,6 +4,8 @@ $config->report = new stdclass();
 $config->report->moduleList['customer'] = TABLE_CUSTOMER;
 $config->report->moduleList['order']    = TABLE_ORDER;
 $config->report->moduleList['contract'] = TABLE_CONTRACT;
+$config->report->moduleList['trade']    = TABLE_TRADE;
+$config->report->moduleList['product']  = TABLE_PRODUCT;
 
 $config->report->customer = new stdclass();
 /* select conditions, groupBy|(count field default is same as groupby)|(count|sum default is count). */

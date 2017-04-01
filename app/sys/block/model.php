@@ -2,7 +2,7 @@
 /**
  * The model file of block module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     block
@@ -21,7 +21,7 @@ class blockModel extends model
      * @access public
      * @return void
      */
-    public function save($index, $type = 'system', $appName = 'sys', $blockID = 0)
+    public function save($index = 0, $type = 'system', $appName = 'sys', $blockID = 0)
     {
         $data = fixer::input('post')
             ->add('account', $this->app->user->account)
@@ -53,7 +53,7 @@ class blockModel extends model
      * @access public
      * @return string
      */
-    public function getEntry($block)
+    public function getEntry($block = null)
     {
         if(empty($block)) return false;
         $entry = $this->loadModel('entry')->getByCode($block->source);
@@ -69,7 +69,7 @@ class blockModel extends model
         $query['hash']    = $entry->key;
         $query['entry']   = $entry->id;
         $query['app']     = 'sys';
-        $query['lang']    = $this->app->getClientLang();
+        $query['lang']    = str_replace('-', '_', $this->app->getClientLang());
         $query['sso']     = base64_encode(commonModel::getSysURL() . helper::createLink('entry', 'visit', "entry=$entry->id"));
         $query['user']    = $this->app->user->account;
         if(isset($params)) $query['param'] = $params;
@@ -104,7 +104,7 @@ class blockModel extends model
      * @access public
      * @return string
      */
-    public function getRss($block)
+    public function getRss($block = null)
     {
         if(empty($block)) return false;
         $http = $this->app->loadClass('http');
@@ -159,7 +159,7 @@ class blockModel extends model
      * @access public
      * @return object
      */
-    public function getByID($blockID)
+    public function getByID($blockID = 0)
     {
         $block = $this->dao->select('*')->from(TABLE_BLOCK)
             ->where('id')->eq($blockID)
@@ -175,10 +175,11 @@ class blockModel extends model
      * Get saved block config.
      * 
      * @param  int    $index 
+     * @param  string $appName
      * @access public
      * @return object
      */
-    public function getBlock($index, $appName = 'sys')
+    public function getBlock($index = 0, $appName = 'sys')
     {
         $block = $this->dao->select('*')->from(TABLE_BLOCK)
             ->where('`order`')->eq($index)
@@ -227,7 +228,10 @@ class blockModel extends model
 
         foreach($blocks as $key => $block)
         {
-            if(strpos('html,allEntries,dynamic', $block->block) !== false) continue;
+            if(strpos('html,allEntries,dynamic,attend', $block->block) !== false) continue;
+
+            $entry = $this->loadModel('entry')->getByCode($block->source);
+            if($entry && !$entry->buildin) continue;
 
             $module = $block->block;
             $method = 'browse';
@@ -265,7 +269,7 @@ class blockModel extends model
      * @access public
      * @return bool
      */
-    public function initBlock($appName)
+    public function initBlock($appName = 'sys')
     {
         $this->app->loadLang('block', 'sys');
         $blocks  = $this->lang->block->default[$appName];

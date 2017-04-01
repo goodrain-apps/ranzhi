@@ -2,12 +2,12 @@
 /**
  * The calendar view file of todo module of ZenTaoPMS.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     todo
  * @version     $Id$
- * @link        http://www.zentao.net
+ * @link        http://www.ranzhico.com
  */
 ?>
 <?php include '../../../sys/my/view/header.html.php';?>
@@ -18,14 +18,25 @@
 <?php js::set('settings.startDate', $date == 'future' ? date('Y-m-d') : date('Y-m-d', strtotime($date)));?>
 <?php js::set('settings.data', $data);?>
 <?php js::set('users', $users);?>
+<?php js::set('zentaoEntryList', array_keys($zentaoEntryList));?>
 <div class='with-side <?php echo $this->cookie->todoCalendarSide == 'hide' ? 'hide-side' : ''?>'>
   <div class='side'>
-    <ul id="myTab" class="nav nav-tabs">
-      <li class="active"><a href="#tab_undone" data-toggle="tab"><?php echo $lang->todo->periods['before']?></a></li>
-      <li><a href="#tab_custom" data-toggle="tab"><?php echo $lang->todo->periods['future']?></a></li>
-      <li><a href="#tab_task" data-toggle="tab"><?php echo $lang->task->common;?></a></li>
-      <li><a href="#tab_order" data-toggle="tab"><?php echo $lang->order->common;?></a></li>
-      <li><a href="#tab_customer" data-toggle="tab"><?php echo $lang->customer->common;?></a></li>
+    <ul id='myTab' class='nav nav-tabs'>
+      <li class='active'><a href='#tab_undone' data-toggle='tab'><?php echo $lang->todo->periods['before']?></a></li>
+      <li><a href='#tab_custom' data-toggle='tab'><?php echo $lang->todo->periods['future']?></a></li>
+      <li><a href='#tab_task' data-toggle='tab'><?php echo $lang->task->common;?></a></li>
+      <li><a href='#tab_order' data-toggle='tab'><?php echo $lang->order->common;?></a></li>
+      <li><a href='#tab_customer' data-toggle='tab'><?php echo $lang->customer->common;?></a></li>
+      <?php if(!empty($zentaoEntryList)):?>
+      <li class='dropdown'>
+        <a data-toggle='dropdown' class='dropdown-toggle' href='#'><?php echo $lang->entry->common;?><b class='caret'></b></a>
+        <ul aria-labelledby='myTabDrop1' role='menu' class='dropdown-menu pull-right'>
+          <?php foreach($zentaoEntryList as $code => $name):?>
+          <li><a data-toggle='tab' tabindex='-1' href="<?php echo "#tab_{$code}";?>"><?php echo $name;?></a></li>
+          <?php endforeach;?>
+        </ul>
+      </li>
+      <?php endif;?>
     </ul>
     <div class='tab-content'>
       <?php foreach($todoList as $type => $todos):?>

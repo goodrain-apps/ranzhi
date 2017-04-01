@@ -2,7 +2,7 @@
 /**
  * The view of view function of contact module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     contact 
@@ -11,6 +11,7 @@
  */
 ?>
 <?php include '../../common/view/header.html.php';?>
+<?php include '../../../sys/common/view/kindeditor.html.php';?>
 <ul id='menuTitle'>
   <li><?php commonModel::printLink('leads', 'browse', "mode={$mode}&status={$status}", "<i class='icon-list-ul'></i> " . $lang->contact->list);?></li>
   <li class='divider angle'></li>
@@ -27,15 +28,27 @@
     <div class='page-actions'>
       <?php
       echo "<div class='btn-group'>";
-      commonModel::printLink('action', 'createRecord', "objectType=contact&objectID={$contact->id}", $lang->contact->record, "data-toggle='modal' data-type='iframe' data-icon='comment-alt' class='btn'");
+      commonModel::printLink('leads', 'assign', "contactID=$contact->id", $lang->contact->assign, "class='btn' data-toggle='modal'");
+      commonModel::printLink('action', 'createRecord', "objectType=contact&objectID={$contact->id}&customer=&history=", $lang->contact->record, "data-toggle='modal' data-width='860' class='btn'");
       commonModel::printLink('address', 'browse', "objectType=contact&objectID=$contact->id", $lang->contact->address, "data-toggle='modal' class='btn'");
       commonModel::printLink('leads', 'edit', "contactID=$contact->id", $lang->edit, "class='btn'");
+      commonModel::printLink('leads', 'transform', "contactID=$contact->id", $lang->confirm, "class='btn' data-toggle='modal'");
+      if($contact->status != 'ignore') commonModel::printLink('leads', 'ignore', "contactID=$contact->id", $lang->ignore, "class='btn' data-toggle='modal'");
+      if($contact->status == 'ignore') commonModel::printLink('leads', 'delete', "contactID=$contact->id", $lang->delete, "class='btn deleter'");
+      echo html::a('#commentBox', $this->lang->comment, "class='btn btn-default' onclick=setComment()");
       echo "</div>";
 
       $browseLink = $this->session->contactList ? $this->session->contactList : inlink('browse');
       commonModel::printRPN($browseLink, $preAndNext);
       ?>
     </div>
+    <fieldset id='commentBox' class='hide'>
+      <legend><?php echo $lang->comment;?></legend>
+      <form id='ajaxForm' method='post' action='<?php echo inlink('edit', "contactID={$contact->id}&mode={$mode}&status={$status}&comment=true")?>'>
+        <div class='form-group'><?php echo html::textarea('comment', '',"rows='5' class='w-p100'");?></div>
+        <?php echo html::submitButton();?>
+      </form>
+    </fieldset>      
   </div>
   <div class='col-side'>
     <div class='panel'>

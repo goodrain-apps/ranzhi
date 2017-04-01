@@ -2,7 +2,7 @@
 /**
  * The transfer view file of trade module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     trade 
@@ -13,6 +13,7 @@
 <?php include '../../common/view/header.html.php';?>
 <?php include '../../../sys/common/view/datepicker.html.php';?>
 <?php include '../../../sys/common/view/chosen.html.php';?>
+<?php js::set('mode', 'transfer');?>
 <div class='panel'>
   <div class='panel-heading'>
     <strong><i class="icon-plus"></i> <?php echo $lang->trade->transfer;?></strong>
@@ -20,7 +21,7 @@
   <div class='panel-body'>
     <form method='post' id='ajaxForm'>
       <table class='table table-form w-p60'>
-       <tr>
+       <tr class='required'>
           <th class='w-100px'><?php echo $lang->trade->payment;?></th>
           <td>
             <select name='payment' id='payment' class='form-control amount'>
@@ -30,7 +31,7 @@
             </select>
           </td>
         </tr>
-        <tr>
+        <tr class='required'>
           <th><?php echo $lang->trade->receipt;?></th>
           <td>
             <select name='receipt' id='receipt' class='form-control amount'>
@@ -40,7 +41,7 @@
             </select>
           </td>
         </tr>
-        <tr class='money'>
+        <tr class='money required'>
           <th><?php echo $lang->trade->money;?></th>
           <td><?php echo html::input('money', '', "class='form-control'");?></td>
         </tr>
@@ -60,7 +61,7 @@
           <th><?php echo $lang->trade->dept;?></th>
           <td><?php echo html::select('dept', $deptList, '', "class='form-control chosen'");?></td>
         </tr>
-        <tr>
+        <tr class='required'>
           <th><?php echo $lang->trade->handlers;?></th>
           <td><?php echo html::select('handlers[]', $users, '', "class='form-control chosen' multiple");?></td>
         </tr>

@@ -2,11 +2,11 @@
 /**
  * The control file of install module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     install 
- * @version     $Id: control.php 3149 2015-11-11 08:23:01Z daitingting $
+ * @version     $Id: control.php 4041 2016-09-27 07:09:30Z liugang $
  * @link        http://www.ranzhico.com
  */
 class install extends control
@@ -58,17 +58,17 @@ class install extends control
      */
     public function step1()
     {
-        $this->view->title  = $this->lang->install->checking;
-        $this->view->phpVersion      = $this->install->getPhpVersion();
-        $this->view->phpResult       = $this->install->checkPHP();
-        $this->view->pdoResult       = $this->install->checkPDO();
-        $this->view->pdoMySQLResult  = $this->install->checkPDOMySQL();
-        $this->view->tmpRootInfo     = $this->install->getTmpRoot();
-        $this->view->tmpRootResult   = $this->install->checkTmpRoot();
-        $this->view->dataRootInfo    = $this->install->getDataRoot();
-        $this->view->dataRootResult  = $this->install->checkDataRoot();
-        $this->view->iniInfo         = $this->install->getIniInfo();
-        $this->view->sessionRoot     = session_save_path();
+        $this->view->title             = $this->lang->install->checking;
+        $this->view->phpVersion        = $this->install->getPhpVersion();
+        $this->view->phpResult         = $this->install->checkPHP();
+        $this->view->pdoResult         = $this->install->checkPDO();
+        $this->view->pdoMySQLResult    = $this->install->checkPDOMySQL();
+        $this->view->tmpRootInfo       = $this->install->getTmpRoot();
+        $this->view->tmpRootResult     = $this->install->checkTmpRoot();
+        $this->view->dataRootInfo      = $this->install->getDataRoot();
+        $this->view->dataRootResult    = $this->install->checkDataRoot();
+        $this->view->iniInfo           = $this->install->getIniInfo();
+        $this->view->sessionRoot       = session_save_path();
         $this->view->sessionRootResult = $this->install->checkSessionRoot();
         $this->display();
     }
@@ -145,6 +145,20 @@ class install extends control
         }
         else
         {
+            $this->view->domainIP = gethostbyname($_SERVER['HTTP_HOST']);
+            $this->view->serverIP = $_SERVER['SERVER_ADDR'];
+            try
+            {
+                $socket   = socket_create(AF_INET, SOCK_STREAM, 6);  
+                $ret      = socket_connect($socket,'ns1.dnspod.net',6666);  
+                $publicIP = socket_read($socket, 16);  
+                socket_close($socket);  
+                $this->view->publicIP = $publicIP;
+            }
+            catch(Exception $exception)
+            {
+                $this->view->publicIP = '';
+            }
             $this->view->title = $this->lang->install->setAdmin;
             $this->display();
         }

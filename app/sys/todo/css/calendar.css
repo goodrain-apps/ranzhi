@@ -1,7 +1,7 @@
 .with-side {position: relative;}
 .with-side .main{padding-right: 300px;}
 .with-side .side {position: fixed; right: 15px; top: 100px; width: 280px;}
-.with-side .nav > li > a {padding: 10px;}
+.with-side .nav > li > a {padding: 10px 6px;}
 
 .hide-side .main{padding-right: 0;}
 .hide-side .side {width: 0;}
@@ -22,6 +22,10 @@
 .calendar .event.with-action .action {position: absolute; right: 0; top: 0;}
 .calendar .event.with-action .action > a {display: inline-block; padding: 0 4px; color: #fff; background-color: rgba(0,0,0,0.25); line-height: 19px; padding: 0 6px;}
 .calendar .event.with-action .action > a:hover {background-color: rgba(0,0,0,0.5)}
+
+.calendar .table .cell-day.past > .day > .content{opacity: 1;}
+.calendar .table .day{opacity: 1;}
+.calendar .cell-day.past .event{opacity: 1;}
 
 .trash {position: absolute; top: 0; right: 350px; padding: 3px 8px 3px 180px; transition: all 0.3s ease 0s;}
 .hide-side .trash {right: 50px;}

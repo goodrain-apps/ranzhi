@@ -2,7 +2,7 @@
 /**
  * The control file of block module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     block
@@ -133,18 +133,21 @@ class block extends control
         $this->processParams();
 
         /* Do not get trades which user has no privilege to browse their categories. */
-        $denyCategories = array();
-        $outCategories = $this->dao->select('*')->from(TABLE_CATEGORY)->where('type')->eq('out')->fetchAll('id');
-        foreach($outCategories as $id => $outCategory)
+        $denyCategories  = array();
+        $outCategories   = $this->dao->select('*')->from(TABLE_CATEGORY)->where('type')->eq('out')->fetchAll('id');
+        $allowCategories = $this->loadModel('tree')->process($outCategories);
+        foreach(array_diff($outCategories, $allowCategories) as $id => $category)
         {
-            if(!$this->loadModel('tree')->hasRight($id)) $denyCategories[] = $id; 
+            $denyCategories[] = $id; 
         }
 
         $rights = $this->app->user->rights;
         $expensePriv = (isset($rights['tradebrowse']['out']) or $this->app->user->admin == 'super') ? true : false; 
 
+        $this->params->type = !empty($this->params->type) ? $this->params->type : 'all';
         $this->view->trades = $this->dao->select('*')->from(TABLE_TRADE)
             ->where('1=1')
+            ->beginIF($this->params->type != 'all')->andWhere('type')->eq($this->params->type)->fi()
             ->beginIF(!empty($denyCategories))->andWhere('category')->notin($denyCategories)
             ->beginIF(!$expensePriv)->andWhere('type')->ne('out')->fi()
             ->orderBy($this->params->orderBy)
@@ -152,7 +155,7 @@ class block extends control
             ->fetchAll('id');
 
         $this->view->currencySign  = $this->loadModel('common', 'sys')->getCurrencySign();
-        $this->view->depositorList = $this->loadModel('depositor')->getPairs();
+        $this->view->depositorList = $this->loadModel('depositor', 'cash')->getPairs();
         $this->display();
     }
 
@@ -180,6 +183,30 @@ class block extends control
 
         $this->view->areas      = $this->loadModel('tree')->getOptionMenu('area');
         $this->view->industries = $this->tree->getOptionMenu('industry');
+        $this->display();
+    }
+
+    /**
+     * Print report block.
+     * 
+     * @access public
+     * @return void
+     */
+    public function printReportBlock()
+    {
+        $this->processParams();
+
+        $currentYear  = date('Y');
+        $currentMonth = date('m');
+
+        $datas = $this->loadModel('trade', 'cash')->getChartData($this->params->type, $currentYear, $currentMonth, $this->params->groupBy, $this->params->currency); 
+        $datas = $this->loadModel('report', 'sys')->computePercent($datas);
+
+        $this->view->datas        = $datas;
+        $this->view->type         = $this->params->type;
+        $this->view->groupBy      = $this->params->groupBy;
+        $this->view->currentYear  = $currentYear;
+        $this->view->currentMonth = $currentMonth;
         $this->display();
     }
 

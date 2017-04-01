@@ -2,7 +2,7 @@
 /**
  * The browse view file of contract module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     contract
@@ -26,7 +26,7 @@
   <?php commonModel::printLink('contract', 'create', '', '<i class="icon-plus"></i> ' . $lang->contract->create, "class='btn btn-primary'");?>
 </div>
 <div class='panel'>
-  <table class='table table-hover table-striped tablesorter table-data table-fixed' id='contractList'>
+  <table class='table table-hover table-striped table-bordered tablesorter table-data table-fixed' id='contractList'>
     <thead>
       <tr class='text-center'>
         <?php $vars = "mode={$mode}&orderBy=%s&recTotal={$pager->recTotal}&recPerPage={$pager->recPerPage}&pageID={$pager->pageID}";?>
@@ -64,7 +64,7 @@
   <div class='table-footer'>
     <?php if(isset($totalAmount)):?>
     <div class='pull-left text-danger'>
-      <?php if(!empty($totalAmount)) printf($lang->contract->totalAmount, implode('，', $totalAmount['contract']), implode('，', $totalAmount['return']));?>
+      <?php if(!empty($totalAmount)) printf($lang->contract->totalAmount, implode('，', $totalAmount['contract']), implode('，', $totalAmount['return']), implode('，', $totalAmount['currentMonth']));?>
     </div>
     <?php endif;?>
     <?php $pager->show();?>

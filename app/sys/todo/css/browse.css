@@ -1,4 +1,4 @@
-.batch-actions{width: 600px;}
-.close-action {width: 170px;}
-.import-action {display: inline-table; width: 200px;}
+.batch-actions{width: 600px; height: 33px;}
+.import-action {display: inline-table; width: 200px; margin-left: 5px;}
+.import-action input {height: 33px;}
 

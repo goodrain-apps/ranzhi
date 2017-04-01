@@ -2,11 +2,11 @@
 /**
  * The control file of user module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     user
- * @version     $Id: control.php 3562 2016-01-28 08:56:12Z daitingting $
+ * @version     $Id: control.php 4219 2016-10-25 05:45:16Z daitingting $
  * @link        http://www.ranzhico.com
  */
 class user extends control
@@ -31,14 +31,27 @@ class user extends control
         $this->setReferer($referer);
 
         /* Load mail config for reset password. */
-        $this->app->loadConfig('mail');
+        $this->app->loadModuleConfig('mail');
 
         $loginLink = $this->createLink('user', 'login');
         $denyLink  = $this->createLink('user', 'deny');
 
+        /* Reload lang by lang of get when viewType is json. */
+        if($this->app->getViewType() == 'json' and $this->get->lang and $this->get->lang != $this->app->getClientLang())
+        {
+            $this->app->setClientLang($this->get->lang);
+            $this->app->loadLang('user');
+        }
+
         /* If the user logon already, goto the pre page. */
         if($this->user->isLogon())
         {
+            if($this->app->getViewType() == 'json')
+            {
+                $data = $this->user->getDataInJSON($this->app->user);
+                die(helper::removeUTF8Bom(json_encode(array('status' => 'success') + $data)));
+            }
+
             if($this->referer and strpos($loginLink . $denyLink, $this->referer) !== false) $this->locate($this->referer);
             $this->locate($this->createLink($this->config->default->module));
             exit;
@@ -47,17 +60,63 @@ class user extends control
         /* If the user sumbit post, check the user and then authorize him. */
         if(!empty($_POST))
         {
-            if(!$this->user->login($this->post->account, $this->post->password)) $this->send(array('result'=>'fail', 'message' => $this->lang->user->loginFailed));
+            $user = $this->user->login($this->post->account, $this->post->password);
+            if($this->app->getViewType() == 'json')
+            {
+                if($user)
+                {
+                    $data = $this->user->getDataInJSON($user);
+                    die(helper::removeUTF8Bom(json_encode(array('status' => 'success') + $data)));
+                }
+                else
+                {
+                    die(helper::removeUTF8Bom(json_encode(array('status' => 'failed', 'reason' => $this->lang->user->loginFailed))));
+                }
+            }
+            else
+            {
+                if(!$user) $this->send(array('result'=>'fail', 'message' => $this->lang->user->loginFailed));
+            }
 
             /* Goto the referer or to the default module */
             if($this->post->referer != false and strpos($loginLink . $denyLink, $this->post->referer) === false)
             {
-                $this->send(array('result'=>'success', 'locate'=> urldecode($this->post->referer)));
+                if($this->config->requestType == 'PATH_INFO')
+                {
+                    $path = substr($this->post->referer, strrpos($this->post->referer, '/') + 1);
+                    $path = rtrim($path, '.html');
+                    if(empty($path) or strpos($path, $this->config->requestFix) === false) $path = $this->config->requestFix;
+                    list($module, $method) = explode($this->config->requestFix, $path);
+                }
+                else
+                {
+                    $url   = html_entity_decode($this->post->referer);
+                    $param = substr($url, strrpos($url, '?') + 1);
+
+                    $module = $this->config->default->module;
+                    $method = $this->config->default->method;
+                    if(strpos($param, '&') !== false) list($module, $method) = explode('&', $param);
+                    $module = str_replace('m=', '', $module);
+                    $method = str_replace('f=', '', $method);
+                }
+
+                if(commonModel::hasPriv($module, $method))
+                {
+                    $this->send(array('result'=>'success', 'locate' => urldecode($this->post->referer)));
+                }
+                else
+                {
+                    $this->send(array('result'=>'success', 'locate' => $this->createLink('index', 'index')));
+                }
             }
             else
             {
                 $this->send(array('result'=>'success', 'locate' => $this->createLink('index', 'index')));
             }
+        }
+        else if($this->app->getViewType() == 'json')
+        {
+            die(helper::removeUTF8Bom(json_encode(array('status' => 'failed', 'reason' => $this->lang->user->loginFailed))));
         }
 
         if(!$this->session->random) $this->session->set('random', md5(time() . mt_rand()));
@@ -80,8 +139,9 @@ class user extends control
      */
     public function logout($referer = 0)
     {
+        $this->app->loadModuleConfig('attend');
         /* Save sign out info. */
-        if(commonModel::isAvailable('attend')) $this->loadModel('attend', 'oa')->signOut();
+        if(commonModel::isAvailable('attend') and isset($this->config->attend->mustSignOut) and $this->config->attend->mustSignOut == 'no') $this->loadModel('attend', 'oa')->signOut();
 
         if(isset($this->app->user->id)) $this->loadModel('action')->create('user', $this->app->user->id, 'logout');
 
@@ -189,28 +249,6 @@ class user extends control
     }
 
     /**
-     * List message of a user.
-     * 
-     * @param  int    $recTotal 
-     * @param  int    $recPerPage 
-     * @param  int    $pageID 
-     * @access public
-     * @return void
-     */
-    public function message($recTotal = 0, $recPerPage = 20, $pageID = 1)
-    {
-        if($this->app->user->account == 'guest') $this->locate(inlink('login'));
-
-        $this->app->loadClass('pager', $static = true);
-        $pager = new pager($recTotal, $recPerPage, $pageID);
-
-        $this->view->messages = $this->loadModel('message')->getByAccount($this->app->user->account, $pager);
-        $this->view->pager    = $pager;
-
-        $this->display();
-    }
-
-    /**
      * Create user 
      * 
      * @access public
@@ -223,7 +261,7 @@ class user extends control
             $this->user->create();          
             if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError())); 
             /* Go to the referer. */        
-            $this->send( array('result' => 'success', 'locate'=>inlink('admin')) );
+            $this->send( array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate'=>inlink('admin')) );
         }                      
 
         $this->view->treeMenu = $this->loadModel('tree')->getTreeMenu('dept', 0, array('treeModel', 'createDeptAdminLink'));
@@ -284,6 +322,7 @@ class user extends control
      *  Admin users list.
      *
      * @param  int    $deptID
+     * @param  string $mode
      * @param  srting $query
      * @param  srting $orderBy
      * @param  int    $recTotal
@@ -292,20 +331,21 @@ class user extends control
      * @access public
      * @return void
      */
-    public function admin($deptID = 0, $query = '', $orderBy = 'id_asc', $recTotal = 0, $recPerPage = 10, $pageID = 1)
+    public function admin($deptID = 0, $mode = 'normal', $query = '', $orderBy = 'id_asc', $recTotal = 0, $recPerPage = 10, $pageID = 1)
     {
-        if($this->post->query) die($this->locate(inlink('admin', "deptID=$deptID&query={$this->post->query}&orderBy=$orderBy&recTotal=0&recPerPage=$recPerPage&pageID=1")));
+        if($this->post->query) die($this->locate(inlink('admin', "deptID=$deptID&mode=&query={$this->post->query}&orderBy=$orderBy&recTotal=0&recPerPage=$recPerPage&pageID=1")));
 
         $this->app->loadClass('pager', $static = true);
         $pager = new pager($recTotal, $recPerPage, $pageID);
 
         $this->view->treeMenu = $this->loadModel('tree')->getTreeMenu('dept', 0, array('treeModel', 'createDeptAdminLink'));
         $this->view->depts    = $this->tree->getOptionMenu('dept');
-        $this->view->users    = $this->user->getList($deptID, $query, $orderBy, $pager);
-        $this->view->query    = $query;
-        $this->view->pager    = $pager;
+        $this->view->users    = $this->user->getList($deptID, $mode, $query, $orderBy, $pager);
         $this->view->deptID   = $deptID;
+        $this->view->mode     = $mode;
+        $this->view->query    = $query;
         $this->view->orderBy  = $orderBy;
+        $this->view->pager    = $pager;
 
         $this->view->title = $this->lang->user->list;
         $this->display();
@@ -333,7 +373,7 @@ class user extends control
 
         $this->view->treeMenu = $this->loadModel('tree')->getTreeMenu('dept', 0, array('treeModel', 'createDeptColleagueLink'));
         $this->view->depts    = $this->tree->getPairs(0, 'dept');
-        $this->view->users    = $this->user->getList($deptID, $query, $orderBy, $pager);
+        $this->view->users    = $this->user->getList($deptID, $mode = 'normal', $query, $orderBy, $pager);
         $this->view->query    = $query;
         $this->view->pager    = $pager;
         $this->view->deptID   = $deptID;
@@ -392,6 +432,20 @@ class user extends control
         else
         {
             $this->referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+        }
+
+        if(strpos($this->referer, 'entry') !== false and strpos($this->referer, 'visit') !== false)
+        {
+            if($this->config->requestType == 'PATH_INFO')
+            {
+                if(substr($this->referer, strpos($this->referer, 'entry-visit-') + strlen('entry-visit-'), strpos($this->referer, '.html')) > 4) $this->referer = '';
+            }
+            else
+            {
+                $url = parse_url($this->referer);
+                parse_str($url['query'], $params);
+                if($params['m'] == 'entry' and $params['f'] == 'visit' and $params['entryID'] > 4) $this->referer = '';
+            }
         }
     }
 
@@ -477,7 +531,6 @@ END:VCARD";
         if(!empty($_POST))
         {
             $size = fixer::input('post')->get();
-            $this->loadModel('file')->resizeImage($image->realPath, $image->realPath, $size->width, $size->height);
             $this->loadModel('file')->cropImage($image->realPath, $image->realPath, $size->left, $size->top, $size->right - $size->left, $size->bottom - $size->top);
             exit('success');
         }

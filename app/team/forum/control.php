@@ -2,11 +2,11 @@
 /**
  * The control file of forum module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     forum
- * @version     $Id: control.php 3572 2016-02-02 05:11:20Z liugang $
+ * @version     $Id: control.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 class forum extends control
@@ -41,7 +41,7 @@ class forum extends control
         $board = $this->loadModel('tree')->getByID($boardID, 'forum');
         if(!$board) die(js::locate('back'));
 
-        if(!$this->loadModel('tree')->hasRight($boardID)) die(js::locate('back'));
+        if(!$this->loadModel('tree')->hasRight($board)) die(js::locate('back'));
 
         /* Build search form. */
         $this->loadModel('search', 'sys');
@@ -51,8 +51,8 @@ class forum extends control
         /* Get common threads. */
         $this->app->loadClass('pager', $static = true);
         $pager   = new pager(0, 10, $pageID);
-        if($mode != 'bysearch') $threads = $this->loadModel('thread')->getList($board->id, $orderBy = 'repliedDate_desc', $pager);
-        if($mode == 'bysearch') $threads = $this->loadModel('thread')->getBySearch($board->id, 'bysearch', $orderBy = 'repliedDate_desc', $pager);
+        if($mode != 'bysearch') $threads = $this->loadModel('thread', 'team')->getList($board->id, $orderBy = 'repliedDate_desc', $pager);
+        if($mode == 'bysearch') $threads = $this->loadModel('thread', 'team')->getBySearch($board->id, 'bysearch', $orderBy = 'repliedDate_desc', $pager);
 
         $this->view->boardID  = $boardID;
         $this->view->title    = $board->name;
@@ -84,8 +84,8 @@ class forum extends control
         $this->app->loadClass('pager', $static = true);
         $pager = new pager($recTotal, $recPerPage, $pageID);
 
-        $boards  = $this->loadModel('tree')->getFamily($boardID, 'forum');
-        $threads = $boards ? $this->loadModel('thread')->getList($boards, $orderBy, $pager) : array();
+        $boards  = $this->loadModel('tree', 'team')->getFamily($boardID, 'forum');
+        $threads = $boards ? $this->loadModel('thread', 'team')->getList($boards, $orderBy, $pager) : array();
 
         $this->view->boardID  = $boardID;
         $this->view->orderBy  = $orderBy;

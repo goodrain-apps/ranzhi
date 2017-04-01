@@ -2,7 +2,7 @@
 /**
  * The control file of action module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     action
@@ -17,6 +17,7 @@ class action extends control
      * @param  string    $objectType
      * @param  int       $objectID 
      * @param  string    $action
+     * @param  string    $from
      * @access public
      * @return void
      */
@@ -27,6 +28,7 @@ class action extends control
         $this->view->objectID   = $objectID;
         $this->view->users      = $this->loadModel('user')->getPairs();
         $this->view->from       = $from;
+        $this->view->behavior   = $action;
         $this->display();
     }
 
@@ -50,11 +52,14 @@ class action extends control
      * @param  string    $objectType  order|contact|customer
      * @param  int       $objectID 
      * @param  int       $customer 
+     * @param  bool      $history
      * @access public
      * @return void
      */
-    public function createRecord($objectType, $objectID, $customer = 0)
+    public function createRecord($objectType, $objectID, $customer = 0, $history = true)
     {
+        if($customer) $this->loadModel('common', 'sys')->checkPrivByCustomer($customer);
+
         if($_POST)
         {
             if($this->post->contract)
@@ -92,7 +97,7 @@ class action extends control
             $this->action->createRecord($objectType, $objectID, $customer, $this->post->contact);
 
             if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
-            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => 'parent.reload'));
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => $this->server->http_referer));
         }
         
         if($objectType == 'contact')
@@ -106,11 +111,12 @@ class action extends control
             $this->view->contracts = array('') + $this->loadModel('contract')->getPairs($objectID);
         }
 
-        $this->view->title      = $this->lang->action->record->create;
-        $this->view->modalWidth = 900;
+        $this->loadModel('file');
+        $this->view->title      = "<i class='icon-comment-alt'> </i>" . $this->lang->action->record->create;
         $this->view->objectType = $objectType;
         $this->view->objectID   = $objectID;
         $this->view->customer   = $customer;
+        $this->view->history    = $history;
         $this->view->contacts   = $this->loadModel('contact', 'crm')->getList($customer);
         $this->display();
     }
@@ -125,6 +131,7 @@ class action extends control
     public function editRecord($recordID, $from = '')
     {
         $record = $this->loadModel('action')->getByID($recordID);
+        if($record->customer) $this->loadModel('common', 'sys')->checkPrivByCustomer($record->customer);
         if($record->action != 'record') exit;
         $object = $this->loadModel($record->objectType)->getByID($record->objectID);
 
@@ -174,7 +181,7 @@ class action extends control
         $this->view->type    = $type;
         $this->view->orderBy = $orderBy;
         $this->view->pager   = $pager;
-        $this->view->users   = $this->loadModel('user')->getPairs('noletter');
+        $this->view->users   = $this->loadModel('user')->getPairs();
         $this->display();
     }
 

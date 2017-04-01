@@ -17,6 +17,7 @@ $(document).ready(function()
         if(href.indexOf('/oa/') != -1)   app = 'oa';
         if(href.indexOf('/cash/') != -1) app = 'cash';
         if(href.indexOf('/team/') != -1) app = 'team';
+        if(href.indexOf('/proj/') != -1) app = 'proj';
 
         if(!skip && app != '')
         {

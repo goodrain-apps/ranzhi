@@ -2,7 +2,7 @@
 /**
  * The model file of address module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     address
@@ -18,7 +18,7 @@ class addressModel extends model
      * @access public
      * @return object
      */
-    public function getByID($addressID)
+    public function getByID($addressID = 0)
     {
         return $this->dao->select('*')->from(TABLE_ADDRESS)->where('id')->eq($addressID)->fetch();
     }
@@ -31,7 +31,7 @@ class addressModel extends model
      * @access public
      * @return array
      */
-    public function getByObject($objectType, $objectID)
+    public function getByObject($objectType = '', $objectID = 0)
     {
         return $this->dao->select('*')->from(TABLE_ADDRESS)->where('objectType')->eq($objectType)->andWhere('objectID')->eq($objectID)->fetchAll();
     }
@@ -47,7 +47,7 @@ class addressModel extends model
     public function getAddressesSawByMe($type = 'view', $addressIdList = array())
     {
         $customerIdList = $this->loadModel('customer')->getCustomersSawByMe($type);
-        $contactIdList  = $this->loadModel('contact')->getContactsSawByMe($type);
+        $contactIdList  = $this->loadModel('contact', 'crm')->getContactsSawByMe($type);
 
         $addressListOfCustomer = $this->dao->select('*')->from(TABLE_ADDRESS)
             ->where('objectType')->eq('customer')
@@ -72,18 +72,18 @@ class addressModel extends model
      * @access public
      * @return array
      */
-    public function getList($objectType, $objectID)
+    public function getList($objectType = '', $objectID = 0)
     {
         $addresses = $this->getByObject($objectType, $objectID);
 
         if($objectType == 'contact')
         {
-            $contact = $this->loadModel('contact')->getByID($objectID);
+            $contact = $this->loadModel('contact', 'crm')->getByID($objectID);
             if(isset($contact->customer)) $addresses = array_merge($this->getByObject('customer', $contact->customer), $addresses);
         }
 
         /* Join area and location to fullLocation. */
-        $areaList = $this->loadModel('tree')->getOptionMenu('area');
+        $areaList = $this->loadModel('tree', 'sys')->getOptionMenu('area');
         foreach($addresses as $address)
         {
             $address->fullLocation = '';

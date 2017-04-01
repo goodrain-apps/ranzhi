@@ -4,14 +4,14 @@ $(document).ready(function()
     {
         $('.all-pass').click(function()
         {
-            $('input[id^=status][id$=1]').each(function(){$(this).prop('checked', 'checked')});
+            $('input[id^=status][id$=pass]').each(function(){$(this).prop('checked', 'checked')});
             $('.reviewMoney').show();
             $('.reason').hide();
         })
 
         $('.all-reject').click(function()
         {
-            $('input[id^=status][id$=2]').each(function(){$(this).prop('checked', 'checked')});
+            $('input[id^=status][id$=reject]').each(function(){$(this).prop('checked', 'checked')});
             $('.reviewMoney').hide();
             $('.reason').show();
         })
@@ -66,7 +66,7 @@ $(document).ready(function()
     {
         $('input[name=status]').click(function()
         {
-            if($('#status1').prop('checked'))
+            if($('#statuspass').prop('checked'))
             {
                 $('.reviewMoney').show();
                 $('.reason').hide();

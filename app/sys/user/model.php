@@ -2,11 +2,11 @@
 /**
  * The model file of user module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     user
- * @version     $Id: model.php 3562 2016-01-28 08:56:12Z daitingting $
+ * @version     $Id: model.php 4145 2016-10-14 05:31:16Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -17,22 +17,35 @@ class userModel extends model
      * Get users List.
      *
      * @param  int|array $dept
+     * @param  string    $mode
      * @param  string    $query 
      * @param  string    $orderBy
      * @param  object    $pager
      * @access public
      * @return array 
      */
-    public function getList($dept = 0, $query = '', $orderBy = 'id', $pager = null)
+    public function getList($dept = 0, $mode = 'normal', $query = '', $orderBy = 'id', $pager = null)
     {
         return $this->dao->select('*')->from(TABLE_USER)
-            ->where('deleted')->eq('0')
+            ->where(1)
+            ->beginIF($dept != 0)->andWhere('dept')->in($dept)->fi()
+
+            ->beginIF($mode != 'all')->andWhere('deleted')->eq('0')->fi()
+
+            ->beginIF($mode == 'normal')
+            ->andWhere('locked', true)->eq('0000-00-00 00:00:00')
+            ->orWhere('locked')->lt(helper::now())
+            ->markRight(1)
+            ->fi()
+
+            ->beginIF($mode == 'forbid')->andWhere('locked')->ge(helper::now())->fi()
+
             ->beginIF($query != '')
             ->andWhere('account', true)->like("%$query%")
             ->orWhere('realname')->like("%$query%")
-            ->markRight()
+            ->markRight(1)
             ->fi()
-            ->beginIF($dept != 0)->andWhere('dept')->in($dept)->fi()
+
             ->orderBy($orderBy)
             ->page($pager)
             ->fetchAll();
@@ -49,9 +62,13 @@ class userModel extends model
     public function getPairs($params = '', $dept = 0)
     {
         $users = $this->dao->select('account, realname')->from(TABLE_USER) 
-            ->where('1=1')
+            ->where(1)
             ->beginIF(strpos($params, 'nodeleted') !== false)->andWhere('deleted')->eq('0')->fi()
-            ->beginIF(strpos($params, 'noforbidden') !== false)->andWhere('locked')->eq('0000-00-00 00:00:00')->fi()
+            ->beginIF(strpos($params, 'noforbidden') !== false)
+            ->andWhere('locked', true)->eq('0000-00-00 00:00:00')
+            ->orWhere('locked')->lt(helper::now())
+            ->markRight(1)
+            ->fi()
             ->beginIF(strpos($params, 'admin') !== false)->andWhere('admin')->ne('no')->fi()
             ->beginIF($dept != 0)->andWhere('dept')->in($dept)->fi()
             ->orderBy('id_asc')    
@@ -176,7 +193,7 @@ class userModel extends model
      */
     public function getRoleList()
     {
-        return array_values($this->lang->user->roleList);
+        return $this->lang->user->roleList;
     }
 
     /**
@@ -308,20 +325,19 @@ class userModel extends model
         if(!$user) return false;
 
         /* Set keep login cookie info if keep login. */
-        if($this->post->keepLogin == 'true')
-        {
-            $this->keepLogin($user);
-        }
+        if($this->post->keepLogin) $this->keepLogin($user);
 
         $user->password = $this->post->rawPassword;
 
+        $groups = $this->loadModel('group')->getByAccount($account);
+        $user->groups = array_keys($groups);
         $user->rights = $this->authorize($user);
         $this->session->set('user', $user);
         $this->app->user = $this->session->user;
 
         $this->loadModel('action')->create('user', $user->id, 'login');
 
-        return true;
+        return $user;
     }
 
     /**
@@ -374,7 +390,7 @@ class userModel extends model
         if(!$this->compareHashPassword($password, $user))
         {
             $user->fails ++;
-            if($user->fails > 2) $user->locked = date('Y-m-d H:i:s', time() + 10 * 60);
+            if($user->fails > 4) $user->locked = date('Y-m-d H:i:s', time() + 10 * 60);
             $this->dao->update(TABLE_USER)->data($user)->where('id')->eq($user->id)->exec();
             return false;
         }
@@ -417,6 +433,8 @@ class userModel extends model
         /* Update keep login cookie info. */
         $this->keepLogin($user);
 
+        $groups = $this->loadModel('group')->getByAccount($account);
+        $user->groups = array_keys($groups);
         $user->rights = $this->authorize($user);
         $this->session->set('user', $user);
         $this->app->user = $this->session->user;
@@ -436,11 +454,16 @@ class userModel extends model
 
         foreach($this->config->rights->member as $moduleName => $moduleMethods)
         {
-            foreach($moduleMethods as $method) $rights[$moduleName][$method] = $method;
+            foreach($moduleMethods as $method) 
+            {
+                $method = strtolower($method);
+                $rights[$moduleName][$method] = $method;
+            }
         }
 
         /* pull from ranzhi. */
-        $sql = $this->dao->select('module, method')->from(TABLE_USERGROUP)->alias('t1')->leftJoin(TABLE_GROUPPRIV)->alias('t2')
+        $sql = $this->dao->select('module, method')->from(TABLE_USERGROUP)->alias('t1')
+            ->leftJoin(TABLE_GROUPPRIV)->alias('t2')
             ->on('t1.group = t2.group')
             ->where('t1.account')->eq($user->account);
         $stmt = $sql->query();
@@ -571,6 +594,10 @@ class userModel extends model
      */
     public function compareHashPassword($password, $user)
     {
+        if(!empty($this->config->notEncryptedPwd))
+        {
+            $password = md5(md5(md5($password) . $user->account) . $this->session->random);
+        }
         /* Check Hash if password leng is 40. */
         $passwordLength = strlen($password);
         if($passwordLength == 40)
@@ -598,5 +625,29 @@ class userModel extends model
         $file = $this->file->getByID($fileIdList[0]);
         $this->dao->update(TABLE_USER)->set('avatar')->eq($file->fullURL)->where('account')->eq($this->app->user->account)->exec();
         return array('result' => 'success', 'message' => $this->lang->user->uploadSuccess, 'locate' => inlink('cropavatar', "image={$file->id}"));
+    }
+
+    /**
+     * Get data in JSON.
+     * 
+     * @param  object    $user 
+     * @access public
+     * @return array
+     */
+    public function getDataInJSON($user)
+    {
+        $data                   = array();
+        $data['user']           = new stdclass();
+        $data['user']->id       = $user->id;
+        $data['user']->account  = $user->account;
+        $data['user']->email    = $user->email;
+        $data['user']->realname = $user->realname;
+        $data['user']->gender   = $user->gender;
+        $data['user']->dept     = $user->dept;
+        $data['user']->role     = $user->role;
+        $data['user']->company  = $this->app->company->name;
+        $data['user']->avatar   = $user->avatar;
+
+        return $data;
     }
 }

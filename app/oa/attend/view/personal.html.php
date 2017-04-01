@@ -2,7 +2,7 @@
 /**
  * The personal view file of attend module of Ranzhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      chujilu <chujilu@cnezsoft.com>
  * @package     attend
@@ -65,7 +65,7 @@
             <table class='table table-data text-center'>
               <thead>
                 <tr>
-                  <th class='w-80px'><?php echo $lang->attend->weeks[$weekIndex];?></th>
+                  <th class='w-90px'><?php echo $lang->attend->weeks[$weekIndex];?></th>
                   <th class='text-center'><?php echo $lang->attend->dayName;?></th>
                   <th class='text-center'><?php echo $lang->attend->signIn;?></th>
                   <th class='text-center'><?php echo $lang->attend->signOut;?></th>
@@ -83,46 +83,68 @@
                 <td><?php echo $lang->datepicker->abbrDayNames[$dayIndex]?></td>
                 <td class='attend-signin'>
                   <?php $signIn = substr($attends[$currentDate]->signIn, 0, 5);?>
-                  <?php if(strpos(',late,absent,rest,', $status) !== false) $signIn = $lang->attend->statusList[$status];?>
+                  <?php if(strpos(',late,absent,rest,', ",$status,") !== false) $signIn = $lang->attend->statusList[$status];?>
                   <?php if($status == 'both') $signIn = $lang->attend->statusList['late'];?>
                   <?php echo $signIn;?>
                 </td>
                 <td class='attend-signout'>
                   <?php $signOut = substr($attends[$currentDate]->signOut, 0, 5);?>
-                  <?php if(strpos(',early,absent,rest,', $status) !== false) $signOut = $lang->attend->statusList[$status];?>
+                  <?php if(strpos(',early,absent,rest,', ",$status,") !== false) $signOut = $lang->attend->statusList[$status];?>
                   <?php if($status == 'both') $signOut = $lang->attend->statusList['early'];?>
                   <?php echo $signOut;?>
                 </td>
                 <td>
                   <?php
-                  if(strpos('rest, normal, trip, leave, overtime', $status) === false):
-                  $edit     = $reviewStatus == 'wait' ? $lang->attend->edited : $lang->attend->edit;
-                  $leave    = $reason == 'leave' ? $lang->attend->leaved : $lang->attend->leave;
-                  $overtime = $reason == 'overtime' ? $lang->attend->overtimed : $lang->attend->overtime;
+                  if(strpos(',rest,normal,leave,makeup,overtime,lieu,trip,egress,', ",$status,") === false):
+                  $edit       = $reviewStatus == 'wait' ? $lang->attend->edited : $lang->attend->edit;
+                  $leave      = $reason == 'leave' ? $lang->attend->leaved : $lang->attend->leave;
+                  $overtime   = $reason == 'overtime' ? $lang->attend->overtimed : $lang->attend->overtime;
+                  $lieu       = $reason == 'lieu' ? $lang->attend->lieud : $lang->attend->lieu;
                   ?>
-                  <?php if($reviewStatus == 'wait' or strpos('late,early,both', $status) !== false):?>
+                  <?php if($reviewStatus == 'wait' or strpos(',late,early,both,', ",$status,") !== false):?>
                   <?php echo html::a($this->createLink('attend', 'edit', "date=" . str_replace('-', '', $currentDate)), $edit, "data-toggle='modal' data-width='500px'");?>
                   <?php elseif($reason == 'leave'): ?>
                   <?php commonModel::printLink('leave', 'create', "date=" . str_replace('-', '', $currentDate), $leave, "data-toggle='modal' data-width='700px'");?>
+                  <?php elseif($reason == 'lieu'): ?>
+                  <?php commonModel::printLink('lieu', 'create', "date=" . str_replace('-', '', $currentDate), $lieu, "data-toggle='modal' data-width='700px'");?>
                   <?php elseif($reason == 'overtime'): ?>
-                  <?php commonModel::printLink('overtime', 'create', "date=" . str_replace('-', '', $currentDate), $overtime, "data-toggle='modal' data-width='500px'");?>
+                  <?php commonModel::printLink('overtime', 'create', "date=" . str_replace('-', '', $currentDate), $overtime, "data-toggle='modal' data-width='700px'");?>
                   <?php else:?>
                   <div class='dropdown'>
                     <a href='javascript:;' data-toggle='dropdown'><?php echo $lang->actions;?><span class='caret'></span></a>
                     <ul role='menu' class='dropdown-menu'>
                       <?php if($reason == '' or $reason == 'normal')   echo "<li>" . html::a($this->createLink('attend', 'edit', "date=" . str_replace('-', '', $currentDate)), $edit, "data-toggle='modal' data-width='500px'") . "</li>";?>
                       <?php if($reason == '' or $reason == 'leave')    commonModel::printLink('leave', 'create', "date=" . str_replace('-', '', $currentDate), $leave, "data-toggle='modal' data-width='700px'", '', '', 'li');?>
-                      <?php if($reason == '' or $reason == 'trip')     commonModel::printLink('trip', 'create', '', $lang->attend->trip, "data-toggle='modal' data-width='500px'", '', '', 'li');?>
-                      <?php if($reason == '' or $reason == 'overtime') commonModel::printLink('overtime', 'create', "date=" . str_replace('-', '', $currentDate), $lang->attend->overtime, "data-toggle='modal' data-width='500px'", '', '', 'li');?>
+                      <?php if($reason == '' or $reason == 'overtime') commonModel::printLink('overtime', 'create', "date=" . str_replace('-', '', $currentDate), $lang->attend->overtime, "data-toggle='modal' data-width='700px'", '', '', 'li');?>
+                      <?php if($reason == '' or $reason == 'egress')   commonModel::printLink('egress', 'create', '', $lang->attend->egress, "data-toggle='modal' data-width='700px'", '', '', 'li');?>
+                      <?php if($reason == '' or $reason == 'trip')     commonModel::printLink('trip', 'create', '', $lang->attend->trip, "data-toggle='modal' data-width='700px'", '', '', 'li');?>
+                      <?php if($reason == '' or $reason == 'lieu')     commonModel::printLink('lieu', 'create', '', $lang->attend->lieu, "data-toggle='modal' data-width='700px'", '', '', 'li');?>
                     </ul>
                   </div>
                   <?php endif;?>
                   <?php else:?>
-                  <span class="attend-<?php echo $status;?>">
-                  <?php if($status == 'rest') commonModel::printLink('overtime', 'create', "date=" . str_replace('-', '', $currentDate), $lang->attend->overtime, "data-toggle='modal' data-width='500px'");?></li>
-                  <?php if($status != 'rest') echo $lang->attend->statusList[$status];?>
-                  <?php if(strpos('leave,trip,overtime', $status) !== false and $attends[$currentDate]->desc) echo ' ' . $attends[$currentDate]->desc . 'h';?>
+                  <?php if($status == 'rest'):?>
+                  <span class='attend-<?php echo $status;?>'>
+                    <?php commonModel::printLink('overtime', 'create', "date=" . str_replace('-', '', $currentDate), $lang->attend->overtime, "data-toggle='modal' data-width='700px'");?>
                   </span>
+                  <?php elseif($status == 'normal'):?> 
+                  <span class='attend-<?php echo $status;?>'>
+                    <?php echo $lang->attend->statusList[$status];?>
+                  </span>
+                  <?php else:?>
+                  <div class='dropdown'>
+                    <a href='javascript:;' data-toggle='dropdown'>
+                      <span class='attend-<?php echo $status;?>'>
+                        <?php echo $lang->attend->statusList[$status];?>
+                        <?php if(strpos(',leave,makeup,overtime,lieu,trip,egress,', ",$status,") !== false and $attends[$currentDate]->desc) echo ' ' . $attends[$currentDate]->desc . 'h';?>
+                      </span>
+                      <span class='caret'></span>
+                    </a>
+                    <ul role='menu' class='dropdown-menu'>
+                      <li><?php echo html::a($this->createLink('attend', 'edit', "date=" . str_replace('-', '', $currentDate)), $edit, "data-toggle='modal' data-width='500px'") . "</li>";?>
+                    </ul>
+                  </div>
+                  <?php endif;?>
                   <?php endif;?>
                 </td>
               </tr>

@@ -2,7 +2,7 @@
 /**
  * The control file of contact module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     contact
@@ -14,7 +14,7 @@ class contact extends control
     public function __CONSTRUCT()
     {
         parent::__CONSTRUCT();
-        $this->loadModel('customer', 'crm');
+        $this->loadModel('customer');
         $this->loadModel('contact', 'crm');
         $this->loadModel('resume', 'crm');
         $this->loadModel('address', 'crm');
@@ -77,7 +77,7 @@ class contact extends control
             $this->send($return);
         }
 
-        $this->app->loadLang('resume');
+        $this->app->loadLang('resume', 'crm');
 
         unset($this->lang->contact->menu);
         $this->view->title     = $this->lang->contact->create;
@@ -106,7 +106,7 @@ class contact extends control
             $this->send($return);
         }
 
-        $this->app->loadLang('resume');
+        $this->app->loadLang('resume', 'crm');
 
         $this->view->title      = $this->lang->contact->edit;
         $this->view->customers  = $this->customer->getPairs('provider');

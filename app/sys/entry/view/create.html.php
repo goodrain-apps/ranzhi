@@ -2,14 +2,15 @@
 /**
  * The create view of entry module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     entry 
- * @version     $Id: create.html.php 3294 2015-12-02 01:19:46Z liugang $
+ * @version     $Id: create.html.php 4091 2016-09-30 07:16:50Z daitingting $
  * @link        http://www.ranzhico.com
  */
 include '../../common/view/header.html.php';
+include '../../common/view/chosen.html.php';
 js::set('loginUrl', $lang->entry->login);
 js::set('loginPlaceholder', $lang->entry->note->login);
 js::set('chanzhiURL', $lang->entry->chanzhiURL);
@@ -50,6 +51,15 @@ js::set('zentaoName', $lang->entry->zentao);
         <tr>
           <th><?php echo $lang->entry->login;?></th>
           <td><?php echo html::input('login', '', "class='form-control' placeholder='{$lang->entry->note->login}'");?></td>
+          <?php if($this->server->request_scheme == 'https'):?>
+          <td class='text-danger'><?php echo $lang->entry->note->scheme;?></td>
+          <?php else:?>
+          <td></td>
+          <?php endif;?>
+        </tr>
+        <tr>
+          <th><?php echo $lang->entry->category;?></th>
+          <td><?php echo html::select('category', $categories, '', "class='form-control chosen'");?></td>
           <td></td>
         </tr>
         <tr class='hide'>

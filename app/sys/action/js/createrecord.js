@@ -33,6 +33,14 @@ $(document).ready(function()
         }
     });
 
+    if(v.history) $('#actionBox').load(createLink('action', 'history', 'objectType=' + v.objectType + '&objectID=' + v.objectID + '&action=record&from=record'), function()
+    {
+        if($('#actionBox .panel-history .panel-body').height() > 300) 
+        {
+          $('#actionBox .panel-history .panel-body').css({'height' : 300, 'overflow' : 'auto'});
+        }
+    });
+
     $('[name*=objectType]').change(function()
     {
         $('#order, #contract').attr('disabled', true).parents('tr').hide();
@@ -50,12 +58,12 @@ $(document).ready(function()
         {   
             $(this).parents('.input-group').find('select').hide();
             $('#contact_chosen').hide();
-            $(this).parents('.input-group').find('input[type=text]').show().focus();
+            $(this).parents('.input-group').find('input[id=realname]').show().focus();
         }   
         else
         {   
             $('#contact_chosen').show();
-            $(this).parents('.input-group').find('input[type=text]').hide();
+            $(this).parents('.input-group').find('input[id=realname]').hide();
         }   
     });
 
@@ -70,9 +78,14 @@ $(document).ready(function()
         qq    = qq    == '' ? '' : "<i class='icon-qq'></i><a target='_blank' href='http://wpa.qq.com/msgrd?v=3&uin=" + qq + "&site=&menu=yes'>" + qq + "</a>";
         email = email == '' ? '' : "<i class='icon-envelope-alt'></i><a href='mailto:" + email + "'>" + email + "</a>";
         
-        $('#phoneTR').show();
-        $('#phoneTD').html(phone + qq + email);
+        if(phone || qq || email)
+        {
+            $('#phoneTR').show();
+            $('#phoneTD').html(phone + qq + email);
+        }
     });
+
+    $('#fileform > .text-danger').remove();
 });
 
 /**
@@ -93,11 +106,11 @@ function computeNextDate(delta)
 
     if(delta == 365000)
     {
-      $('#nextDate').val('').attr('disabled', true);
+        $('#createRecordForm #nextDate').val('').attr('disabled', true);
     }
     else
     {
-        $('#nextDate').val(nextDate).attr('disabled', false);
+        $('#createRecordForm #nextDate').val(nextDate).attr('disabled', false);
     }
 }
 

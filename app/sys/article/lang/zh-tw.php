@@ -2,11 +2,11 @@
 /**
  * The article category zh-tw file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青島易軟天創網絡科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     article
- * @version     $Id: zh-tw.php 3549 2016-01-26 09:35:02Z liugang $
+ * @version     $Id: zh-tw.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 $lang->article->common      = '文章維護';
@@ -35,6 +35,7 @@ $lang->article->order       = '排序';
 $lang->article->private     = '設為私密';
 $lang->article->users       = '授權用戶';
 $lang->article->groups      = '授權分組';
+$lang->article->readers     = '已閲讀用戶';
 
 $lang->article->list        = '文章列表';
 $lang->article->admin       = '維護文章';
@@ -71,8 +72,9 @@ $lang->article->confirmDelete = '您確定刪除該文章嗎？';
 $lang->article->lblAddedDate = '<strong>添加時間：</strong> %s &nbsp;&nbsp;';
 $lang->article->lblAuthor    = "<strong>作者：</strong> %s &nbsp;&nbsp;";
 $lang->article->lblSource    = '<strong>來源：</strong>';
-$lang->article->lblViews     = ' <strong>閲讀：</strong>%s';
+$lang->article->lblViews     = '<strong>閲讀：</strong>%s';
 $lang->article->lblEditor    = '<i>最後編輯：%s 于 %s</i>';
+$lang->article->lblReaders   = '%s人已閲讀';
 
 $lang->article->prev      = '上一篇';
 $lang->article->next      = '下一篇';

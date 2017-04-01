@@ -2,21 +2,21 @@
 /**
  * The article category zh-cn file of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     article
- * @version     $Id: en.php 3562 2016-01-28 08:56:12Z daitingting $
+ * @version     $Id: en.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 $lang->article->common      = 'Article';
 $lang->article->createDraft = 'Create draft';
 
 $lang->article->id          = 'Id';
-$lang->article->category    = 'Categories';
+$lang->article->category    = 'Category';
 $lang->article->categories  = 'Categories';
 $lang->article->title       = 'Title';
-$lang->article->alias       = 'English alias';
+$lang->article->alias       = 'Alias';
 $lang->article->content     = 'Content';
 $lang->article->original    = 'Original';
 $lang->article->copySite    = 'Site';
@@ -35,6 +35,7 @@ $lang->article->order       = 'Order';
 $lang->article->private     = 'Private';
 $lang->article->users       = 'Users';
 $lang->article->groups      = 'Groups';
+$lang->article->readers     = 'Readers';
 
 $lang->article->list   = 'List';
 $lang->article->admin  = 'Admin';
@@ -73,8 +74,9 @@ $lang->article->lblAuthor    = "<strong>Author:</strong> %s &nbsp;&nbsp;";
 $lang->article->lblSource    = '<strong>Source:</strong>';
 $lang->article->lblViews     = ' <strong>Views:</strong>%s';
 $lang->article->lblEditor    = '<i>Edited by %s at %s</i>';
+$lang->article->lblReaders   = '%s users had read.';
 
-$lang->article->prev      = 'Previous';
+$lang->article->prev      = 'Prev';
 $lang->article->next      = 'Next';
 $lang->article->none      = 'None';
 $lang->article->directory = 'Back';

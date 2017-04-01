@@ -27,7 +27,7 @@ body {background: #fff;}
 .menu.affix-bottom {position:absolute; top:auto; bottom:270px;}
 
 .page-content {margin-right: 0; margin-left: 0;}
-.page-content.with-menu {margin-top: 42px;}
+.page-content.with-menu {margin-top: 41px;}
 
 /* panel */
 .panel .table-bordered {border:none; margin-bottom: 0;}
@@ -91,7 +91,7 @@ table.tablesorter thead tr .headerSortDown:after{font-family: ZenIcon; font-weig
 .with-fixed-table-footer .table-fixed-footer {position: fixed; z-index: 10; box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.2); background-color: #fff;}
 
 /* menu */
-#menu {position: fixed; top: 41px; left: 0; right: 0; border-bottom: 1px solid #ddd; background: #f1f1f1; padding: 0 5px; z-index: 900}
+#menu {position: fixed; top: 40px; left: 0; right: 0; border-bottom: 1px solid #ddd; background: #f1f1f1; padding: 0 5px; z-index: 900}
 #menu > .nav {float: left; padding: 0 5px}
 #menu > .nav > li {float: left; padding: 5px 0}
 .ie-8 #menu > .nav > li {padding-bottom: 3px}

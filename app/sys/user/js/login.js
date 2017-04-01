@@ -2,6 +2,8 @@ $(document).ready(function()
 {
     $('#account').focus();
 
+    setInterval('ping()', 1000 * config.pingInterval);
+
     $("#langs li > a").click(function() 
     {
         selectLang($(this).data('value'));
@@ -40,14 +42,15 @@ $(document).ready(function()
 /* Keep session random valid. */
 $('#submit').click(function()
 {
-    var password    = md5(md5(md5($('#password').val()) + $('#account').val()) + v.random);
+    var password    = v.notEncryptedPwd ? $('#password').val() : md5(md5(md5($('#password').val()) + $('#account').val()) + v.random);
     var rawPassword = md5($('#password').val());
-
+    
     loginURL = createLink('user', 'login');
     $.ajax(
     {
+        contentType: 'application/x-www-form-urlencoded',
         type: "POST",
-        data:"account=" + $('#account').val() + '&password=' + password + '&referer=' + encodeURIComponent($('#referer').val()) + '&rawPassword=' + rawPassword + '&keepLogin=' + $('#keepLogin1').is(':checked'),
+        data:"account=" + $('#account').val() + '&password=' + password + '&referer=' + encodeURIComponent($('#referer').val()) + '&rawPassword=' + rawPassword + '&keepLogin=' + $('#keepLoginon').is(':checked'),
         url:$('#ajaxForm').attr('action'),
         dataType:'json',
         success:function(data)

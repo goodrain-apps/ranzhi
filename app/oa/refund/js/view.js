@@ -1,6 +1,7 @@
 $(document).ready(function()
 {
     $('#menu .nav li').removeClass('active').find('[href*=' + v.mode + ']').parent().addClass('active');
+    if(v.mode == 'review') $('#menu .nav li').find('[href*=reviewed], [href*=setreviewer]').parent().removeClass('active');
 
     $.setAjaxJSONER('.refund', function(response)
     {
@@ -17,7 +18,7 @@ $(document).ready(function()
                         className: 'btn-primary',  
                         callback:  function()
                         {
-                            $('.modal').load($('.createTrade').prop('href'), '', function()
+                            $('.modal').load(createLink('refund', 'createTrade', 'refundID=' + response.refundID), '', function()
                             {
                                 $('.modal').modal('ajustPosition', 'fit');
                             });

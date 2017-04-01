@@ -2,10 +2,15 @@
 .tree .active{font-weight: bold;}
 .tree > li {margin-right: 0;}
 
-td .attend-normal {color: #38B03F;}
-td .attend-leave  {color: #9E9E9E;}
-td .attend-trip   {color: #8666B8;}
-td .attend-rest   {color: #3280fc;}
+td .attend-normal   {color: #38B03F;}
+td .attend-rest     {color: #3280fc;}
+td .attend-leave    {color: #9E9E9E;}
+td .attend-lieu     {color: #9E9E9E;}
+td .attend-overtime {color: #006600;}
+td .attend-makeup   {color: #006600;}
+td .attend-trip     {color: #8666B8;}
+td .attend-egress   {color: #8666B8;}
+
 .attend-late .attend-signin    {color: #EA644A;}
 .attend-early .attend-signout  {color: #FF8A65;}
 .attend-both [class^=attend]   {color: #FF5722;}
@@ -14,3 +19,6 @@ td .attend-rest   {color: #3280fc;}
 
 table .otherMonth {background: #f0f0f0; color: #9e9e9e}
 table tr:last-child th ,table tr:last-child td{border-bottom: none;}
+
+td > .dropdown{height: 100%; line-height: 100%;}
+a:hover {text-decoration: none;}

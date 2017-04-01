@@ -1,6 +1,9 @@
-label{font-weight: normal; margin-right: 8px; vertical-align: middle;}
+label{font-weight: normal; vertical-align: middle;}
 label input[type='radio']{margin: 6px 2px 0 0;}
+
 .input-group-addon label.checkbox{display: inline-block; padding-top: 3px;}
+.input-group > .form-control, .input-group .chosen-container-single .chosen-single{height: 35px;}
+
 #duplicateError {display: inline-block;}
 #duplicateError .alert{padding: 3px 10px; margin-bottom: 0; text-align: left;}
 #duplicateError .close{right: 0; top: 5px; margin-left: 20px;} 
@@ -8,3 +11,8 @@ label input[type='radio']{margin: 6px 2px 0 0;}
 #phoneTD {padding-left: 15px;}
 #phoneTD i {margin-right:5px;}
 #phoneTD .icon-qq, #phoneTD .icon-envelope-alt {margin-left: 10px;}
+
+.pager{margin: 0;}
+.fileBox{margin:0;}
+.table-condensed th, .table-condensed td{padding: 5px;}
+.table td{max-width: 724px;}

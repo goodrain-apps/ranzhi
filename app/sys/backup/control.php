@@ -2,7 +2,7 @@
 /**
  * The control file of backup of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     backup
@@ -40,6 +40,8 @@ class backup extends control
      */
     public function index()
     {
+        $this->app->loadModuleConfig('cron');
+
         $backups = array();
         if(empty($this->view->error))
         {
@@ -134,6 +136,27 @@ class backup extends control
     }
 
     /**
+     * Set save days for backup.
+     * 
+     * @access public
+     * @return void
+     */
+    public function setSaveDays()
+    {
+        if($_POST)
+        {
+            if($this->post->saveDays <= 0) $this->send(array('result' => 'fail', 'message' => $this->lang->backup->error->setSaveDays));
+
+            $this->backup->setSaveDays();
+            if(dao::isError()) $this->send(array('result' => 'fail', 'message' => dao::getError()));
+            $this->send(array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => 'reload'));
+        }
+
+        $this->view->title = $this->lang->backup->setSaveDays;
+        $this->display();
+    }
+
+    /**
      * Delete 
      * 
      * @param  string $fileName 
@@ -152,7 +175,7 @@ class backup extends control
         /* Delete attatchments file. */
         if(file_exists($this->backupPath . $fileName . '.file.zip.php') and !unlink($this->backupPath . $fileName . '.file.zip.php'))
         {
-            $this->send(array('result' => 'fail', 'mesage' => sprintf($this->lang->backup->error->noDelete, $this->backupPath . $fileName . '.file.zip.php')));
+            $this->send(array('result' => 'fail', 'message' => sprintf($this->lang->backup->error->noDelete, $this->backupPath . $fileName . '.file.zip.php')));
         }
 
         $this->send(array('result' => 'success'));

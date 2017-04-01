@@ -2,7 +2,7 @@
 /**
  * The view file of view function of announce module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Xiying Guan <guanxiying@xirangit.com> 
  * @package     announce 
@@ -21,6 +21,12 @@
     </dl>
   </header>
   <section class='announce-content'><?php echo $announce->content;?></section>
+  <footer>
+    <div class='row'>
+      <div class='col-xs-12 col-md-12'><strong><?php printf($lang->article->lblReaders, count($readers));?></strong></div>
+      <div class='col-xs-12 col-md-12'><?php echo implode(', ', $readers);?></div>
+    </div>
+  </footer>
   <footer>
     <?php extract($prevAndNext);?>
     <ul class='pager pager-justify'>

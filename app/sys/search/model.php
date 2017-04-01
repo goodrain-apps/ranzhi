@@ -2,7 +2,7 @@
 /**
  * The model file of search module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     search
@@ -77,6 +77,11 @@ class searchModel extends model
             {
                 $where .= '`' . $this->post->$fieldName . '` ';
             }
+            elseif($this->post->$fieldName == 'contract.productLine')
+            {
+                /* Search contracts by product or product line. */
+                $where .= ' id ';
+            }
             else
             {
                 $where .= $this->post->$fieldName . ' ';
@@ -87,14 +92,52 @@ class searchModel extends model
             $operator = $this->post->$operatorName;
             if(!isset($this->lang->search->operators[$operator])) $operator = '=';
 
+            if($this->post->$fieldName == 'contract.productLine')
+            {
+                $clientLang   = $this->app->getClientLang();
+                $productLines = $this->dao->select('`key`')->from(TABLE_LANG)
+                    ->where('lang')->in("$clientLang,all")
+                    ->andWhere('app')->eq('crm')
+                    ->andWhere('module')->eq('product')
+                    ->andWhere('section')->eq('lineList')
+                    ->beginIF($operator == "include" || $operator == "notinclude")->andWhere('value')->like("%$value%")->fi()
+                    ->beginIF($operator == "=" || $operator == "!=")->andWhere('value')->eq($value)->fi()
+                    ->fetchPairs();
+                $products = $this->dao->select('id')->from(TABLE_PRODUCT)
+                    ->where('line')->in($productLines)
+                    ->beginIF($operator == "include" || $operator == "notinclude")->orWhere('name')->like("%$value%")->fi()
+                    ->beginIF($operator == "=" || $operator == "!=")->orWhere('name')->eq($value)->fi()
+                    ->fetchPairs();
+                $orders = array();
+                foreach($products as $product)
+                {
+                    $orders += $this->dao->select('id')->from(TABLE_ORDER)->where('product')->like("%,$product,%")->fetchPairs();
+                }
+                $contracts = $this->dao->select('contract')->from(TABLE_CONTRACTORDER)->where('`order`')->in($orders)->fetchPairs();
+            }
+
             if($operator == "include")
             {
-                if($this->post->$fieldName == 'o.product') $value = ',' . $value . ',';
-                $where .= ' LIKE ' . $this->dbh->quote("%$value%");
+                if($this->post->$fieldName == 'contract.productLine')
+                {
+                    $where .= helper::dbIN($contracts);
+                }
+                else
+                {
+                    if($this->post->$fieldName == 'o.product') $value = ',' . $value . ',';
+                    $where .= ' LIKE ' . $this->dbh->quote("%$value%");
+                }
             }
             elseif($operator == "notinclude")
             {
-                $where .= ' NOT LIKE ' . $this->dbh->quote("%$value%"); 
+                if($this->post->$fieldName == 'contract.productLine')
+                {
+                    $where .= ' NOT ' . helper::dbIN($contracts);
+                }
+                else
+                {
+                    $where .= ' NOT LIKE ' . $this->dbh->quote("%$value%"); 
+                }
             }
             elseif($operator == 'belong')
             {
@@ -109,6 +152,10 @@ class searchModel extends model
                     $allDepts = $this->loadModel('dept')->getAllChildId($value);
                     $where .= helper::dbIN($allDepts);
                 }
+                elseif($this->post->$fieldName == 'contract.productLine')
+                {
+                    $where .= " = '-1'";
+                }
                 else
                 {
                     $where .= ' = ' . $this->dbh->quote($value) . ' ';
@@ -116,7 +163,25 @@ class searchModel extends model
             }
             else
             {
-                $where .= $operator . ' ' . $this->dbh->quote($value) . ' ';
+                if($this->post->$fieldName == 'contract.productLine')
+                {
+                    if($operator == '=') 
+                    {
+                        $where .= helper::dbIN($contracts);
+                    }
+                    elseif($operator == '!=') 
+                    {
+                        $where .= ' NOT ' . helper::dbIN($contracts);
+                    }
+                    else 
+                    {
+                        $where .= " = '-1'";
+                    }
+                }
+                else
+                {
+                    $where .= $operator . ' ' . $this->dbh->quote($value) . ' ';
+                }
             }
         }
 

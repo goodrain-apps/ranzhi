@@ -2,7 +2,7 @@
 /**
  * The create view file of contract module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     contract
@@ -80,6 +80,10 @@
           <td class='contactTD'><select name='contact' id='contact' class='form-control'></select></td>
         </tr>
         <tr>
+          <th><?php echo $lang->contract->address;?></th>
+          <td><?php echo html::input('address', '', "class='form-control'");?></td>
+        </tr>
+        <tr>
           <th><?php echo $lang->contract->signedBy;?></th>
           <td><?php echo html::select('signedBy', $users, '', "class='form-control chosen'");?></td>
         </tr>
@@ -105,10 +109,12 @@
           <th><?php echo $lang->contract->items;?></th>
           <td colspan='2'><?php echo html::textarea('items', '',"rows='5' class='form-control'");?></td>
         </tr>
+        <?php if(commonModel::hasPriv('file', 'upload')):?>
         <tr>
           <th><?php echo $lang->contract->uploadFile;?></th>
           <td colspan='2'><?php echo $this->fetch('file', 'buildForm');?></td>
         </tr>
+        <?php endif;?>
         <tr>
           <th></th>
           <td><?php echo html::submitButton() . '&nbsp;&nbsp;' . html::backButton();?></td>

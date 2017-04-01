@@ -2,7 +2,7 @@
 /**
  * The model file of webapp module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <Yidong@cnezsoft.com>
  * @package     webapp
@@ -104,6 +104,9 @@ class webappModel extends model
      * 
      * @param  string    $type 
      * @param  mixed     $param 
+     * @param  int       $recTotal
+     * @param  int       $recPerPage
+     * @param  int       $pageID
      * @access public
      * @return array|bool
      */
@@ -146,7 +149,7 @@ class webappModel extends model
     /**
      * Get webapps by status.
      * 
-     * @param  string    $status 
+     * @param  string $key 
      * @access public
      * @return array
      */
@@ -221,7 +224,7 @@ class webappModel extends model
             if($entry->size == 'custom') $entry->size = helper::jsonEncode(array('width' => (int)$size[0], 'height' => (int)$size[1]));
         }
 
-        $this->app->loadConfig('entry');
+        $this->app->loadModuleConfig('entry');
         $this->dao->insert(TABLE_ENTRY)
             ->data($entry, $skip = 'files')
             ->autoCheck()

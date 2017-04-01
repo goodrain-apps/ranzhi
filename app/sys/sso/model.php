@@ -2,11 +2,11 @@
 /**
  * The model file of sso module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     sso 
- * @version     $Id: model.php 3567 2016-02-01 09:33:14Z daitingting $
+ * @version     $Id: model.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 class ssoModel extends model
@@ -121,6 +121,7 @@ class ssoModel extends model
     public function initZentaoSSO($config, $zentaoUrl, $account, $password, $code, $key)
     {
         /* login. */
+        $password = md5(md5($password) . $config->rand);
         $loginUrl = $this->createZentaoLink($config, $zentaoUrl, 'user', 'login') . "&account={$account}&password={$password}";
         $result = $this->fetchZentaoAPI($loginUrl);
         if(!$result) return array('result' => 'fail', 'message' => $this->lang->entry->error->admin);
@@ -208,5 +209,29 @@ class ssoModel extends model
             if($useSession) $url .= "?{$config->sessionVar}={$config->sessionID}";
         }
         return $url;
+    }
+
+    /**
+     * Get zentao todo list for ranzhi.
+     * 
+     * @param  string $code 
+     * @param  string $account 
+     * @access public
+     * @return void
+     */
+    public function getZentaoTodoList($code = '', $account = '')
+    {
+        $entry = $this->dao->select('*')->from(TABLE_ENTRY)->where('zentao')->eq(1)->andWhere('code')->eq($code)->fetch();
+        if(strpos($entry->login, '&') === false) $zentaoUrl = substr($entry->login, 0, strrpos($entry->login, '/') + 1);
+        if(strpos($entry->login, '&') !== false) $zentaoUrl = substr($entry->login, 0, strpos($entry->login, '?'));
+
+        $zentaoConfig = $this->loadModel('sso')->getZentaoServerConfig($zentaoUrl);
+        if(strpos($zentaoConfig->version, 'pro') !== false and version_compare($zentaoConfig->version, 'pro5.2.1', '<')) return false; 
+        if(strpos($zentaoConfig->version, 'pro') === false and version_compare($zentaoConfig->version, '8.2.1', '<')) return false;
+
+        $url  = $this->sso->createZentaoLink($zentaoConfig, $zentaoUrl, 'sso', 'getTodoList', "account=$account", 'json', false);
+        $url .= "?hash={$entry->key}";
+        $results = commonModel::http($url);
+        return json_decode($results, true);
     }
 }

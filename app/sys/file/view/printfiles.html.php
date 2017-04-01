@@ -2,7 +2,7 @@
 /**
  * The print files view file of file module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Yidong Wang <yidong@cnezsoft.com>
  * @package     file 
@@ -37,6 +37,7 @@ function downloadFile(fileID)
     return false;
 }
 </script>
+<?php if(commonModel::hasPriv('file', 'download')):?>
 <?php if($fieldset == 'true'):?>
 <fieldset>
   <legend><?php echo $lang->file->common;?></legend>
@@ -47,10 +48,11 @@ function downloadFile(fileID)
     {
         echo "<li><i class='icon-file-text-alt text-muted'></i> ";
         echo html::a('javascript:;', $file->title .'.' . $file->extension, "onclick='return downloadFile($file->id)'");
-        echo html::a($this->createLink('file', 'edit', "fileID=$file->id"), "<i class='icon-pencil'></i>", "data-toggle='modal' class='link-edit link-btn'");
-        echo html::a($this->createLink('file', 'delete', "fileID=$file->id"), "<i class='icon-remove'></i>", "class='deleter link-btn'");
+        commonModel::printLink('file', 'edit', "fileID=$file->id", "<i class='icon-pencil'></i>", "data-toggle='modal' class='link-edit link-btn'");
+        commonModel::printLink('file', 'delete', "fileID=$file->id", "<i class='icon-remove'></i>", "class='deleter link-btn'");
         echo '</li>';
     }
     ?>
   </ul>
 <?php if($fieldset == 'true') echo '</fieldset>';?>
+<?php endif;?>

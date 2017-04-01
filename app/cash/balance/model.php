@@ -2,7 +2,7 @@
 /**
  * The model file of balance module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Xiying Guan <guanxiying@xirangit.com>
  * @package     contact
@@ -82,7 +82,7 @@ class balanceModel extends model
         if(empty($balance))
         {
             $now = helper::now();
-            $depositor = $this->loadModel('depositor')->getByID($this->post->depositor);
+            $depositor = $this->loadModel('depositor', 'cash')->getByID($this->post->depositor);
 
             $balance = fixer::input('post')
                 ->add('currency', !empty($depositor) ? "{$depositor->currency}" : '')
@@ -111,7 +111,7 @@ class balanceModel extends model
     {
         $oldBalance = $this->getByID($balanceID);
 
-        $depositor = $this->loadModel('depositor')->getByID($this->post->depositor);
+        $depositor = $this->loadModel('depositor', 'cash')->getByID($this->post->depositor);
 
         $balance = fixer::input('post')
             ->add('currency', $depositor->currency)

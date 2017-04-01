@@ -2,7 +2,7 @@
 /**
  * The control file of block module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     block
@@ -151,7 +151,7 @@ class block extends control
             ->limit($this->params->num)
             ->fetchAll('id');
 
-        $this->loadModel('thread')->setRealNames($threads);
+        $this->loadModel('thread', 'team')->setRealNames($threads);
         $threads = $this->thread->process($threads);
 
         $this->view->threads = $threads;

@@ -6,7 +6,7 @@
  * @license     LGPL
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     RanZhi
- * @version     $Id: loader.php 3425 2015-12-24 02:32:32Z liugang $
+ * @version     $Id: loader.php 4001 2016-07-21 01:47:54Z liugang $
  * @link        http://www.ranzhico.com
  */
 /* Set the error reporting. */
@@ -39,8 +39,10 @@ if(isset($_GET['mode']) && $_GET['mode'] == 'getconfig') die(helper::removeUTF8B
 if(RUN_MODE != 'upgrade')
 {
     $config->installedVersion = $common->loadModel('setting')->getVersion();
-    if(!(!is_numeric($config->version{0}) and $config->version{0} != $config->installedVersion{0}) and version_compare($config->version, $config->installedVersion, '>')) die(header('location: upgrade.php'));
+    if(version_compare($config->version, $config->installedVersion, '>')) die(header('location: upgrade.php'));
 }
+
+if($app->clientDevice == 'mobile' and strpos($config->installedVersion, 'pro') === 0 and $config->default->view == 'html') $config->default->view = 'mhtml';
 
 $app->parseRequest();
 $common->checkPriv();

@@ -2,11 +2,11 @@
 /**
  * The zh-cn file of install module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     install 
- * @version     $Id: zh-cn.php 3149 2015-11-11 08:23:01Z daitingting $
+ * @version     $Id: zh-cn.php 4029 2016-08-26 06:50:41Z liugang $
  * @link        http://www.ranzhico.com
  */
 $lang->install = new stdclass();
@@ -88,6 +88,9 @@ $lang->install->save2File  = '<span class="red">尝试写入配置文件，失�
 $lang->install->saved2File = '配置信息已经成功保存到" <strong>%s</strong> "中。您后面还可继续修改此文件。';
 $lang->install->errorNotSaveConfig = '还没有保存配置文件';
 
+$lang->install->domainIP = '域名映射的IP是：%s';
+$lang->install->serverIP = '服务器的内网IP是：%s';
+$lang->install->publicIP = '服务器的公网IP是：%s';
 $lang->install->setAdmin = '设置管理员';
 $lang->install->account  = '帐号';
 $lang->install->password = '密码';
@@ -104,3 +107,7 @@ $lang->install->buildinEntry->oa['name']   = '日常办公';
 $lang->install->buildinEntry->oa['abbr']   = '办公';
 $lang->install->buildinEntry->team['name'] = '团队';
 $lang->install->buildinEntry->team['abbr'] = '团队';
+$lang->install->buildinEntry->doc['name']  = '文档';
+$lang->install->buildinEntry->doc['abbr']  = '文档';
+$lang->install->buildinEntry->proj['name'] = '项目';
+$lang->install->buildinEntry->proj['abbr'] = '项目';

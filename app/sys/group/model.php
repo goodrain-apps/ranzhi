@@ -2,7 +2,7 @@
 /**
  * The model file of group module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Xiying Guan <guanxiying@xirangit.com>
  * @package     group
@@ -492,7 +492,7 @@ class groupModel extends model
     }
 
     /**
-     * Update accounts when change priviledge.
+     * Update accounts when change Privilege.
      * 
      * @param  int    $groupID 
      * @access public

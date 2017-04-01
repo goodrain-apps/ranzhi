@@ -2,11 +2,11 @@
 /**
  * The header.lite view of common module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     common 
- * @version     $Id: header.lite.html.php 3299 2015-12-02 02:10:06Z daitingting $
+ * @version     $Id: header.lite.html.php 4041 2016-09-27 07:09:30Z liugang $
  * @link        http://www.ranzhico.com
  */
 if($extView = $this->getExtViewFile(__FILE__)){include $extView; return helper::cd();}
@@ -20,7 +20,7 @@ $clientTheme  = $this->app->getClientTheme();
 <head profile="http://www.w3.org/2005/10/profile">
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <?php echo html::icon($webRoot . 'favicon.ico');?>
+  <?php echo html::favicon($webRoot . 'favicon.ico');?>
   <?php
   if(!isset($title)) $title  = '';
   if(!empty($title)) $title .= $lang->minus;
@@ -29,7 +29,7 @@ $clientTheme  = $this->app->getClientTheme();
   js::exportConfigVars();
   if(isset($this->app->entry->id)) js::set('entryID', $this->app->entry->id);
   if(RUN_MODE != 'upgrade' and RUN_MODE != 'install' and !isset($this->app->entry->id) and ($this->app->user->admin == 'super')) js::set('entryID', 'superadmin');
-  if(RUN_MODE != 'upgrade' and RUN_MODE != 'install' and !isset($this->app->entry->id) and ($this->moduleName == 'my' or $this->moduleName == 'todo')) js::set('entryID', 'dashboard');
+  if(RUN_MODE != 'upgrade' and RUN_MODE != 'install' and !isset($this->app->entry->id) and (strpos($config->dashboard->modules, $this->moduleName) !== false)) js::set('entryID', 'dashboard');
   if($config->debug)
   {
       js::import($jsRoot . 'jquery/min.js');
@@ -71,4 +71,4 @@ js::import($jsRoot . 'jquery/placeholder/min.js');
 <![endif]-->
 <?php js::set('lang', $lang->js);?>
 </head>
-<body class='m-<?php echo $this->app->getModuleName() . '-' . $this->app->getMethodName() ?>'>
+<body class='m-<?php echo $this->app->getModuleName() . '-' . $this->app->getMethodName() ?><?php if(isset($this->app->entry->code)) echo ' entry-' . $this->app->entry->code; ?>'>

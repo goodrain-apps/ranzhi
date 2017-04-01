@@ -2,11 +2,11 @@
 /**
  * The model file of file module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     file 
- * @version     $Id: model.php 3485 2016-01-12 06:17:27Z liugang $
+ * @version     $Id: model.php 4182 2016-10-20 09:31:02Z liugang $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -236,8 +236,8 @@ class fileModel extends model
      */
     public function getExtension($filename)
     {
-        $extension = trim(strtolower(pathinfo($filename, PATHINFO_EXTENSION)));
-        if(empty($extension)) return 'txt';
+        $extension = strtolower(trim(pathinfo($filename, PATHINFO_EXTENSION)));
+        if(empty($extension) or !preg_match('/^[a-z0-9]+$/', $extension) or strlen($extension) > 5) return 'txt';
         if(strpos($this->config->file->dangers, $extension) !== false) return 'txt';
         return $extension;
     }
@@ -368,7 +368,8 @@ class fileModel extends model
 
         if(!$this->checkSavePath()) return false;
 
-        ini_set('pcre.backtrack_limit', strlen($data));
+        $dataLength = strlen($data);
+        if(ini_get('pcre.backtrack_limit') < $dataLength) ini_set('pcre.backtrack_limit', $dataLength);
         preg_match_all('/<img src="(data:image\/(\S+);base64,(\S+))".*\/>/U', $data, $out);
         foreach($out[3] as $key => $base64Image)
         {
@@ -602,9 +603,121 @@ class fileModel extends model
         foreach($editors as $editorID)
         {
             $editorID = trim($editorID);
-            if(empty($editorID) or !isset($data->$editorID)) continue;
+            if(empty($editorID) or !isset($data->$editorID) or !isset($data->uid)) continue;
             $data->$editorID = $this->pasteImage($data->$editorID, $data->uid);
         }
         return $data;
+    }
+
+    /**
+     * Compress image 
+     * 
+     * @param  array    $file 
+     * @access public
+     * @return array
+     */
+    public function compressImage($file)
+    {
+        if(!extension_loaded('gd') or !function_exists('imagecreatefromjpeg')) return $file;
+
+        $pathName    = $file['pathname'];
+        $fileName    = $this->savePath . $pathName;
+        $suffix      = strrchr($fileName, '.');
+        $lowerSuffix = strtolower($suffix);
+
+        if(!in_array($lowerSuffix, $this->config->file->image2Compress)) return $file;
+
+        $quality        = 85;
+        $newSuffix      = '.jpg';
+        $compressedName = str_replace($suffix, $newSuffix, $pathName);
+
+        $res  = $lowerSuffix == '.bmp' ? $this->imagecreatefrombmp($fileName) : imagecreatefromjpeg($fileName);
+        imagejpeg($res, $this->savePath . $compressedName, $quality);
+        if($fileName != $this->savePath . $compressedName) unlink($fileName);
+
+        $file['pathname']   = $compressedName;
+        $file['extension']  = ltrim($newSuffix, '.');
+        $file['size']       = filesize($this->savePath . $compressedName);
+        return $file;
+    }
+
+    /**
+     * Read 24bit BMP files
+     * Author: de77
+     * Licence: MIT
+     * Webpage: de77.com
+     * Version: 07.02.2010
+     * Source : https://github.com/acustodioo/pic/blob/master/imagecreatefrombmp.function.php
+     * 
+     * @param  string    $filename 
+     * @access public
+     * @return resource
+     */
+    public function imagecreatefrombmp($filename) {
+        $f = fopen($filename, "rb");
+
+        //read header    
+        $header = fread($f, 54);
+        $header = unpack('c2identifier/Vfile_size/Vreserved/Vbitmap_data/Vheader_size/'.
+            'Vwidth/Vheight/vplanes/vbits_per_pixel/Vcompression/Vdata_size/'.
+            'Vh_resolution/Vv_resolution/Vcolors/Vimportant_colors', $header);
+
+        if ($header['identifier1'] != 66 or $header['identifier2'] != 77)
+            return false;
+
+        if ($header['bits_per_pixel'] != 24)
+            return false;
+
+        $wid2 = ceil((3 * $header['width']) / 4) * 4;
+
+        $wid = $header['width'];
+        $hei = $header['height'];
+
+        $img = imagecreatetruecolor($header['width'], $header['height']);
+
+        //read pixels
+        for ($y = $hei - 1; $y >= 0; $y--) {
+            $row = fread($f, $wid2);
+            $pixels = str_split($row, 3);
+
+            for ($x = 0; $x < $wid; $x++) {
+                imagesetpixel($img, $x, $y, $this->dwordize($pixels[$x]));
+            }
+        }
+        fclose($f);
+        return $img;
+    }
+
+    /**
+     * Dwordize for imagecreatefrombmp 
+     * 
+     * @param  streing $str 
+     * @access private
+     * @return int
+     */
+    private function dwordize($str)
+    {
+        $a = ord($str[0]);
+        $b = ord($str[1]);
+        $c = ord($str[2]);
+        return $c * 256 * 256 + $b * 256 + $a;
+    }
+
+    /**
+     * Exclude html.
+     * 
+     * @param  string $content 
+     * @param  string $extra 
+     * @access public
+     * @return string
+     */
+    public function excludeHtml($content, $extra = '')
+    {
+        $content = str_replace(array('<i>', '&nbsp;', '<br />'), array('', ' ', "\n"),$content);
+        $content = preg_replace('/<[^ia\/]+(.*)>/U', '', $content);
+        $content = preg_replace('/<\/[^a]{1}.*>/U', '', $content);
+        $content = preg_replace('/<i .*>/U', '', $content);
+        if($extra != 'noImg') $content = preg_replace('/<img src="data\/"(.*)\/>/U', "<img src=\"" . common::getSysURL() . "data/\"\$1/>", $content);
+        return $content;
     }
 }

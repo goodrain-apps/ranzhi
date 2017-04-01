@@ -2,7 +2,7 @@
 /**
  * The config file of contact module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     contact 
@@ -14,13 +14,13 @@ $config->contact->require->create = 'customer, realname';
 $config->contact->require->edit   = 'customer, realname';
 
 $config->contact->editor = new stdclass();
-$config->contact->editor->view = array('id' => 'lastComment', 'tools' => 'simple');
+$config->contact->editor->view = array('id' => 'comment,lastComment', 'tools' => 'simple');
 
 $config->contact->contactWayList  = array('mobile', 'phone', 'email', 'qq', 'weixin', 'weibo', 'site', 'fax', 'wangwang', 'skype', 'yahoo', 'gtalk');
 $config->contact->areaCode = ',010,020,021,022,023,024,025,027,028,029,';
 
 global $lang, $app;
-$app->loadLang('customer', 'crm');
+$app->loadLang('customer');
 $config->contact->search['module'] = 'contact';
 
 $config->contact->search['fields']['t1.realname']      = $lang->contact->realname;
@@ -63,7 +63,7 @@ $config->excel->width->content = 100;
 
 $config->excel->titleFields  = array();
 $config->excel->centerFields = array();
-$config->excel->dateField    = array('birthday');
+$config->excel->dateFields   = array('birthday');
 
 $config->excel->freeze = new stdclass();
 $config->excel->freeze->contact = 'email';

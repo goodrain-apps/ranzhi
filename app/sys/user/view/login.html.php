@@ -2,11 +2,11 @@
 /**
  * The login view file of user module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     user 
- * @version     $Id: login.html.php 3633 2016-02-23 09:21:34Z daitingting $
+ * @version     $Id: login.html.php 4060 2016-09-29 00:51:35Z daitingting $
  * @link        http://www.ranzhico.com
  */
 ?>
@@ -15,6 +15,7 @@ include '../../common/view/header.lite.html.php';
 js::import($jsRoot . 'md5.js');
 js::set('scriptName', $_SERVER['SCRIPT_NAME']);
 js::set('random', $this->session->random);
+js::set('notEncryptedPwd', empty($config->notEncryptedPwd) ? false : $config->notEncryptedPwd);
 css::internal('body{background-color:#f6f5f5}');
 ?> 
 <div class='container'>
@@ -43,7 +44,7 @@ css::internal('body{background-color:#f6f5f5}');
             <table class='table table-form'>
               <tr>
                 <th><?php echo $lang->user->account;?></th>
-                <td><?php echo html::input('account','',"class='form-control' placeholder='{$lang->user->inputAccountOrEmail}'");?></td>
+                <td><?php echo html::input('account','',"class='form-control' placeholder='{$lang->user->inputAccount}'");?></td>
               </tr>
               <tr>
                 <th><?php echo $lang->user->password;?></th>
@@ -53,7 +54,7 @@ css::internal('body{background-color:#f6f5f5}');
                 <th></th>
                 <td>
                   <?php echo html::submitButton($lang->login) . html::hidden('referer', $referer);?>
-                  <?php echo html::checkbox('keepLogin', array('on' => $lang->user->keepLogin));?>
+                  <?php echo html::checkbox('keepLogin', array('on' => $lang->user->keepLogin), $this->cookie->keepLogin ? $this->cookie->keepLogin : 'off');?>
                 </td>
               </tr>
             </table>
@@ -68,7 +69,8 @@ css::internal('body{background-color:#f6f5f5}');
 <?php
 if($config->debug) js::import($jsRoot . 'jquery/form/min.js');
 if(isset($pageJS)) js::execute($pageJS);
-if(!isset($_SERVER['https']) and $config->checkVersion) js::import("http://api.ranzhico.com/updater-latest-{$config->version}.html");
+if($config->checkVersion and isset($_SERVER['https']))  js::import("https://api.ranzhico.com/updater-latest-{$config->version}.html");
+if($config->checkVersion and !isset($_SERVER['https'])) js::import("http://api.ranzhico.com/updater-latest-{$config->version}.html");
 js::set('ignoreNotice', $ignoreNotice);
 js::set('ignore', $lang->user->ignore);
 ?>

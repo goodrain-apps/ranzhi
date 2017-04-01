@@ -31,27 +31,22 @@ $(document).ready(function()
         var money = 0;
         $('input[name^=moneyList]').each(function()
         {
-            if($(this).val() != '')
+            if($.isNumeric($(this).val()))
             {
-                var value = parseFloat($(this).val());
-                if(isNaN(value))
-                {
-                  $(this).val('');
-                  $.zui.messager.show('money must a number.');
-                }
-                else money += value;
+                money += parseFloat($(this).val());
             }
         });
+        money = Math.round(money * 100) / 100;
         $('#money').val(money);
         return false;
     }
     $('input[name^=moneyList]').change(updateMoney);
 
     /* Add a trade detail item. */
-    $(document).on('click', '.icon-plus', function()
+    $(document).on('click', '.table-detail .icon-plus', function()
     {
         $(this).closest('tr').after($('#detailTpl').html().replace(/key/g, v.key));
-        $(this).closest('tr').next().find("select").chosen();
+        $(this).closest('tr').next().find("select").chosen({no_results_text: v.noResultsMatch, disable_search_threshold: 1, search_contains: true, width: '100%', allow_single_deselect: true});
         var options = window.datetimepickerDefaultOptions;
         $.extend(options, {startView: 2, minView: 2, maxView: 1, format: 'yyyy-mm-dd'})
         $(this).closest('tr').next().find("[name^='dateList']").fixedDate().datetimepicker(options);
@@ -61,7 +56,7 @@ $(document).ready(function()
     });
 
     /* Remove a trade detail item. */
-    $(document).on('click', '.icon-remove', function()
+    $(document).on('click', '.table-detail .icon-remove', function()
     {
         if($('#detailBox tr').size() > 1)
         {

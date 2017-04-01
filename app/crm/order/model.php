@@ -2,7 +2,7 @@
 /**
  * The model file of order module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Tingting Dai <daitingting@xirangit.com>
  * @package     order
@@ -18,9 +18,9 @@ class orderModel extends model
      * @access public
      * @return object|bool
      */
-    public function getByID($id)
+    public function getByID($id = 0)
     {
-        $customerIdList = $this->loadModel('customer', 'crm')->getCustomersSawByMe();
+        $customerIdList = $this->loadModel('customer')->getCustomersSawByMe();
         if(empty($customerIdList)) return null;
 
         $order = $this->dao->select('*')->from(TABLE_ORDER)->where('id')->eq($id)->andWhere('customer')->in($customerIdList)->fetch(); 
@@ -58,19 +58,18 @@ class orderModel extends model
     /** 
      * Get order list.
      * 
-     * @param  string  $mode 
-     * @param  mix     $param 
-     * @param  string  $orderBy 
-     * @param  object  $pager 
+     * @param  string $mode 
+     * @param  string $param 
+     * @param  string $owner
+     * @param  string $orderBy 
+     * @param  object $pager 
      * @access public
      * @return array
      */
-    public function getList($mode = 'all', $param = null, $owner = '', $orderBy = 'id_desc', $pager = null)
+    public function getList($mode = 'all', $param = '', $owner = '', $orderBy = 'id_desc', $pager = null)
     {
         $customerIdList = $this->loadModel('customer')->getCustomersSawByMe();
         if(empty($customerIdList)) return array();
-
-        $products = $this->loadModel('product')->getPairs();
 
         $this->app->loadClass('date', $static = true);
         $thisMonth = date::getThisMonth();
@@ -87,8 +86,7 @@ class orderModel extends model
             ->leftJoin(TABLE_CUSTOMER)->alias('c')->on("o.customer=c.id")
             ->where('o.deleted')->eq(0)
             ->beginIF($owner == 'my' and strpos('assignedTo,createdBy,signedBy', $mode) === false)
-            ->andWhere()->markLeft(1)
-            ->where('o.assignedTo')->eq($this->app->user->account)
+            ->andWhere('o.assignedTo', true)->eq($this->app->user->account)
             ->orWhere('o.createdBy')->eq($this->app->user->account)
             ->orWhere('o.editedBy')->eq($this->app->user->account)
             ->orWhere('o.signedBy')->eq($this->app->user->account)
@@ -106,7 +104,11 @@ class orderModel extends model
             ->beginIF($mode == 'query')->andWhere($param)->fi()
             ->beginIF($mode == 'bysearch')->andWhere($orderQuery)->fi()
             ->andWhere('o.customer')->in($customerIdList)
-            ->orderBy($orderBy)->page($pager)->fetchAll('id');
+            ->orderBy("o.$orderBy")->page($pager)->fetchAll('id');
+
+        $this->session->set('orderQueryCondition', $this->dao->get());
+
+        $products = $this->loadModel('product')->getPairs();
 
         foreach($orders as $order)
         {
@@ -131,7 +133,7 @@ class orderModel extends model
      * @access public
      * @return array
      */
-    public function getByIdList($idList)
+    public function getByIdList($idList = array())
     {
         $orders = $this->dao->select('o.*, c.name as customerName')->from(TABLE_ORDER)->alias('o')
             ->leftJoin(TABLE_CUSTOMER)->alias('c')->on("o.customer=c.id")
@@ -157,7 +159,7 @@ class orderModel extends model
      * @access public
      * @return array
      */
-    public function getPairs($customer, $status = '')
+    public function getPairs($customer = 0, $status = '')
     {
         $customerIdList = $this->loadModel('customer')->getCustomersSawByMe();
         if(empty($customerIdList)) return array();
@@ -189,7 +191,7 @@ class orderModel extends model
      * @access public
      * @return array
      */
-    public function getOrderForCustomer($customerID, $status = '')
+    public function getOrderForCustomer($customerID = 0, $status = '')
     {
         $orders = $this->dao->select('id, `plan`, customer, product, createdDate, currency, editedDate')->from(TABLE_ORDER)
             ->where(1)
@@ -197,7 +199,7 @@ class orderModel extends model
             ->beginIF($status)->andWhere('status')->eq($status)->fi()
             ->fetchAll('id');
 
-        $customers = $this->loadModel('customer', 'crm')->getPairs('client');
+        $customers = $this->loadModel('customer')->getPairs('client');
 
         $this->setProductsForOrders($orders);
 
@@ -217,7 +219,7 @@ class orderModel extends model
      * @access public
      * @return float
      */
-    public function getAmount($idList)
+    public function getAmount($idList = array())
     {
         $orders = $this->dao->select('*')->from(TABLE_ORDER)->where('id')->in($idList)->fetchAll();
 
@@ -264,7 +266,7 @@ class orderModel extends model
             ->setDefault('assignedDate', $now)
             ->setDefault('customer', 0)
             ->join('product', ',')
-            ->remove('createCustomer, name, contact, phone, email, qq, continue, createProduct, productName, line, type, status')
+            ->remove('createCustomer, name, contact, phone, email, qq, continue, createProduct, productName, code, line, type, status')
             ->get();
 
         /* Check data. */
@@ -272,7 +274,17 @@ class orderModel extends model
         {
             $this->loadModel('product');
             if(!commonModel::hasPriv('product', 'create')) return array('result' => 'fail', 'message' => sprintf($this->lang->order->deny, $this->lang->product->common));
-            if($this->post->productName == '') return array('result' => 'fail', 'message' => array('productName' => sprintf($this->lang->error->notempty, $this->lang->customer->name)));
+            
+            $errors = array();
+            if($this->post->productName == '') $errors['productName'] = sprintf($this->lang->error->notempty, $this->lang->product->name);
+            if($this->post->code        == '') $errors['code'] = sprintf($this->lang->error->notempty, $this->lang->product->code);
+            $count = $this->dao->select('COUNT(*) as count')->from(TABLE_PRODUCT)->where('code')->eq($this->post->code)->fetch('count');
+            if($count > 0) $errors['code'] = sprintf($this->lang->error->unique, $this->lang->product->code, $this->post->code);
+            $this->app->loadClass('filter', true);
+            if(!validater::checkCode($this->post->code)) $errors['code'] = sprintf($this->lang->error->code, $this->lang->product->code);
+            if(!validater::checkNotInt($this->post->code)) $errors['code'] = sprintf($this->lang->error->notInt, $this->lang->product->code);
+            if(!empty($errors)) return array('result' => 'fail', 'message' => $errors);
+            
             if(!$this->post->continue) 
             {
                 $result = $this->product->checkUnique($this->post->productName);
@@ -315,6 +327,7 @@ class orderModel extends model
         {
             $product = new stdclass();
             $product->name        = $this->post->productName;
+            $product->code        = strtolower($this->post->code);
             $product->line        = $this->post->line;
             $product->type        = $this->post->type;
             $product->status      = $this->post->status;
@@ -342,8 +355,8 @@ class orderModel extends model
         if(dao::isError()) return array('result' => 'fail', 'message' => dao::getError());
 
         $orderID = $this->dao->lastInsertID();
-        $this->loadModel('action')->create('order', $orderID, 'Created', '');
-        $this->loadModel('action')->create('customer', $this->post->customer, 'createOrder', '', html::a(helper::createLink('order', 'view', "orderID=$orderID"), $orderID));
+        $this->loadModel('action', 'sys')->create('order', $orderID, 'Created', '');
+        $this->loadModel('action', 'sys')->create('customer', $this->post->customer, 'createOrder', '', html::a(helper::createLink('order', 'view', "orderID=$orderID"), $orderID));
 
         return array('result' => 'success', 'message' => $this->lang->saveSuccess, 'locate' => helper::createLink('order', 'browse'), 'orderID' => $orderID);
     }
@@ -484,7 +497,7 @@ class orderModel extends model
     {
         $menu = '';
         $menu .= commonModel::printLink('crm.order', 'view', "orderID=$order->id", $this->lang->view, '', false);
-        $menu .= commonModel::printLink('action', 'createRecord', "objectType=order&objectID={$order->id}&customer={$order->customer}", $this->lang->order->record, "data-toggle='modal' data-type='iframe'", false);
+        $menu .= commonModel::printLink('action', 'createRecord', "objectType=order&objectID={$order->id}&customer={$order->customer}", $this->lang->order->record, "data-toggle='modal' data-width='860'", false);
 
         if($order->status == 'normal') $menu .= commonModel::printLink('crm.contract', 'create', "customerID={$order->customer}&orderID={$order->id}", $this->lang->order->sign, '', false);
         if($order->status != 'normal') $menu .= html::a('###', $this->lang->order->sign, "disabled='disabled' class='disabled'");
@@ -557,7 +570,7 @@ class orderModel extends model
      */
     public function setProductsForOrders($orders)
     {
-        $products = $this->loadModel('product', 'crm')->getPairs();
+        $products = $this->loadModel('product')->getPairs();
 
         foreach($orders as $order)
         {

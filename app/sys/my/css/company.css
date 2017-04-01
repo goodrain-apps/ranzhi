@@ -4,3 +4,6 @@
 .closed, .finished {color: #38B03F;}
 #ajaxModal .actions .self{display: none;}
 #ajaxModal{z-index:10050}
+.fixed-left .table-bordered, .fixed-left .table tr th:last-child, .fixed-left .table tr td:last-child{border-right: none;}
+.main div[id*=datatable] .datatable-head .table-bordered {border-bottom: 0 none;}
+.main div[id*=datatable] .datatable-head .table-bordered th {border-bottom: 0 none;}

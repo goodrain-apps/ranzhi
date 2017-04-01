@@ -2,7 +2,7 @@
 /**
  * The model file of todo module of RanZhi.
  *
- * @copyright   Copyright 2009-2015 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
+ * @copyright   Copyright 2009-2016 青岛易软天创网络科技有限公司(QingDao Nature Easy Soft Network Technology Co,LTD, www.cnezsoft.com)
  * @license     ZPL (http://zpl.pub/page/zplv12.html)
  * @author      Chunsheng Wang <chunsheng@cnezsoft.com>
  * @package     todo
@@ -33,7 +33,7 @@ class todoModel extends model
             ->setIF($this->post->end   == false, 'end',   '2400')
             ->setDefault('pri', '3')
             ->setDefault('status', 'wait')
-            ->stripTags('desc', $this->config->allowedTags->front)
+            ->stripTags('desc', $this->config->allowedTags)
             ->remove('uid')
             ->get();
         $this->dao->insert(TABLE_TODO)->data($todo)
@@ -52,6 +52,7 @@ class todoModel extends model
      */
     public function batchCreate()
     {
+        $actionList = array();
         $todos = fixer::input('post')->cleanInt('date')->get();
         for($i = 0; $i < $this->config->todo->batchCreate; $i++)
         {
@@ -65,7 +66,7 @@ class todoModel extends model
                 }
                 else
                 {
-                    $todo->date    = $this->post->date;
+                    $todo->date = $this->post->date;
                 }
                 $todo->type       = $todos->types[$i];
                 $todo->pri        = $todos->pris[$i];
@@ -88,7 +89,11 @@ class todoModel extends model
 
                 $todoID = $this->dao->lastInsertID();
                 $this->loadModel('action')->create('todo', $todoID, 'created');
-                if(!empty($todo->assignedTo)) $this->loadModel('action')->create('todo', $todoID, 'assigned', '', $todo->assignedTo);
+                if(!empty($todo->assignedTo)) 
+                {
+                    $actionID = $this->loadModel('action')->create('todo', $todoID, 'assigned', '', $todo->assignedTo);
+                    $actionList[$todoID] = $actionID;
+                }
             }
             else
             {
@@ -100,7 +105,7 @@ class todoModel extends model
                 unset($todos->ends[$i]);
             }
         }
-        return true;
+        return $actionList;
     }
 
     /**
@@ -113,24 +118,72 @@ class todoModel extends model
     public function update($todoID)
     {
         $oldTodo = $this->getById($todoID);
-        if($oldTodo->type != 'custom' and $oldTodo->type != 'undone') $oldTodo->name = '';
         $todo = fixer::input('post')
             ->remove('uid')
             ->cleanInt('date, pri, begin, end, private')
-            ->setIF($this->post->type  != 'custom' and $this->post->type != 'undone', 'name', '')
+            ->setIF($this->post->type  != 'custom', 'name', '')
             ->setIF($this->post->date  == false, 'date', '0000-00-00')
             ->setIF($this->post->begin == false, 'begin', '2400')
             ->setIF($this->post->end   == false, 'end', '2400')
             ->setDefault('private', 0)
-            ->stripTags($this->config->todo->editor->edit['id'], $this->config->allowedTags->front)
+            ->stripTags($this->config->todo->editor->edit['id'], $this->config->allowedTags)
             ->get();
+        if($oldTodo->type != 'custom') $todo->name = $oldTodo->name;
         $this->dao->update(TABLE_TODO)->data($todo, $skip = 'comment')
             ->autoCheck()
-            ->checkIF($todo->type == 'custom' or $todo->type == 'undone', $this->config->todo->require->edit, 'notempty')->where('id')->eq($todoID)
+            ->checkIF($todo->type == 'custom', $this->config->todo->require->edit, 'notempty')->where('id')->eq($todoID)
             ->exec();
 
         $todo->date = str_replace('-', '', $todo->date);
         if(!dao::isError()) return commonModel::createChanges($oldTodo, $todo);
+    }
+
+    /**
+     * Batch update todos. 
+     * 
+     * @access public
+     * @return bool
+     */
+    public function batchUpdate()
+    {
+        $this->loadModel('action');
+        foreach($this->post->names as $id => $name)
+        {
+            if(empty($name) && empty($this->post->idvalues[$id])) continue;
+
+            $oldTodo = $this->getById($id);
+
+            $todo = new stdclass();
+            $todo->name       = $name;
+            $todo->type       = $this->post->types[$id];
+            $todo->pri        = $this->post->pris[$id];
+            $todo->assignedTo = $this->post->assignedTo[$id];
+            $todo->desc       = $this->post->descs[$id];
+            $todo->date       = isset($this->post->dates[$id])    ? $this->post->dates[$id]    : '0000-00-00';
+            $todo->begin      = isset($this->post->begins[$id])   ? $this->post->begins[$id]   : 2400;
+            $todo->end        = isset($this->post->ends[$id])     ? $this->post->ends[$id]     : 2400;
+            $todo->idvalue    = isset($this->post->idvalues[$id]) ? $this->post->idvalues[$id] : $oldTodo->idvalue;
+
+            $this->dao->update(TABLE_TODO)->data($todo)
+                ->autoCheck()
+                ->checkIF($todo->type == 'custom', $this->config->todo->require->edit, 'notempty')
+                ->where('id')->eq($id)
+                ->exec();
+
+            if(dao::isError()) return false;
+
+            $todo->date = str_replace('-', '', $todo->date);
+
+            $changes = commonModel::createChanges($oldTodo, $todo);
+
+            if($changes)
+            { 
+                $actionID = $this->action->create('todo', $id, 'edited');
+                $this->action->logHistory($actionID, $changes);
+            }
+        }
+
+        return !dao::isError();
     }
 
     /**
@@ -234,11 +287,69 @@ class todoModel extends model
         if($todo->type == 'customer') $todo->name = $this->dao->findById($todo->idvalue)->from(TABLE_CUSTOMER)->fetch('name'); 
         if($todo->type == 'order') 
         {
-            $order = $this->dao->select('c.name, o.createdDate')->from(TABLE_ORDER)->alias('o')->leftJoin(TABLE_CUSTOMER)->alias('c')->on('o.customer=c.id')->where('o.id')->eq($todo->idvalue)->fetch(); 
+            $order = $this->dao->select('c.name, o.createdDate')
+                ->from(TABLE_ORDER)->alias('o')
+                ->leftJoin(TABLE_CUSTOMER)->alias('c')->on('o.customer=c.id')
+                ->where('o.id')->eq($todo->idvalue)
+                ->fetch(); 
             $todo->name = $order->name . '|' . date('Y-m-d', strtotime($order->createdDate));
+        }
+
+        $zentaoEntryList = $this->dao->select('*')->from(TABLE_ENTRY)->where('zentao')->eq(1)->fetchAll();
+        foreach($zentaoEntryList as $zentaoEntry)
+        {
+            if(strpos($todo->type, $zentaoEntry->code . '_') !== false)
+            {
+                if(empty($zentaoTodoList)) $zentaoTodoList = $this->loadModel('sso')->getZentaoTodoList($zentaoEntry->code, $this->app->user->account);
+                $type = substr($todo->type, strpos($todo->type, '_') + 1);
+                $todo->name = isset($zentaoTodoList[$type][$todo->idvalue]) ? $zentaoTodoList[$type][$todo->idvalue] : '';
+            }
         }
         $todo->date = str_replace('-', '', $todo->date);
         return $todo;
+    }
+
+    /**
+     * Get todos by id list. 
+     * 
+     * @param  int    $todoIDList 
+     * @access public
+     * @return array 
+     */
+    public function getByIdList($todoIDList)
+    {
+        $todos     = $this->dao->select('*')->from(TABLE_TODO)->where('id')->in($todoIDList)->fetchAll('id');
+        $tasks     = $this->dao->select('id, name')->from(TABLE_TASK)->fetchPairs();
+        $customers = $this->loadModel('customer')->getPairs();
+        $orders    = $this->dao->select('o.id, o.createdDate, c.name')
+            ->from(TABLE_ORDER)->alias('o')
+            ->leftJoin(TABLE_CUSTOMER)->alias('c')->on('o.customer=c.id')
+            ->fetchAll('id');
+        $zentaoEntryList = $this->dao->select('*')->from(TABLE_ENTRY)->where('zentao')->eq(1)->fetchAll();
+
+        $this->loadModel('sso');
+        foreach($todos as $todo)
+        {
+            if($todo->type == 'task') $todo->name = zget($tasks, $todo->idvalue); 
+            if($todo->type == 'customer') $todo->name = zget($customers, $todo->idvalue); 
+            if($todo->type == 'order') 
+            {
+                $order = zget($orders, $todo->idvalue, ''); 
+                if($order) $todo->name = $order->name . '|' . date('Y-m-d', strtotime($order->createdDate));
+            }
+
+            foreach($zentaoEntryList as $zentaoEntry)
+            {
+                if(strpos($todo->type, $zentaoEntry->code . '_') !== false)
+                {
+                    if(empty($zentaoTodoList)) $zentaoTodoList = $this->sso->getZentaoTodoList($zentaoEntry->code, $this->app->user->account);
+                    $type = substr($todo->type, strpos($todo->type, '_') + 1);
+                    $todo->name = $zentaoTodoList[$type][$todo->idvalue];
+                }
+            }
+        }
+
+        return $todos;
     }
 
     /**
@@ -322,12 +433,12 @@ class todoModel extends model
 
         $stmt = $this->dao->select('*')->from(TABLE_TODO)
             ->where('1=1')
-            ->beginIF($mode == 'self')->andWhere()->markLeft()->where('account')->eq($account)->orWhere('assignedTo')->eq($account)->orWhere('finishedBy')->eq($account)->markRight()->fi()
+            ->beginIF($mode == 'self')->andWhere('account', true)->eq($account)->orWhere('assignedTo')->eq($account)->orWhere('finishedBy')->eq($account)->markRight(1)->fi()
             ->beginIF($mode == 'assignedtoother')->andWhere('account')->eq($account)->andWhere('assignedTo')->ne($account)->andWhere('assignedTo')->ne('')->fi()
-            ->beginIF($mode == 'assignedtome')->andWhere('account')->ne($account)->andWhere('assignedTo')->eq($account)->fi()
+            ->beginIF($mode == 'assignedtome')->andWhere('assignedTo')->eq($account)->fi()
             ->andWhere("date >= '$begin'")
             ->andWhere("date <= '$end'")
-            ->beginIF(strpos('all, undone, unclosed,custom', $status) === false)->andWhere('status')->in($status)->fi()
+            ->beginIF(strpos('all,undone,unclosed,custom', $status) === false)->andWhere('status')->in($status)->fi()
             ->beginIF($status == 'undone')->andWhere('status')->notin('done,closed')->fi()
             ->beginIF($status == 'custom')->andWhere('status')->notin('done,closed')->fi()
             ->beginIF($status == 'unclosed')->andWhere('status')->ne('closed')->fi()
@@ -346,7 +457,11 @@ class todoModel extends model
             if($todo->type == 'customer') $todo->name = $this->dao->findById($todo->idvalue)->from(TABLE_CUSTOMER)->fetch('name'); 
             if($todo->type == 'order') 
             {
-                $order = $this->dao->select('c.name, o.createdDate')->from(TABLE_ORDER)->alias('o')->leftJoin(TABLE_CUSTOMER)->alias('c')->on('o.customer=c.id')->where('o.id')->eq($todo->idvalue)->fetch(); 
+                $order = $this->dao->select('c.name, o.createdDate')
+                    ->from(TABLE_ORDER)->alias('o')
+                    ->leftJoin(TABLE_CUSTOMER)->alias('c')->on('o.customer=c.id')
+                    ->where('o.id')->eq($todo->idvalue)
+                    ->fetch(); 
                 $todo->name = $order->name . '|' . date('Y-m-d', strtotime($order->createdDate));
             }
 
@@ -357,20 +472,48 @@ class todoModel extends model
             if($todo->private and $this->app->user->account != $todo->account) $todo->name = $this->lang->todo->thisIsPrivate;
             $todos[] = $todo;
         }
+
+        $zentaoEntryList = $this->dao->select('*')->from(TABLE_ENTRY)->where('zentao')->eq(1)->fetchAll();
+        foreach($zentaoEntryList as $zentaoEntry)
+        {
+            $this->lang->todo->typeList["{$zentaoEntry->code}_task"] = $zentaoEntry->name . $this->lang->todo->task;
+            $this->lang->todo->typeList["{$zentaoEntry->code}_bug"]  = $zentaoEntry->name . $this->lang->todo->bug;
+
+            static $zentaoTodoList = array();
+            $this->loadModel('sso');
+            foreach($todos as $todo)
+            {
+                if(strpos($todo->type, $zentaoEntry->code . '_') !== false)
+                {
+                    if(empty($zentaoTodoList)) $zentaoTodoList = $this->sso->getZentaoTodoList($zentaoEntry->code, $this->app->user->account);
+                    $type = substr($todo->type, strpos($todo->type, '_') + 1);
+                    $todo->name = !empty($todo->name) ? $todo->name : (isset($zentaoTodoList[$type][$todo->idvalue]) ? $zentaoTodoList[$type][$todo->idvalue] : $this->lang->todo->typeList["{$todo->type}"] . $todo->idvalue);
+                }
+            }
+        }
+
         return $todos;
     }
 
     /**
      * getCalendarData 
      * 
+     * @param  string $date
      * @access public
      * @return object
      */
     public function getCalendarData($date)
     {
+        $begin     = date('Y-m-01', strtotime($date));
+        $weekday   = date('w', strtotime($begin));
+        $beginDays = $weekday == 0 ? 6 : $weekday - 1;
+        $begin     = date('Y-m-d', strtotime("$begin -$beginDays days"));
+        /* Make sure the calendar will display 6 rows.*/
+        $end       = date('Y-m-d', strtotime("$begin +42 days"));
+
         $dateLimit = array();
-        $dateLimit['begin'] = date('Y-m-01', strtotime($date));
-        $dateLimit['end']   = date('Y-m-d', strtotime("{$dateLimit['begin']} +1 month"));
+        $dateLimit['begin'] = $begin;
+        $dateLimit['end']   = $end;
 
         $calendars    = $this->lang->todo->typeList;
         $todos        = $this->getList('self', $this->app->user->account, $dateLimit);
@@ -383,7 +526,7 @@ class todoModel extends model
             $data->name  = $key;
             $data->title = $calendar;
             $data->desc  = $calendar;
-            $data->color = $this->config->todo->calendarColor[$key];
+            $data->color = zget($this->config->todo->calendarColor, $key, $this->config->todo->calendarColor['custom']);
             $calendarList[] = $data;
         }
 
@@ -432,7 +575,7 @@ class todoModel extends model
 
         if($action == 'finish') return strpos('done,closed', $todo->status) === false;
         if($action == 'close') return $todo->status == 'done';
-        if($action == 'activate') return $todo->status == 'closed';
+        if($action == 'activate') return strpos('done,closed', $todo->status) !== false;
 
         return true;
     }
@@ -463,13 +606,13 @@ class todoModel extends model
      * @access public
      * @return string
      */
-    public function buildBoardList($items, $type)
+    public function buildBoardList($items, $type, $index = 0)
     {
         $div = '';
-        $index = 1;
+        $index = $index ? $index + 1 : 1;
         foreach($items as $id => $name)
         {
-            $div .= "<div class='board-item text-nowrap text-ellipsis' title='$name' data-id='$id' data-type='$type' data-action='create' data-index='$index' data-toggle='droppable' data-target='.day'>\r\n";
+            $div .= "<div class='board-item text-nowrap text-ellipsis' title='$name' data-name='$name' data-id='$id' data-type='$type' data-action='create' data-index='$index' data-toggle='droppable' data-target='.day'>\r\n";
             $div .= "$name\r\n";
             $div .= "</div>\r\n";
             $index += 1;

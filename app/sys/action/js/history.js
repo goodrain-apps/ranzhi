@@ -40,6 +40,12 @@ $(document).ready(function()
           $(this).parents('.panel').find('.panel-body li').reverseOrder();
      });
      customeHistoryOrder();
+
+     $('.pager').find('a').click(function()
+     {
+         $('#actionBox').load($(this).attr('href'));
+         return false;
+     });
 });
 
 function customeHistoryOrder()
